@@ -1,0 +1,21 @@
+# Godot 4 generated caches, editor state and imported data
+.godot/
+.import/
+*.tmp
+*.temp
+*.log
+*.bak
+*~
+# Export output and credentials (commit non-secret export_presets.cfg when added)
+builds/
+exports/
+export_credentials.cfg
+.env
+.env.*
+# Local tools / operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+# Keep Godot 4 .uid and asset .import sidecars: these are source metadata.
