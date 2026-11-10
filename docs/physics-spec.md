@@ -2,6 +2,8 @@
 
 ## Milestone 02D — current authoritative behavior
 
+Owner playtest acceptance, 11 November 2026: the current physics is explicitly approved. The detailed checklist below remains useful for future regression/route reviews; it no longer represents a pending physics approval gate.
+
 The 02D brief supersedes older camera/rendering freezes and the 02B experimental ice default. Normal launch equations, impulse Resource, 10x24 collider, fixed 60Hz simulation and no default air steering remain unchanged. Older sections below describe the historical milestones where they differ.
 
 ### Ice diagnosis and tuning
@@ -58,7 +60,7 @@ Lab I: from (126,144), .75s right, wall x200, land (176.831,96), one rebound. J 
 All use the same player.tscn/PlayerController/JumpPhysics/Resources as the tower, Classic lab and chamber. JumpRecorder adds rebound count/normal/impulse/type; F3 includes current zone, world height, maximum height and last landing body. The laboratory has CLASSIC + A-G/H1-H3 + I-N direct selector entries and optional TRACE collision/velocity/normal views.
 
 
-## Manual acceptance checklist (pending user playtest)
+## Manual acceptance checklist (physics approved; retain for regressions)
 
 - Ice: enter from normal ground, coast, counter-steer, reverse, stop completely, then hold/release Space. Try an early rejected charge, release/repress after braking, and compare mild/moderate/extreme tuning. Extreme is optional and absent from the tower.
 - Slides: use Lab F/G/H3 and tower pads 37/52. Observe shallow/steep/short/long polygon ramps at 960x540 and larger integer windows; counter-steer, run onto flat ground, run off, hit a wall and jump after braking. Compare 320x180, where display movement necessarily remains whole physical pixels.

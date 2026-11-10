@@ -2,9 +2,9 @@
 
 ## Current gate — Milestone 02D
 
-02D supersedes the previous stop-at-02B scope: implement and validate ice control, fractional/interpolated presentation, ordinary side rebounds, six ricochet lab fixtures and a continuous four-zone/60-landing main ascent. Implementation and engine validation are complete; human feel/pacing acceptance remains pending. See docs/validation/milestone-02d.md and physics-spec manual checklist. No 02C implementation is inferred from the numbering.
+02D supersedes the previous stop-at-02B scope: implement and validate ice control, fractional/interpolated presentation, ordinary side rebounds, six ricochet lab fixtures and a continuous four-zone/60-landing main ascent. Implementation and engine validation are complete; physics/game feel was manually approved by the project owner on 11 November 2026; full-route pacing and remaining art/platform acceptance are separate. See docs/validation/milestone-02d.md and physics-spec manual checklist. No 02C implementation is inferred from the numbering.
 
-Next: user playtest/tune braking, ricochet timing, camera interpolation comfort and floor difficulty/variety. Then agree on the next production/art/content milestone. Do not begin cutscenes, final artwork, hazards, abilities, saves or full eight-region production from the historical roadmap alone.
+Next: preserve the accepted physics baseline and review full-route difficulty/variety, pacing and remaining art/platform scope. Then agree on the next production/art/content milestone. Do not begin cutscenes, final artwork, hazards, abilities, saves or full eight-region production from the historical roadmap alone.
 
 ## Historical milestone plan
 

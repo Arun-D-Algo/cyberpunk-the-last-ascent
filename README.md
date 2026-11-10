@@ -1,10 +1,64 @@
 # Cyberpunk: The Last Ascent
 
-An unofficial, noncommercial 2D precision-platformer fan-game concept inspired by Cyberpunk: Edgerunners and Jump King. David Martinez climbs eight connected regions of Arasaka Tower through charge-and-release jumps, punishing falls, and cyberware. The alternate-universe ending has David and Rebecca escape to the moon.
+A 2D precision-platforming prototype built with **Godot 4.7.2 and GDScript**, inspired by Cyberpunk: Edgerunners and Jump King. Hold to charge, choose a direction, release, and commit to the jump. Climb a continuous tower through deliberate positioning, controllable ice, ramps and wall ricochets.
+
+This is an unofficial, noncommercial fan project in active development. The current playable game has four connected prototype floors. The proposed eight-region narrative, cyberware and ending remain future design scope.
 
 ## Current status
 
-Milestone 02D implements the continuous **four-floor tower ascent: 60 landings / 3008 vertical pixels**, shared controllable ice, smooth fractional/interpolated rendering and universal configurable wall/platform-side rebounds. Start Tower Ascent is the main game; Physics Lab 2.0 and the original Power Chamber remain accessible. Normal launch tuning/collider/art assets are preserved. Engine tests pass; human feel/pacing and visual motion acceptance remain pending. See [measured validation and all launch recipes](docs/validation/milestone-02d.md) and the [manual checklist](docs/physics-spec.md#manual-acceptance-checklist-pending-user-playtest).
+Milestone 02D implements the continuous **four-floor tower ascent: 60 landings / 3008 vertical pixels**, shared controllable ice, smooth fractional/interpolated rendering and universal configurable wall/platform-side rebounds. Start Tower Ascent is the main game; Physics Lab 2.0 and the original Power Chamber remain accessible. Normal launch tuning/collider/art assets are preserved. **Physics manually approved by the project owner on 11 November 2026**, following the completed Milestone 02D playtest. Engine tests pass. Full-route pacing, final art, exports and longer performance testing remain separate acceptance work. See [measured validation and all launch recipes](docs/validation/milestone-02d.md) and the [manual checklist](docs/physics-spec.md#manual-acceptance-checklist-physics-approved-retain-for-regressions).
+
+![Playable tower prototype](docs/visual-review/milestone-02d/floor_3.png)
+
+*Actual Godot Compatibility-renderer capture; staged for visual review.*
+
+## What is playable
+
+- **Tower Ascent:** 60 numbered landing destinations across four connected floors, spanning 3,008 vertical pixels.
+- **Committed charge jumps:** configurable charge/release trajectories, directional selection, no default air steering or double jump.
+- **Surface mechanics:** controllable moderate ice, configurable mild/extreme profiles, polygon slopes and gravity ramps.
+- **Universal side rebounds:** configurable wall/platform-side restitution, moving-side relative velocity and optional bounded diagonal redirection.
+- **Consequential falls:** continuous world coordinates, earlier-floor recovery and no automatic checkpoint teleportation.
+- **Physics Lab 2.0:** directly selectable calibration, surface, ceiling, ledge, ricochet and combined challenges; optional collision/trajectory traces.
+- **Power Chamber:** the original industrial visual slice, using the same player controller and original project artwork.
+- **Diagnostics:** F3 state/surface/velocity/impulse/zone/height readout; deterministic solver-based validation.
+
+## Development milestones
+
+| Milestone | Delivered |
+| --- | --- |
+| 00 | Godot project foundation, input conventions, design documents and validation tools |
+| 01 | Charge/release player controller, measured jump envelope and Classic ascent laboratory |
+| 02A | Original industrial pixel-art assets, reusable environment components and Power Chamber |
+| 02B | Surface profiles, ice/slopes/ramps, contact responses, moving fixtures and expanded lab |
+| 02D | Refined ice and rendering, universal side rebounds, ricochet puzzles and continuous four-floor ascent |
+
+The current physics has been user-approved. Milestone numbering follows the supplied task briefs; no 02C implementation is implied.
+
+## Documentation
+
+| Document | Contents |
+| --- | --- |
+| [Session summary](docs/session-summary-2026-11-11.md) | Work completed during the development session, approval, measurements and remaining scope |
+| [Development log](docs/development-log.md) | Detailed implementation history, decisions and validation results |
+| [Physics specification](docs/physics-spec.md) | Jump equations, tuning Resources, surfaces, rebound rules and manual checklist |
+| [Level design](docs/level-design.md) | Four-floor layout, world coordinates, progression and recovery |
+| [Measured validation](docs/validation/milestone-02d.md) | Ice comparisons, ricochet measurements and all 60 landing recipes |
+| [Technical design](docs/technical-design.md) | Shared controller, scene architecture, rendering and diagnostics |
+| [Game design](docs/game-design.md) | Core loop and future campaign concept |
+| [Roadmap](docs/roadmap.md) | Current acceptance status and proposed future work |
+| [Visual style guide](docs/visual-style-guide.md) / [asset manifest](docs/asset-manifest.md) | Art conventions and asset provenance |
+| [Visual review](docs/visual-review/milestone-02d/README.md) | Actual engine captures and review limitations |
+| [Agent instructions](AGENTS.md) | Project conventions and required checks for future development |
+
+## Clone and run
+
+```sh
+git clone https://github.com/Arun-D-Algo/cyberpunk-the-last-ascent.git
+cd cyberpunk-the-last-ascent
+```
+
+Import `project.godot` in Godot 4.7.2, press **F5**, then select **Start Tower Ascent**. No external game packages, account credentials or paid services are required. The `.godot` cache is regenerated locally and is intentionally excluded from Git.
 
 ## Prerequisites and opening
 
@@ -68,7 +122,7 @@ The upper-right selector offers Classic plus A Jumps, B Walls, C Ceiling, D Ledg
 
 Normal surfaces retain the approved stop-and-charge behavior. Ice retains landing momentum and has much lower drag; a fresh charge press is rejected above 12px/s until you brake and release/repress. Yellow-patterned gravity ramps accelerate downhill up to 150px/s and require speed ≤6px/s to charge. Normal inclines do not auto-slide. Accepted charges are stationary on all supplied profiles. Ordinary airborne wall/platform-side impacts rebound at 60% above 30px/s relative speed. The older magenta comparison fixture retains 25%; supported walking corners stop. Moving supports carry you while standing but do not inject a departure jump boost by default. Surface coefficients, not movement code copies, define these differences.
 
-Tune resources/surfaces/*.tres and resources/physics/*collision_response.tres in Godot's Inspector. Baseline launch parameters stay in default_player_physics.tres; m01_baseline.tres preserves prior values. See physics-spec.md for exact precedence, units, measured stops/reversals/ramp-control trial and the manual acceptance checklist. New mechanics have automated coverage, not yet user-verified feel.
+Tune resources/surfaces/*.tres and resources/physics/*collision_response.tres in Godot's Inspector. Baseline launch parameters stay in default_player_physics.tres; m01_baseline.tres preserves prior values. See physics-spec.md for exact precedence, units, measured stops/reversals/ramp-control trial and the manual acceptance checklist. Current physics has automated coverage and owner playtest approval; future tuning still requires regression and feel checks.
 
 A/D or Left/Right walks while grounded. Hold Space to charge while stationary, choose direction, release to jump. Neither direction or opposite directions gives a vertical jump. Taps produce minimum strength; full charge stays capped until release. Air steering is disabled. W/S or Up/Down looks within safe camera limits. Esc pauses/resumes; pausing or losing focus cancels charge, so release and press Space again before another attempt. F6 resets without reloading; R is not repurposed. Holding Space through landing never automatically charges another jump.
 

@@ -180,6 +180,10 @@ World Y decreases upward. Hold timings are quantized to 60Hz; launch x is a refe
 | Z4_14 | 104.0 | 0.750 | right | (203.0072, -2804.019) | 0 |
 | Z4_15 | 208.0 | 0.750 | left | (117.2428, -2864.019) | 0 |
 
+## Owner acceptance
+
+On 11 November 2026, the project owner manually approved the current physics and reported satisfaction with its feel. This is human playtest evidence in addition to the automated results above; full-route timing, performance and untested-platform limits remain as documented.
+
 ## Scope and limitations
 
 Real-body solver tests establish reachability, friction, collision response and recovery. They do not establish subjective enjoyment, several-minute human completion times, long-session performance, Linux/export compatibility or human physical-key timing. The tower uses finite loaded geometry; alternative routes/charges may bypass some banks. No automatic checkpoint or campaign difficulty mode was added.
