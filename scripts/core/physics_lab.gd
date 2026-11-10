@@ -104,5 +104,5 @@ func _draw() -> void:
 		draw_string(ThemeDB.fallback_font, rect.position + Vector2(1, 16), platform[0], HORIZONTAL_ALIGNMENT_LEFT, -1, 7, Color("9cacc3"))
 	for wall: Rect2 in [Rect2(8, -560, 8, 720), Rect2(304, -560, 8, 720), Rect2(224, 78, 26, 8), Rect2(8, -552, 304, 8)]:
 		draw_rect(wall, Color("36516c"))
-	draw_string(ThemeDB.fallback_font, Vector2(22, 116), "A/D walk + aim   HOLD / RELEASE SPACE", HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color("e6cb70"))
+	draw_string(ThemeDB.fallback_font, Vector2(22, 116), "A/D + ARROWS   HOLD / RELEASE SPACE", HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color("e6cb70"))
 	draw_string(ThemeDB.fallback_font, Vector2(179, -461), "LAB COMPLETE", HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color("e6cb70"))

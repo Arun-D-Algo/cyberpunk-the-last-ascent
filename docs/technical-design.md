@@ -4,7 +4,19 @@
 
 Godot **4.7.2 stable**, standard GDScript build, is confirmed by the local executable (`4.7.2.stable.official.ed1daf0bf`). Target platforms are Windows and Linux desktop. M01 adds a playable physics lab to the preserved M00 boot scene. No autoload or global manager is needed. The M01 systems below are implemented; campaign interfaces in later sections remain proposals.
 
-## Implemented M01 composition
+## M02A visual composition and regression boundary
+
+The user approved M01 movement in the 02A brief. Its controller, launch formulas, default physics Resource, collider scene and LabCamera code remain byte-for-byte unchanged and are guarded by SHA256 in visual_prototype_test.gd. Player Visual changes are presentation only; InputMap adds four physical arrow events to the existing semantic actions. There is no second movement path.
+
+EmergencyPowerChamber composes existing player/camera/HUD scenes plus IndustrialPlatform, IndustrialFixture and ChamberBackdrop. It owns its six-platform layout, boundaries and prototype-only pause/reset/entry title. It introduces no region/checkpoint system, persistent state, hazards or broad room framework. Both this chamber and the Physics Lab remain independently runnable via boot buttons.
+
+IndustrialArt centralizes 23 integer AtlasTexture regions in a 256×256 original texture. IndustrialPlatform separates its 8px rectangular collision from tiled/cropped visual sections. IndustrialFixture reuses a small effects atlas and local animation clocks for fans/lamps/monitor/sparks/steam, without collision. ChamberBackdrop places oversized finite textures/machinery assemblies with rounded vertical parallax offsets. ChamberAtmosphere adds faint pixel-aligned color spill and a segmented power trunk. The room root assembles these parts; it is not one giant drawing script.
+
+tools/generate_art.gd is the versioned editable source for PNGs and the bitmap FNT. Art is generated offline, not every game frame. Committed .import sidecars retain lossless/no-mipmap settings; nearest filtering is global and explicit on decorative sprites. The 320×180 viewport, integer scale and Compatibility renderer remain unchanged. No heavy shaders, bloom or plugin dependencies. resources/ui/industrial_theme.tres supplies original bitmap typography/StyleBoxes for the HUD and boot. The player Visual rounds only its presentation position and reads existing movement states.
+
+tools/capture_visual_review.gd captures actual root viewport images at lower/middle/upper staged positions, plus an independent 320×420 SubViewport overview. It resizes only by integer nearest scaling; the overview is a wider lens, not the gameplay zoom. docs/visual-review/.gdignore prevents review PNGs becoming runtime textures. The 02A test suite reuses the existing real-tick harness and checks physical key dispatch, protected sources, actual loaded/imported art, atlas bounds, collision tops, animation initialization, HUD, boot navigation, parallax coverage and complete chamber reachability.
+
+## M01 implementation details
 
 - scenes/player/player.tscn: reusable CharacterBody2D, 10×24 rectangular collider at feet origin, procedural Visual and JumpRecorder component. Player layer 2/mask 1; world layer 1/mask 2. The 14×26 visual exceeds collider width for readable ledge placement; visual changes cannot affect collision.
 - PlayerController owns semantic input, enum states GROUNDED/CHARGING/RISING/FALLING/LANDING, fixed-tick velocity and one move_and_slide call. No level/UI node references. State changes, launches, landings, completed physics steps and resets are signals. Tests call the same step_movement once per real physics tick; live input is separately tested through Godot's InputEventAction dispatch.

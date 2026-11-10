@@ -23,8 +23,10 @@ try {
     }
     Invoke-EngineCheck 'import' @('--headless', '--path', $projectRoot, '--editor', '--import')
     Invoke-EngineCheck 'startup' @('--headless', '--path', $projectRoot, '--quit-after', '5')
+    Invoke-EngineCheck 'chamber_startup' @('--headless', '--path', $projectRoot, '--scene', 'res://scenes/regions/sublevel_zero/emergency_power_chamber.tscn', '--quit-after', '5')
     Invoke-EngineCheck 'smoke' @('--headless', '--path', $projectRoot, '--script', 'res://tests/smoke_test.gd')
     Invoke-EngineCheck 'physics' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/physics_test.gd')
+    Invoke-EngineCheck 'visual_prototype' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/visual_prototype_test.gd')
     if ($Render) {
         Invoke-EngineCheck 'lab_render' @('--path', $projectRoot, '--scene', 'res://scenes/levels/physics_lab.tscn', '--write-movie', (Join-Path $projectRoot '.godot/lab.png'), '--quit-after', '12')
     }

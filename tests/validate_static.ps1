@@ -57,8 +57,9 @@ foreach ($action in $bindings.Keys) {
     $block = [regex]::Match($inputSection, '(?ms)^' + [regex]::Escape($action) + '=\{(.*?)^\}')
     Assert-Source $block.Success "Action missing: $action"
     $events = [regex]::Matches($block.Value, 'Object\(InputEventKey,[^)]*\)')
-    Assert-Source ($events.Count -eq 1) "Expected one physical keyboard event: $action"
-    if ($events.Count -eq 1) {
+    $expectedEvents = if ($action -in @('move_left','move_right','look_up','look_down')) { 2 } else { 1 }
+    Assert-Source ($events.Count -eq $expectedEvents) "Expected physical keyboard events: $action"
+    if ($events.Count -gt 0) {
         $key = [regex]::Match($events[0].Value, '"physical_keycode":(\d+)')
         Assert-Source ($key.Success -and [int]$key.Groups[1].Value -eq $bindings[$action][0]) "Wrong key: $action"
         $location = 0
@@ -68,7 +69,7 @@ foreach ($action in $bindings.Keys) {
     }
 }
 $scene = Get-Content -LiteralPath (Join-Path $projectRoot 'scenes/main/boot.tscn') -Raw -Encoding UTF8
-foreach ($label in @('CYBERPUNK: THE LAST ASCENT', ('Milestone 01 ' + [char]0x2014 + ' Physics Laboratory'), 'Project initialized successfully.', 'Enter Physics Lab')) {
+foreach ($label in @('CYBERPUNK: THE LAST ASCENT', 'Milestone 02A / Neon Industrial Decay', 'Project initialized successfully.', 'Enter Physics Lab', 'Enter Power Chamber')) {
     Assert-Source ($scene.Contains($label)) "Boot text missing: $label"
 }
 $ignore = Get-Content -LiteralPath (Join-Path $projectRoot '.gitignore') -Raw -Encoding UTF8

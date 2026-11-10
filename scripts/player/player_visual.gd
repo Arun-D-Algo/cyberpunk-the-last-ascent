@@ -1,31 +1,34 @@
 extends Node2D
 ## Presentation reads state; it never changes the body or movement parameters.
 
+const SPRITES: Texture2D = preload("res://assets/player/maintenance_runner.png")
+
 @onready var player: PlayerController = get_parent() as PlayerController
 
 
 func _process(_delta: float) -> void:
+	global_position = player.global_position.round()
 	queue_redraw()
 
 
 func _draw() -> void:
 	if player == null:
 		return
-	var accent: Color = Color("59e8ee")
+	var frame: int = 0
 	match player.state:
-		PlayerController.State.CHARGING: accent = Color("ffe078")
-		PlayerController.State.RISING: accent = Color("94ffbf")
-		PlayerController.State.FALLING: accent = Color("c19bff")
-		PlayerController.State.LANDING: accent = Color("ffffff")
-	draw_rect(Rect2(-7, -26, 14, 26), Color("121c30"))
-	draw_rect(Rect2(-7, -26, 14, 26), accent, false, 1.0)
-	draw_rect(Rect2(-4, -22, 8, 5), accent)
-	draw_line(Vector2(0, -15), Vector2(player.facing_direction * 6, -15), accent, 2.0)
-	if player.state == PlayerController.State.GROUNDED and absf(player.velocity.x) > 1.0:
-		draw_line(Vector2(-4, -2), Vector2(4, -2), accent, 2.0)
+		PlayerController.State.CHARGING: frame = 2
+		PlayerController.State.RISING: frame = 3
+		PlayerController.State.FALLING: frame = 4
+		PlayerController.State.LANDING: frame = 5
+		PlayerController.State.GROUNDED:
+			if absf(player.velocity.x) > 1.0:
+				frame = int(Time.get_ticks_msec() / 120) % 2
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(player.facing_direction, 1))
+	draw_texture_rect_region(SPRITES, Rect2(-8, -32, 16, 32), Rect2(frame * 16, 0, 16, 32))
+	draw_set_transform(Vector2.ZERO)
 	if player.state == PlayerController.State.CHARGING:
-		draw_rect(Rect2(-7, 3, 14 * player.charge_fraction(), 2), accent)
+		draw_rect(Rect2(-7, 3, roundf(14 * player.charge_fraction()), 1), Color("00d9e8"))
 		var direction: int = player.selected_direction
 		var tip: Vector2 = Vector2(direction * 14, -34 if direction == 0 else -11)
-		draw_line(Vector2(0, -11), tip, accent)
-		draw_circle(tip, 2.0, accent)
+		draw_line(Vector2(0, -11), tip, Color("f5d547"))
+		draw_rect(Rect2(tip - Vector2.ONE, Vector2(2, 2)), Color("f5d547"))

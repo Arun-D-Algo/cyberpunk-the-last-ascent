@@ -1,5 +1,20 @@
 # Level design
 
+## M02A Emergency Power Chamber
+
+One 320px-wide, approximately 420px-tall visual slice at scenes/regions/sublevel_zero/emergency_power_chamber.tscn. Starting feet=(45,144); six service ledges end at y=-144, a 288px climb. It is not a complete Sublevel Zero region. A closed upper-relay door is explicitly a nonfunctional exit placeholder. The floor and intermediate ledges provide recovery; F6 resets prototype state. No checkpoints, hazards, region loading or story events are added.
+
+| Destination | X span | Surface Y | Reference launch X | Hold (s) | Direction |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 72..120 | 112 | 45 | 0.50 | right |
+| 2 | 158..222 | 64 | 109 | 0.75 | right |
+| 3 | 78..126 | 12 | 183 | 0.75 | left |
+| 4 | 168..240 | -40 | 114 | 0.75 | right |
+| 5, narrow | 94..118 | -92 | 194 | 0.75 | left |
+| 6, upper relay | 170..250 | -144 | 106 | 0.75 | right |
+
+The actual-body suite walks between launch positions and completes all six landings without teleporting during the route, using unchanged approved M01 physics. Background parallax is tested with upward/downward look at lower/middle/upper stops. Bright one-pixel ledge tops and warning end caps identify solid surfaces; subdued generator housings/railings/console/door art never imply new invisible collision. Each platform has 8px collision height, with art below the exact top contact line. Scene captures are staged views for art review, not a claimed human playthrough. Full room/screenshot review: visual-review/milestone-02a.
+
 This document records intended content and proposed authoring rules. There are no playable regions in M00. Implement and validate the jump prototype before placing production gaps.
 
 ## Implemented M01 physics laboratory

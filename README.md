@@ -4,14 +4,14 @@ An unofficial, noncommercial 2D precision-platformer fan-game concept inspired b
 
 ## Current status
 
-Milestone 01 implements the first playable physics laboratory: reusable player, charge/release jumps, explicit states, collision geometry, vertical camera, charge HUD, debug measurements, pause/reset and boot navigation. Automated import/startup/foundation/gameplay checks pass in Godot 4.7.2, and a rendered lab frame was inspected. A complete twelve-platform route and subsequent fall/recovery are verified automatically. Full human playtesting remains pending; a brief Computer Use inspection was stopped by the physical Escape key. No production regions, abilities, saves, dialogue, audio or boss exist.
+Milestone 02A adds **Neon Industrial Decay**: original pixel artwork, reusable industrial platforms/fixtures, layered backgrounds, lightweight atmosphere, a humanoid placeholder, bitmap diagnostic UI, arrow-key equivalence, and one playable Emergency Power Chamber. The user approved M01 movement in the 02A brief; its controller, equations, physics Resource, collider scene and camera source are unchanged. The Physics Lab remains available. This is one visual slice, not a completed region. Visual approval is pending; Milestone 02B has not begun.
 
 ## Prerequisites and opening
 
 - Confirmed engine: **Godot 4.7.2 stable**, reporting `4.7.2.stable.official.ed1daf0bf` from the user's Tools/Godot installation. Verify your executable with `--version` on another machine.
 - Standard Godot build (GDScript); .NET is unnecessary. Desktop Windows or Linux. Git for version control; PowerShell 7 or Windows PowerShell for the static check.
 - Obtain the engine from [the official Godot download page](https://godotengine.org/download/) if needed; installation/extraction is a user action. If the requested version is unavailable, agree on a supported version before changing the target.
-- In Godot's Project Manager choose **Import**, select this directory's `project.godot`, then **Import & Edit**. Press **F5**, then click **Enter Physics Lab** on the preserved boot screen. Close the game window to exit. The original foundation title/status remain, with a Milestone 01 subtitle and entry button.
+- In Godot's Project Manager choose **Import**, select this directory's `project.godot`, then **Import & Edit**. Press **F5**, then click **Enter Power Chamber**. **Enter Physics Lab** remains available. Close the game window to exit. The foundation title/status remain with the current milestone subtitle and both entry buttons.
 
 From PowerShell, with your actual executable path:
 
@@ -32,10 +32,10 @@ Actions are configured centrally. Letter keys use physical positions; Shift/Ctrl
 
 | Key | Action | Intended behavior |
 | --- | --- | --- |
-| A | move_left | Move/select left jump direction |
-| D | move_right | Move/select right jump direction |
-| W | look_up | Look upward |
-| S | look_down | Look downward |
+| A / Left Arrow | move_left | Move/select left jump direction |
+| D / Right Arrow | move_right | Move/select right jump direction |
+| W / Up Arrow | look_up | Look upward |
+| S / Down Arrow | look_down | Look downward |
 | Space | jump_charge | Hold to charge, release to jump |
 | Left Shift | cyberware_primary | Primary ability |
 | Left Ctrl | cyberware_secondary | Secondary ability |
@@ -43,11 +43,28 @@ Actions are configured centrally. Letter keys use physical positions; Shift/Ctrl
 | Esc | pause_game | Pause |
 | R | retry_boss | Request boss retry |
 | F3 | debug_toggle_overlay | Toggle lab measurements (debug builds) |
-| F6 | debug_reset_lab | Reset lab player, camera and measurements (debug builds) |
+| F6 | debug_reset_lab | Reset current prototype player, camera and measurements (debug builds) |
+
+## Visual prototype and art pipeline
+
+Read [visual-style-guide.md](docs/visual-style-guide.md) for palette, pixel scales, composition, UI and animation rules. The [review package](docs/visual-review/milestone-02a/README.md) includes actual Godot starting/middle/upper views, a full-room overview, native/3× previews, atlas and before/after comparison. Positions are staged on real platforms for art review; screenshots are not claims of a human playthrough. Artistic approval is the user's decision.
+
+Climb the chamber's six service ledges toward **EXIT / UPPER RELAY**. Existing charge/commit physics are unchanged. The upper door is a marked exit placeholder, with no region transition. F3/F6/Esc work in both prototypes. A+Right Arrow and Left Arrow+D retain neutral behavior; no separate arrow movement logic exists.
+
+Original editable art source: tools/generate_art.gd. Run it headless to rebuild PNG/FNT assets, then import and test. Palette is assets/environment/industrial/palette.gpl; atlas region definitions are in IndustrialArt. No paid services, downloaded sprites, copied logos, external font or proprietary assets were used. See [asset manifest](docs/asset-manifest.md). Decorative fans/lamps/sparks/steam never act as hazards.
+
+```powershell
+& $GodotExe --headless --path . --script res://tools/generate_art.gd
+& $GodotExe --headless --editor --path . --import
+& $GodotExe --path . --scene res://scenes/regions/sublevel_zero/emergency_power_chamber.tscn
+# After import, capture actual scene images (requires a graphical render device):
+& $GodotExe --path . --script res://tools/capture_visual_review.gd -- --initial-art
+& $GodotExe --path . --script res://tools/capture_visual_review.gd
+```
 
 ## Playing and tuning the lab
 
-A/D walks while grounded. Hold Space to charge while stationary, choose A/D direction, release to jump. Neither key or A+D gives a vertical jump. Taps produce minimum strength; full charge stays capped until release. Air steering is disabled. W/S looks up/down within safe camera limits. Esc pauses/resumes; pausing or losing focus cancels charge, so release and press Space again before another attempt. F6 resets in place without a scene reload; R is not repurposed. Holding Space through landing never automatically charges another jump.
+A/D or Left/Right walks while grounded. Hold Space to charge while stationary, choose direction, release to jump. Neither direction or opposite directions gives a vertical jump. Taps produce minimum strength; full charge stays capped until release. Air steering is disabled. W/S or Up/Down looks within safe camera limits. Esc pauses/resumes; pausing or losing focus cancels charge, so release and press Space again before another attempt. F6 resets without reloading; R is not repurposed. Holding Space through landing never automatically charges another jump.
 
 Climb the numbered platforms toward LAB COMPLETE. The first steps teach short/medium jumps; upper 52–56px rises require near-full charge. All platforms are solid, so feet must clear the destination's side before crossing it. Falling loses altitude but returns to a lower platform/floor. F3 shows state, position, velocity, support, charge and last completed jump measurements. It is a developer overlay and deliberately covers part of the arena when visible.
 
@@ -64,11 +81,14 @@ scenes/hazards/    Reusable hazards
 scenes/characters/ NPC scenes
 scenes/bosses/     Boss scenes
 scenes/ui/         Lab HUD and future UI
+scenes/environment/  Reusable industrial platform/fixture components
+scenes/regions/sublevel_zero/  One Emergency Power Chamber visual slice
 scripts/          core/, player/, camera/, cyberware/, regions/,
                   hazards/, dialogue/, save/, audio/, bosses/, ui/
 resources/        definitions/, physics/, difficulty/, camera/,
                   cyberware/, audio/, input/, regions/
-assets/           sprites/, animations/, backgrounds/, tilesets/, audio/
+assets/           environment/, player/, ui/ original art; future sprite/audio categories
+tools/            Editable pixel-art generator and actual-engine review capture
 tests/            Static, smoke, physics/integration checks and runner
 docs/             Design, technical plan, roadmap and development log
 AGENTS.md         Future coding-agent instructions
@@ -86,6 +106,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\validate_static.ps1
 & $GodotExe --headless --path . --quit-after 5
 & $GodotExe --headless --path . --script res://tests/smoke_test.gd
 & $GodotExe --headless --fixed-fps 60 --path . --script res://tests/physics_test.gd
+& $GodotExe --headless --fixed-fps 60 --path . --script res://tests/visual_prototype_test.gd
 # Automated sequence with isolated writable editor/user paths and engine-error checks:
 .\tests\run_validation.ps1 -GodotExe $GodotExe
 # Add -Render to generate lab frame PNGs under ignored .godot/.
@@ -93,7 +114,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\validate_static.ps1
 & $GodotExe --path . --scene res://scenes/levels/physics_lab.tscn
 ```
 
-Check exit codes **and** all engine output. Static checks are not a Godot parser. The smoke test checks actual settings/InputMap/boot bounds. The physics harness tests real solver behavior, live semantic input, UI/camera/reset/pause, navigation and ascent/recovery; it prints `PASS: 177 physics/integration checks` for the current suite. It prints five charge measurements and writes .godot/jump_measurements.json. The 330→360 px/s tuning comparison is reproduced on each run. Read the manual checklist in physics-spec.md and visually verify resizing/scaling; human input timing, subjective feel and Linux/export behavior remain separate from headless results.
+Check exit codes **and** all engine output. Static checks are not a Godot parser. The smoke test checks loaded settings/InputMap/boot bounds. The existing 177-check physics suite measures real movement and lab traversal. The 02A suite adds physical key-event dispatch (all eight movement/look keys and mixed opposites), source-preservation checks, loaded texture/import/atlas validation, actual chamber navigation/collisions/six-jump route, HUD/animation initialization and parallax coverage during look. The runner executes all suites. Human aesthetic approval, varied hardware/scaling and Linux/export behavior remain separate from these results.
 
 In a restricted agent workspace, normal Godot editor/user-data paths may be unwritable. M00 validation temporarily redirected process-local APPDATA/LOCALAPPDATA into ignored `.godot/validation-user` and `.godot/validation-cache`, used a copy of the installed executable in `.godot/validation-engine` with an `_sc_` marker, and supplied absolute `--log-file` paths under `.godot/`. This did not alter the installed engine or machine settings. [Godot self-contained mode](https://docs.godotengine.org/en/4.4/classes/class_editorpaths.html) isolates editor settings; user-data redirection was additionally required. Do not change production user-data settings to work around an agent sandbox.
 
@@ -103,8 +124,8 @@ In a restricted agent workspace, normal Godot editor/user-data paths may be unwr
 
 Source writes/readbacks succeeded locally. The parent carries OneDrive attributes; sync health could not be independently established. Keep the project locally available using OneDrive's **Always keep on this device** if appropriate. Avoid concurrent edits on multiple synced machines and allow sync to settle before switching machines. Git ignores `.godot/`, but this does not exclude it from OneDrive. If cache locking/conflicts occur, close Godot and discuss pausing sync or using a user-approved nonsynced checkout. Never move this project automatically.
 
-Physics defaults have one documented provisional tuning pass. No rebinding UI, saves, export presets/templates, dependencies, production assets, knockback, moving platforms, slopes or campaign exist. Platform exports, physical held-key timing, extended human play, camera comfort and manual resize behavior remain unverified. Debug F3/F6 are editor/debug-build controls, not release gameplay actions.
+M01 movement is user-approved and frozen for 02A. No rebinding/accessibility settings UI, saves, export presets/templates, knockback, moving platforms, slopes or campaign exist. The original character is still a placeholder, not final David art. Lighting uses painted pixels/alpha bands rather than shadow-casting/bloom. Pixel camera stepping and the small diagnostic font are deliberate compromises for review. Platform exports, extended human play of the new chamber, physical arrow-key feel and manual resize behavior remain unverified. Debug F3/F6 are editor/debug-build controls.
 
 ## Fan-project and asset policy
 
-This project is unofficial, unaffiliated with and not endorsed by the Cyberpunk/Edgerunners rights holders. Noncommercial intent does not grant IP rights or publication permission. Do not use extracted game/anime art, music, logos, voices or proprietary files. The boot screen uses Godot's native controls/default font and simple colors; no third-party assets were imported. Keep content IDs separate from display names so original characters/setting/assets can replace fan content before any public release. Public distribution needs a separate rights review.
+This project is unofficial, unaffiliated with and not endorsed by the Cyberpunk/Edgerunners rights holders. Noncommercial intent does not grant IP rights or publication permission. Do not use extracted game/anime art, music, logos, voices or proprietary files. M02A uses original project atlases, bitmap font and native controls; no third-party assets were imported. Keep content IDs separate from display names so original characters/setting/assets can replace fan content before any public release. Public distribution needs a separate rights review.

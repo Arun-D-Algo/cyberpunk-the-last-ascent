@@ -2,6 +2,8 @@
 
 Status: approved direction from the briefs unless labeled **proposal**. This is a campaign design target, not an implementation inventory. M01 implements a standalone physics lab (see physics-spec.md), not campaign content. It resolves charge timing, neutral direction, wall response and landing policy for the provisional prototype; later campaign/assist/ability designs remain proposals.
 
+M02A update: the user has manually approved the M01 movement. One playable Emergency Power Chamber now demonstrates Neon Industrial Decay art, machinery scale, layered atmosphere, improved placeholder/UI and an upward service route. This is a visual slice of the beginning of Sublevel Zero, not a completed tutorial region or narrative implementation. WASD and arrow keys share the same actions. Await user artistic approval before 02B.
+
 ## Premise and campaign
 
 David Martinez starts in the basement of Arasaka Tower, cut off from the city and the crew. Escape requires climbing through eight connected industrial, corporate, and experimental regions. The setting is an alternate universe inspired by Edgerunners: established events may diverge intentionally. David and Rebecca survive the final escape and reach the moon together. One linear campaign and one primary ending keep narrative scope manageable.

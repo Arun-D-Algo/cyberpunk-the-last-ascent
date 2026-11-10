@@ -40,8 +40,9 @@ func _run() -> void:
 	for action: String in bindings:
 		_check(InputMap.has_action(action), "Missing action: " + action)
 		var events: Array[InputEvent] = InputMap.action_get_events(action)
-		_check(events.size() == 1, "Expected one keyboard binding: " + action)
-		if events.size() != 1:
+		var expected_count: int = 2 if action in ["move_left", "move_right", "look_up", "look_down"] else 1
+		_check(events.size() == expected_count, "Expected keyboard bindings: " + action)
+		if events.is_empty():
 			continue
 		var key: InputEventKey = events[0] as InputEventKey
 		_check(key != null, "Expected InputEventKey: " + action)
@@ -58,7 +59,7 @@ func _run() -> void:
 		await process_frame
 		var labels: Dictionary = {
 			"Content/Title": "CYBERPUNK: THE LAST ASCENT",
-			"Content/Subtitle": "Milestone 01 — Physics Laboratory",
+			"Content/Subtitle": "Milestone 02A / Neon Industrial Decay",
 			"Content/Status": "Project initialized successfully.",
 		}
 		for path: String in labels:

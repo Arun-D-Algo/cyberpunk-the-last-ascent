@@ -1,5 +1,7 @@
 # Art direction
 
+M02A implements **Neon Industrial Decay**. The detailed production rules, approved initial palette, exact asset sizes, original font workflow and current compromises are in [visual-style-guide.md](visual-style-guide.md); that guide supersedes the provisional scale suggestions below. See [asset-manifest.md](asset-manifest.md) and the [actual engine review package](visual-review/milestone-02a/README.md). User visual approval is pending. The six-cell player sheet is still a replaceable placeholder.
+
 ## Resolution and scales
 
 Approved starting viewport is 320×180, subject to playtesting. Display at integer multiples with nearest texture filtering, kept aspect and letterboxing where needed. Detailed pixel art must remain readable at native resolution, not merely in zoomed concept art. Current native-font boot UI is temporary and is not the production pixel-font decision.

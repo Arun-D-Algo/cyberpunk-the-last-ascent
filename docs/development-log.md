@@ -1,5 +1,44 @@
 # Development log
 
+## 2026-11-10 — Milestone 02A: Neon Industrial Decay visual prototype
+
+### Status, inspection and authorization
+
+Implementation complete for user visual review; artistic approval is pending. M02B has not begun. The user's 02A brief explicitly records satisfactory manual testing/approval of M01 movement. Inspected instructions, design/physics/level/technical/art/roadmap docs, player/lab/camera/HUD, renderer/InputMap, test infrastructure and Git history. Verified project path and Godot 4.7.2.stable.official.ed1daf0bf. Starting tree was clean at cb1ce10; no user modifications were discarded.
+
+### Art direction and original pipeline
+
+Established Neon Industrial Decay: navy/steel/slate architecture, selective cyan powered systems, yellow service/warning emphasis and sparse magenta faults. Interpreted the requested high-level Edgerunners/Katana ZERO/SANABI/The Last Night influences without importing their assets. Added visual-style-guide.md, asset-manifest.md, a GIMP palette and tools/generate_art.gd as editable original integer-pixel source. The generator produces a 256×256 industrial atlas with 23 named regions, two 320×512 depth layers, a 128×64 effects atlas, six 16×32 humanoid placeholder cells, and an original bitmap diagnostic font. No external asset/font/software dependency or paid API.
+
+### Implemented composition
+
+- One emergency_power_chamber.tscn under scenes/regions/sublevel_zero, composing the unchanged player/camera and styled existing HUD. Floor plus six service ledges, including a 24px landing, enclosed recovery space and a marked upper-relay exit placeholder. No complete region, transition system, checkpoint, hazard, cyberware, combat, dialogue or save logic.
+- Reusable IndustrialPlatform and IndustrialFixture scenes; IndustrialArt atlas vocabulary; ChamberBackdrop with rounded finite-layer parallax; lightweight ChamberAtmosphere. Decorative machinery/animation has no collision or hazards. Geometry remains independent from its tile/sprite appearance.
+- Generator housings, wall/support structure, pipes, actuators, console, monitors, damaged panels, cable runs, warning signs, vents, lamps, fan, sparks and steam. No bloom/full-screen shader/renderer switch. Animated clocks pause with gameplay.
+- Presentation-only humanoid sprite selection, facing and pixel rounding replace the debug rectangle. Collider/body coordinates, approved physics Resource, launch math, controller and LabCamera source are unchanged. Visual suite verifies all five protected source hashes.
+- Original bitmap font and industrial Theme improve boot/HUD. Preserved charge/direction/state/debug feedback and Physics Lab button; added Power Chamber entry and a brief nonblocking room title. F3/F6/Esc work in the chamber; R remains reserved.
+- Added Left/Right/Up/Down physical events to move_left/move_right/look_up/look_down. Existing WASD and all other action names/keys remain. Mixed A+Right and Left+D are neutral through the unchanged controller's semantic intent path.
+
+### Actual validation and iteration
+
+- Godot --version: confirmed 4.7.2.stable.official.ed1daf0bf.
+- `--headless --path . --script res://tools/generate_art.gd`: clean PASS after correcting background-line canvas clipping. Initial unbounded raster lines logged out-of-bounds errors; these were fixed rather than ignored. A subsequent rebuild produced byte-identical PNG/FNT hashes.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tests/validate_static.ps1`: PASS, 167 source checks at final implementation review.
+- `tests/run_validation.ps1 -GodotExe <confirmed Godot console path>`: headless import, configured boot startup and foundation smoke PASS; original 177 physics/integration checks PASS with exactly unchanged measured jump envelope and twelve-platform lab route. New visual-prototype suite initially passed 162 checks, then was extended to 170 checks for actual fixture frame changes, chamber pause, frozen decorative clocks and fall recovery. Final runner PASS: import, boot startup, direct chamber startup, foundation smoke, 177 physics/integration checks and 170 visual/input checks.
+- `--headless --fixed-fps 60 --path . --script res://tests/visual_prototype_test.gd`: PASS 170 visual/input checks. Covers all eight physical movement/look key mappings/releases, mixed opposites, baseline source hashes, loaded texture pixels/import settings/no mipmaps, atlas bounds, real rectangular collision/contact alignment, initialized/advancing animations, HUD charge/state, boot navigation, six actual platform landings, look coverage at three heights, reset/pause and fall recovery.
+- Chamber route landed approximately (101.717,111.981), (210.301,63.981), (83.884,11.981), (212.467,-40.019), (94.717,-92.019), (204.883,-144.019), using unchanged approved impulses/gravity/charge settings. No teleport between route jumps. Full reference launch table is in level-design.md.
+- First physical input test arrived before the initial viewport/focus flush and failed only its first A press. Added an explicit two-frame startup wait before physical-event injection; all eight mappings then pass. No movement or InputMap rule was changed to hide that test failure.
+- Actual OpenGL Compatibility capture via `--path . --script res://tools/capture_visual_review.gd -- --initial-art`, then without that flag. A first overview attempt used a nonexistent SubViewport property; corrected it to an explicit World2D before the successful package capture. Final capture logs have no reported errors/warnings.
+- Inspected initial start, refined start, full-room, mid-climb and upper-room PNGs. Initial weakness: similar contrast on machinery and landings. Refined with warning end caps, subdued midground, faint warm/cyan spill, a segmented vertical power trunk, additional framing and route hints. Before/after retained as an actual-scene reproducible comparison.
+- Review package: docs/visual-review/milestone-02a, with 320×180 native gameplay views, 3× previews, 320×420 native-density overview, HUD crop, atlas preview and 2× before/after. Player positions are staged for composition; no human playthrough or user artistic approval is claimed. No desktop input/Computer Use was performed in 02A.
+- Git diff whitespace/source review and ignore checks run before commit. Imported cache/logs/reports remain under ignored .godot; PNG/FNT source/import metadata and review images are intentionally versioned. Nothing pushed; prior milestone history preserved.
+
+### Limitations and next gate
+
+No known critical automated regressions. This is one visual slice and an initial art library, not final character animation or the full Sublevel Zero region. Upper exit is a placeholder. Font is intentionally tiny ASCII diagnostic lettering; localization/large-type UI and global reduced-effects settings are future work. Lighting is painted pixels/alpha spill, not physically shadowed lights. Finite parallax is tested for this chamber only. New chamber human playfeel/physical arrow-key feel, resize/high-DPI, long-session performance, Linux and exports remain unverified. OneDrive local access worked; cloud sync state remains unknown.
+
+Wait for the user's visual approval of palette, scale, atmosphere, route/player readability, typography and depth before any 02B implementation. Keep M01 movement locked; future 02B scope requires a separate prompt.
+
 ## 2026-11-10 — Milestone 01: playable physics laboratory
 
 ### Status and scope

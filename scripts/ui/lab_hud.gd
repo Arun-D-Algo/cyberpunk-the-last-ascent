@@ -32,7 +32,7 @@ func _process(delta: float) -> void:
 	pause_label.visible = get_tree().paused
 	var direction_text: String = ["LEFT", "UP", "RIGHT"][player.selected_direction + 1]
 	var charge: float = player.charge_fraction()
-	summary.text = "%s  |  %s  |  %d%%" % [player.state_name(), direction_text, roundi(charge * 100.0)]
+	summary.text = "SYS/00  %s  /  %s  /  %03d%%" % [player.state_name(), direction_text, roundi(charge * 100.0)]
 	charge_bar.value = charge * 100.0
 	if not debug_enabled:
 		return
