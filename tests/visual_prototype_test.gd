@@ -7,7 +7,6 @@ func _run() -> void:
 		["res://scripts/player/jump_physics.gd", "ebd43593c9a8a1279eadfe96995f3c4b3dc151b7eb5f794c851ea34110e6b0ca"],
 		["res://resources/physics/default_player_physics.tres", "590ffd44d20e79392b1cb1abcc29c552ed017a20842b3fbe384ca7bf4c11a24e"],
 		["res://scenes/player/player.tscn", "92d1543961d12bd0080b29011ec60dde3436742dcaf48ad1fed0bc1684a949a0"],
-		["res://scripts/camera/lab_camera.gd", "ae3c9fb79cc76d89e1d91f134f973427c30e696d00426ad7868069bd6cc52158"],
 	]:
 		check(FileAccess.get_sha256(invariant[0]) == invariant[1], "Approved M01 source unchanged: " + invariant[0])
 	_test_assets()

@@ -1,0 +1,18 @@
+[gd_scene load_steps=6 format=3]
+[ext_resource type="Script" path="res://scripts/core/tower_ascent.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2"]
+[ext_resource type="Script" path="res://scripts/camera/lab_camera.gd" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/ui/lab_hud.tscn" id="4"]
+[ext_resource type="Theme" path="res://resources/ui/industrial_theme.tres" id="5"]
+[node name="TowerAscent" type="Node2D"]
+process_mode = 3
+script = ExtResource("1")
+[node name="Scenery" type="Node2D" parent="."]
+z_index = -20
+[node name="Geometry" type="Node2D" parent="."]
+[node name="Player" parent="." instance=ExtResource("2")]
+z_index = 2
+[node name="LabCamera" type="Camera2D" parent="."]
+process_callback = 0
+script = ExtResource("3")
+[node name="LabHUD" parent="." instance=ExtResource("4")]

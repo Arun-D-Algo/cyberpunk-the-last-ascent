@@ -19,6 +19,7 @@ z_index = -2
 [node name="Player" parent="." instance=ExtResource("2")]
 position = Vector2(45, 144)
 [node name="LabCamera" type="Camera2D" parent="."]
+process_callback = 0
 script = ExtResource("3")
 [node name="LabHUD" parent="." instance=ExtResource("4")]
 [node name="Titles" type="CanvasLayer" parent="."]

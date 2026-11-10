@@ -4,6 +4,7 @@ extends Resource
 
 @export var id: StringName = &"normal"
 @export_range(0.0, 2.0) var acceleration_scale: float = 1.0
+@export_range(1.0, 4.0) var reverse_braking_scale: float = 1.0
 @export_range(0.0, 2.0) var friction: float = 1.0 # released-input drag / baseline deceleration
 @export_range(0.1, 2.0) var ground_speed_scale: float = 1.0
 @export_range(0.0, 1.0) var landing_momentum_retention: float = 0.0
@@ -29,7 +30,7 @@ func validation_errors() -> PackedStringArray:
 		"maximum_slide_speed": Vector2(1, 600), "stop_speed": Vector2(0, 5),
 		"charge_speed_limit": Vector2(0, 1000), "jump_momentum_retention": Vector2(0, 1),
 		"minimum_slide_angle": Vector2(0, 44), "downhill_acceleration": Vector2(0, 1500),
-		"input_influence": Vector2(0, 1)}
+		"input_influence": Vector2(0, 1), "reverse_braking_scale": Vector2(1, 4)}
 	for property: String in ranges:
 		var value: float = get(property)
 		if not is_finite(value) or value < ranges[property].x or value > ranges[property].y:

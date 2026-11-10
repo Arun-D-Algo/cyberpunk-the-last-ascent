@@ -35,14 +35,15 @@ func reset_tracking() -> void:
 	_look = 0.0
 	_center = Vector2(world_bounds.get_center().x, target.global_position.y - 52.0)
 	_place_camera()
+	reset_physics_interpolation()
 	reset_smoothing()
 	force_update_scroll()
 
 
 func _place_camera() -> void:
-	# Smooth internally, round only the displayed camera to whole viewport pixels.
+	# Fractional transforms render at physical window resolution with nearest textures.
 	var center_y: float = clampf(_center.y + _look, world_bounds.position.y + 90.0, world_bounds.end.y - 90.0)
 	if target != null:
 		# Keep feet above the bottom edge and the silhouette below the HUD, even in fast falls/look.
 		center_y = clampf(center_y, target.global_position.y - 84.0, target.global_position.y + 40.0)
-	global_position = Vector2(_center.x, center_y).round()
+	global_position = Vector2(_center.x, center_y)

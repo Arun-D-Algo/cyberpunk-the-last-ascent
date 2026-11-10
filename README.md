@@ -4,14 +4,14 @@ An unofficial, noncommercial 2D precision-platformer fan-game concept inspired b
 
 ## Current status
 
-Milestone 02B adds configurable wall/ceiling responses, normal/ice/slope/gravity-ramp surface rules, momentum transitions, minimal moving-platform compatibility and a directly selectable Physics Lab 2.0. The user explicitly authorized controller refinement; the normal-ground jump envelope, baseline tuning, launch equations, collider and camera remain unchanged. The original Classic climb, Emergency Power Chamber and all 02A art remain available. New surface feel is ready for user playtesting; no production regions, story, combat, cyberware or saves were added.
+Milestone 02D implements the continuous **four-floor tower ascent: 60 landings / 3008 vertical pixels**, shared controllable ice, smooth fractional/interpolated rendering and universal configurable wall/platform-side rebounds. Start Tower Ascent is the main game; Physics Lab 2.0 and the original Power Chamber remain accessible. Normal launch tuning/collider/art assets are preserved. Engine tests pass; human feel/pacing and visual motion acceptance remain pending. See [measured validation and all launch recipes](docs/validation/milestone-02d.md) and the [manual checklist](docs/physics-spec.md#manual-acceptance-checklist-pending-user-playtest).
 
 ## Prerequisites and opening
 
 - Confirmed engine: **Godot 4.7.2 stable**, reporting `4.7.2.stable.official.ed1daf0bf` from the user's Tools/Godot installation. Verify your executable with `--version` on another machine.
 - Standard Godot build (GDScript); .NET is unnecessary. Desktop Windows or Linux. Git for version control; PowerShell 7 or Windows PowerShell for the static check.
 - Obtain the engine from [the official Godot download page](https://godotengine.org/download/) if needed; installation/extraction is a user action. If the requested version is unavailable, agree on a supported version before changing the target.
-- In Godot's Project Manager choose **Import**, select this directory's `project.godot`, then **Import & Edit**. Press **F5**, click **Enter Physics Lab 2.0**, and use the **CLASSIC** dropdown at upper right to select an experiment. **Enter Power Chamber** remains available. Close the game window to exit.
+- In Godot's Project Manager choose **Import**, select this directory's `project.godot`, then **Import & Edit**. Press **F5**, click **Start Tower Ascent** for the connected main game. For isolated mechanics click **Enter Physics Lab 2.0** and use the **CLASSIC** dropdown at upper right to select an experiment. **Enter Power Chamber** remains available. Close the game window to exit.
 
 From PowerShell, with your actual executable path:
 
@@ -64,9 +64,9 @@ Original editable art source: tools/generate_art.gd. Run it headless to rebuild 
 
 ## Playing and tuning the lab
 
-The upper-right selector offers Classic plus A Jumps, B Walls, C Ceiling, D Ledges, E Ice, F Slopes, G Ramps, and H1/H2/H3 combined challenges. Selection moves directly to that experiment, with no prerequisite climb. F6 resets the current section, moving-platform phase, velocity, charge, metrics and camera. TRACE toggles actual collider bounds, support normal, velocity and recorded jump path; it is a diagnostic history, not a predicted launch assist. F3 expands surface/friction/normal/slope/slide/impact/eligibility readouts. The debug panel intentionally covers much of the arena only when enabled.
+The upper-right selector offers Classic plus A Jumps, B Walls, C Ceiling, D Ledges, E Ice, F Slopes, G Ramps, H1/H2/H3 combined challenges, and I-N ricochet/diagonal sections. Selection moves directly to that experiment, with no prerequisite climb. F6 resets the current section, moving-platform phase, velocity, charge, metrics and camera. TRACE toggles actual collider bounds, support normal, velocity and recorded jump path; it is a diagnostic history, not a predicted launch assist. F3 expands surface/friction/normal/slope/slide/impact/eligibility readouts. The debug panel intentionally covers much of the arena only when enabled.
 
-Normal surfaces retain the approved stop-and-charge behavior. Ice retains landing momentum and has much lower drag; a fresh charge press is rejected above 8px/s until you brake and release/repress. Yellow-patterned gravity ramps accelerate downhill up to 150px/s and require speed ≤6px/s to charge. Normal inclines do not auto-slide. Accepted charges are stationary on all supplied profiles. Magenta wall fixtures opt into 25% horizontal rebound; ordinary walls stop. Moving supports carry you while standing but do not inject a departure jump boost by default. Surface coefficients, not movement code copies, define these differences.
+Normal surfaces retain the approved stop-and-charge behavior. Ice retains landing momentum and has much lower drag; a fresh charge press is rejected above 12px/s until you brake and release/repress. Yellow-patterned gravity ramps accelerate downhill up to 150px/s and require speed ≤6px/s to charge. Normal inclines do not auto-slide. Accepted charges are stationary on all supplied profiles. Ordinary airborne wall/platform-side impacts rebound at 60% above 30px/s relative speed. The older magenta comparison fixture retains 25%; supported walking corners stop. Moving supports carry you while standing but do not inject a departure jump boost by default. Surface coefficients, not movement code copies, define these differences.
 
 Tune resources/surfaces/*.tres and resources/physics/*collision_response.tres in Godot's Inspector. Baseline launch parameters stay in default_player_physics.tres; m01_baseline.tres preserves prior values. See physics-spec.md for exact precedence, units, measured stops/reversals/ramp-control trial and the manual acceptance checklist. New mechanics have automated coverage, not yet user-verified feel.
 
@@ -82,7 +82,7 @@ Open resources/physics/default_player_physics.tres to tune the exported Resource
 project.godot       Project settings and InputMap
 scenes/main/       Native boot UI
 scenes/player/     Reusable prototype player
-scenes/levels/regions/  Future continuous-world content
+scenes/levels/     Continuous four-floor tower and Physics Lab
 scenes/hazards/    Reusable hazards
 scenes/characters/ NPC scenes
 scenes/bosses/     Boss scenes
@@ -100,7 +100,7 @@ docs/             Design, technical plan, roadmap and development log
 AGENTS.md         Future coding-agent instructions
 ```
 
-The player, lab, camera, HUD, physics and surface directories contain implemented systems; other future directories keep markers only. scenes/levels/physics_lab.tscn hosts the preserved Classic climb and selectable mechanics fixtures. scripts/player holds baseline/surface/contact definitions, controller, jump calculation, visual and recorder. LabSections and PhysicsSurface provide test geometry; production regions remain future work. See [technical design](docs/technical-design.md) and [roadmap](docs/roadmap.md).
+The player, lab, camera, HUD, physics and surface directories contain implemented systems; other future directories keep markers only. scenes/levels/physics_lab.tscn hosts the preserved Classic climb and selectable mechanics fixtures. scripts/player holds baseline/surface/contact definitions, controller, jump calculation, visual and recorder. TowerAscent/TowerRoute and FloorTheme Resources compose the connected main game using shared physics/art. LabSections and PhysicsSurface also provide lab fixtures; the final eight-region campaign remains future work. See [technical design](docs/technical-design.md) and [roadmap](docs/roadmap.md).
 
 ## Validation
 
@@ -129,7 +129,7 @@ In a restricted agent workspace, normal Godot editor/user-data paths may be unwr
 
 ## Constraints and OneDrive
 
-320×180 internal viewport, 960×540 initial window, integer viewport scaling with kept aspect, nearest canvas textures, GL Compatibility renderer, and a provisional fixed 60 Hz physics tick. The `4.7` feature tag matches the confirmed engine series. Do not upgrade/downgrade the agreed engine without recording the decision.
+320x180 logical coordinates, 960x540 initial window, integer canvas_items scaling with kept aspect, interpolated fractional transforms, nearest canvas textures, GL Compatibility renderer, and a provisional fixed 60 Hz physics tick. The `4.7` feature tag matches the confirmed engine series. Do not upgrade/downgrade the agreed engine without recording the decision.
 
 Source writes/readbacks succeeded locally. The parent carries OneDrive attributes; sync health could not be independently established. Keep the project locally available using OneDrive's **Always keep on this device** if appropriate. Avoid concurrent edits on multiple synced machines and allow sync to settle before switching machines. Git ignores `.godot/`, but this does not exclude it from OneDrive. If cache locking/conflicts occur, close Godot and discuss pausing sync or using a user-approved nonsynced checkout. Never move this project automatically.
 
@@ -138,3 +138,6 @@ Normal-ground launch tuning remains user-approved; 02B explicitly refines contac
 ## Fan-project and asset policy
 
 This project is unofficial, unaffiliated with and not endorsed by the Cyberpunk/Edgerunners rights holders. Noncommercial intent does not grant IP rights or publication permission. Do not use extracted game/anime art, music, logos, voices or proprietary files. M02A uses original project atlases, bitmap font and native controls; no third-party assets were imported. Keep content IDs separate from display names so original characters/setting/assets can replace fan content before any public release. Public distribution needs a separate rights review.
+
+
+02D direct launch: `& $GodotExe --path . --scene res://scenes/levels/tower_ascent.tscn`. F3 shows physics/zone/height/rebounds; F6 explicitly resets the ascent; Esc/focus loss pauses and cancels charge. Misses remain recoverable in the same world. Lab I-N provide wall, raised-pad side, shaft, rising, ice-bank and opt-in diagonal challenges. At 960x540, nearest pixel art now permits one-physical-pixel translation through canvas_items and physics interpolation; a native 320x180 window still has native-pixel stepping.

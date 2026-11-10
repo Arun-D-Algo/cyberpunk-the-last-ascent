@@ -43,6 +43,7 @@ func _ready() -> void:
 	_add_solid("CeilingTest", Rect2(224, 78, 26, 8))
 	_add_solid("TopBoundary", Rect2(8, -552, 304, 8))
 	player.position = SPAWN
+	player.reset_physics_interpolation()
 	camera.target = player
 	camera.reset_tracking()
 	hud.bind_player(player)

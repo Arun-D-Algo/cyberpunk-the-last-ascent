@@ -1,8 +1,75 @@
-# Physics specification — Milestone 02B
+# Physics specification
+
+## Milestone 02D — current authoritative behavior
+
+The 02D brief supersedes older camera/rendering freezes and the 02B experimental ice default. Normal launch equations, impulse Resource, 10x24 collider, fixed 60Hz simulation and no default air steering remain unchanged. Older sections below describe the historical milestones where they differ.
+
+### Ice diagnosis and tuning
+
+02B ice retained 92% of landing momentum, used acceleration 198 px/s² and released drag 30 px/s². Reverse input had no separate braking gain. A full landing retained 151.8 px/s while charging required <=8 px/s: this forced long approaches and coasts, making small pads frustrating. Profiles now distinguish mild, moderate (`ice.tres`, tower default), and optional extreme (the preserved 02B coefficients).
+
+| Profile | acceleration scale | reverse multiplier | drag scale | landing retention | charge threshold |
+|---|---:|---:|---:|---:|---:|
+| Mild | .65 | 2 | .25 | .45 | 12 px/s |
+| Moderate | .45 | 2 | .12 | .68 | 12 px/s |
+| Extreme / old 02B | .22 | 1 | .025 | .92 | 8 px/s |
+
+Moderate acceleration is 405 px/s², opposite-input braking 810 px/s², released drag 144 px/s². Moderate/mild snap residual speeds below 1 px/s to exact zero; normal/extreme retain .5. Reverse braking multiplies acceleration only while input opposes momentum, then ordinary acceleration takes over. Fresh Space presses below the profile threshold enter stationary charging and zero velocity; tiny fluctuations do not cancel it. Rejected holds never buffer a later launch. Ice seams preserve velocity and apply destination coefficients on the following integration.
+
+| Actual 60Hz measurement from 65 px/s | Old/extreme | Moderate | Mild |
+|---|---:|---:|---:|
+| Released stop distance | 69.875 px | 14.127 px | 6.500 px |
+| Released stop time | 2.167 s | .450 s | .217 s |
+| Opposite-input reversal distance | 10.117 px | 2.042 px | 1.083 px |
+| First negative velocity | .333 s | .083 s | .067 s |
+| Full-jump landing coast after recovery | 372.748 px | 35.700 px | 4.458 px |
+| Time for that remaining coast | 4.983 s | .717 s | .183 s |
+
+Landing coast is measured after the same .06s landing recovery, without corrective input. It excludes travel during recovery; it is not the reverse-braking distance. Real solver reports and all route recipes are in [02D validation](validation/milestone-02d.md).
+
+### Smooth slopes and deliberate rendering compromise
+
+Physics already used floating-point position/velocity and real polygons, not stair colliders. Visual.global_position.round(), camera.round(), and a strict 320x180 `viewport` framebuffer quantized the display. Removing only physics rounding would not have fixed this because there was no physics rounding.
+
+Chosen: logical 320x180 coordinates, integer scaling, `canvas_items` rendering at the physical window resolution, nearest texture filtering, automatic Godot 2D physics interpolation, fractional sprite/camera transforms. At 960x540, translations can advance one physical pixel (one third of a source pixel), while source pixels remain crisp. The visual now inherits the body transform; camera processing is physics-driven. Teleports/reset call reset_physics_interpolation. The 60Hz physics and normal jump envelope do not change.
+
+Alternatives: retaining `viewport` plus interpolation still quantizes the final 320x180 image; global linear filtering blurs artwork; a higher physics tick does not fix native-pixel quantization. At a 320x180 window, one physical pixel still equals a logical pixel: arbitrary continuous visual movement is impossible there. This rendering compromise introduces the usual interpolation latency and allows sub-source-pixel placements instead of a globally locked source-pixel grid.
+
+Godot references: [multiple resolutions](https://docs.godotengine.org/en/stable/tutorials/rendering/multiple_resolutions.html), [2D interpolation](https://docs.godotengine.org/en/stable/tutorials/physics/interpolation/2d_and_3d_physics_interpolation.html). Actual 960x540 Compatibility captures are in docs/visual-review/milestone-02d; static frames establish layout/crispness, not subjective motion comfort.
+
+Slope contact pressure remains separate from tangent momentum. Grounded wall stopping now checks inward velocity against the selected wall normal; an outward floor-edge contact must not zero momentum and glue a slow slider to the edge. Controlled production ramps use .6 acceleration, 2x reverse braking, .12 drag, .5 landing retention, 120 px/s cap and downhill acceleration 120*sin(angle). The laboratory retains its stronger 150 px/s ramp for comparison.
+
+### Universal contact response
+
+Untagged solid walls and platform sides now use the player's default CollisionResponseProfile: REBOUND, restitution .6, minimum horizontal relative speed 30 px/s. Classification uses solver normals and floor_max_angle, never object names. Surface Resources may override the response; the old magenta fixture explicitly retains .25 as a comparison. Supported floor/wall corners stop inward walking rather than bouncing. Ordinary top contacts still land; undersides interrupt ascent and never launch upward.
+
+For a vertical side with collider velocity u, w = incoming-u. Outgoing relative x = sign(normal.x)*abs(w.x)*restitution; relative y is preserved, then u is added once. Relative speed is bounded to the incoming relative magnitude. Moving walls may transfer their own energy in world coordinates; the bound is deliberately in the collider's frame. There is no extra engine departure carry.
+
+At most one selected side impulse per move; collider instance plus normal identifies persistent contacts. Separation permits a legitimate new contact on the next side without a coarse timer. Simultaneous ceiling contact suppresses the side impulse; ceiling response wins. Below-threshold touches do not rebound. Reset clears contact/impulse counters. Tests cover mirrored 20/65/165/500 px/s impacts, moving sides, corners and prolonged supported pressure.
+
+Diagonal redirect is independently opt-in (default fraction 0). Only the first rising impact of a jump may redirect a fraction f of the post-restitution horizontal energy into upward motion: transfer <= vx²*f, new |vy| <= max(old |vy|, configured vertical limit), and vx is reduced by exactly the energy used. Falling impacts stay horizontal, subsequent contacts cannot redirect again, restitution <=1 and relative speed remains bounded. Default limit 300 px/s; it never increases an already faster rise. Lab N opts in to .5; the main tower uses the ordinary horizontal response.
+
+Optional `top_restitution` defaults to zero. Explicit special-pad profiles can reflect downward relative normal motion above 30 px/s, bounded to incoming relative speed; ordinary tower pads do not use it. No double jump, upward wall kick, random impulse or air steering was added.
+
+### Lab routes and shared implementation
+
+Lab I: from (126,144), .75s right, wall x200, land (176.831,96), one rebound. J uses the same measured route against the vertical side of a 24px raised pad. K: from (180,144), .75s right, shaft walls x160/208, reach the 16px exit at y80 after two opposing impacts. L: .70s right against x188, rising momentum preserved, return to y96. M repeats I from a moderate-ice launch after stopping. N uses L's geometry with the explicit diagonal override. Exact current landing coordinates/times are recorded in validation.
+
+All use the same player.tscn/PlayerController/JumpPhysics/Resources as the tower, Classic lab and chamber. JumpRecorder adds rebound count/normal/impulse/type; F3 includes current zone, world height, maximum height and last landing body. The laboratory has CLASSIC + A-G/H1-H3 + I-N direct selector entries and optional TRACE collision/velocity/normal views.
+
+
+## Manual acceptance checklist (pending user playtest)
+
+- Ice: enter from normal ground, coast, counter-steer, reverse, stop completely, then hold/release Space. Try an early rejected charge, release/repress after braking, and compare mild/moderate/extreme tuning. Extreme is optional and absent from the tower.
+- Slides: use Lab F/G/H3 and tower pads 37/52. Observe shallow/steep/short/long polygon ramps at 960x540 and larger integer windows; counter-steer, run onto flat ground, run off, hit a wall and jump after braking. Compare 320x180, where display movement necessarily remains whole physical pixels.
+- Rebounds: Lab I/J/K/L/M/N. Hit ordinary walls from both directions; hit a raised pad's side, top and underside. Complete the return jump and two-wall shaft. Verify L preserves the rise and N explicitly redirects energy. Try low-speed supported corners without jitter. Moving-side response is automated; moving fixtures remain in H3.
+- Main game: Start Tower Ascent, climb all four floors and 60 numbered pads, inspect floor signage/tints, intentionally miss a transfer, fall into an earlier floor, brake/recover and continue. Reach PROTOTYPE SUMMIT. F3 shows zone/height/max/last landing/impulse; F6 explicitly resets to base, Esc/focus loss cancels charge and pauses.
+- Repeat WASD/arrows, W/S or Up/Down camera look, charging/slide pause and reset, different render FPS/window sizes. Judge ice feel, timing tolerances, visual smoothness and route variety; automation does not supply human approval.
+
 
 The controller is measured in Godot 4.7.2 at 60 Hz. The user approved the earlier movement and explicitly authorized collision/surface refinement in 02B. The normal-ground launch constants and linear curve remain unchanged; new surface tuning is provisional pending playtesting. Difficulty modes must share baseline launch physics. No coyote time, jump buffering, ledge grab, double/wall jump, dash or default air steering is introduced.
 
-## Current 02B rules and precedence
+## Historical 02B rules and precedence
 
 PlayerPhysicsConfig remains the baseline. CollisionResponseProfile owns wall/ceiling/platform-departure settings; SurfacePhysicsProfile owns walking/drag/retention/slide/charge policies. PhysicsSurface is a reusable AnimatableBody2D polygon with optional sinusoidal movement. Ordinary untagged solids resolve to the normal profile, so the existing lab and chamber need no geometry changes. Authored data is not mutated by the controller.
 

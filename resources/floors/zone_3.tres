@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="FloorTheme" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/environment/floor_theme.gd" id="1"]
+[resource]
+script = ExtResource("1")
+title = "RESTRICTED INFRASTRUCTURE"
+accent = Color(1.0, 0.447059, 0.411765, 1)
+backdrop_tint = Color(0.839216, 0.678431, 0.670588, 1)

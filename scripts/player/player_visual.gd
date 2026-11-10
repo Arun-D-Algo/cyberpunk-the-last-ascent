@@ -7,7 +7,6 @@ const SPRITES: Texture2D = preload("res://assets/player/maintenance_runner.png")
 
 
 func _process(_delta: float) -> void:
-	global_position = player.global_position.round()
 	queue_redraw()
 
 

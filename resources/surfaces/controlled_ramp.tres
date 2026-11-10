@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SurfacePhysicsProfile" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/player/surface_physics_profile.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"controlled_ramp"
+acceleration_scale = 0.6
+reverse_braking_scale = 2.0
+friction = 0.12
+landing_momentum_retention = 0.5
+maximum_slide_speed = 120.0
+charge_speed_limit = 8.0
+gravity_slide = true
+downhill_acceleration = 120.0

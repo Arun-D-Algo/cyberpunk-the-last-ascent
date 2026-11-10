@@ -21,6 +21,7 @@ func _ready() -> void:
 	$Environment.process_mode = Node.PROCESS_MODE_PAUSABLE
 	backdrop.process_mode = Node.PROCESS_MODE_PAUSABLE
 	player.position = SPAWN
+	player.reset_physics_interpolation()
 	player.z_index = 2
 	camera.target = player
 	camera.world_bounds = Rect2(0, -248, 320, 428)

@@ -3,11 +3,14 @@ extends StaticBody2D
 ## Whole-pixel top edge is the collision surface. Art is below it, never above it.
 
 @export_range(16, 320, 1) var width: int = 64
+@export var surface_profile: SurfacePhysicsProfile
 @export var warning_edge: bool = false
 @export var support_depth: int = 12
 
 
 func _ready() -> void:
+	if surface_profile != null:
+		set_meta("surface_physics", surface_profile)
 	collision_layer = 1
 	collision_mask = 2
 	var collision: CollisionShape2D = CollisionShape2D.new()

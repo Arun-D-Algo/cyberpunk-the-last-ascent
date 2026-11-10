@@ -1,5 +1,10 @@
 # Game design
 
+## Milestone 02D implementation status
+
+The current playable prototype is one continuous four-floor, 60-landing ascent with controllable moderate ice, polygon ramps and configurable ordinary wall/platform-side ricochets. Space charge/release, committed air motion and consequential recoverable falls remain the core loop. Floor tints/signage are temporary, not final campaign art. The eight-region narrative below remains a future design target. No story scenes, combat, cyberware, saves or automatic checkpoint teleportation were added. Physics feel, route pacing and art direction still need human acceptance; see level-design and the 02D validation report.
+
+
 Status: approved direction from the briefs unless labeled **proposal**. This is a campaign design target, not an implementation inventory. M01 implements a standalone physics lab (see physics-spec.md), not campaign content. It resolves charge timing, neutral direction, wall response and landing policy for the provisional prototype; later campaign/assist/ability designs remain proposals.
 
 M02A update: the user has manually approved the M01 movement. One playable Emergency Power Chamber now demonstrates Neon Industrial Decay art, machinery scale, layered atmosphere, improved placeholder/UI and an upward service route. This is a visual slice of the beginning of Sublevel Zero, not a completed tutorial region or narrative implementation. WASD and arrow keys share the same actions. Await user artistic approval before 02B.

@@ -1,6 +1,7 @@
 class_name PlayerController
 extends CharacterBody2D
 
+signal rebounded(normal: Vector2, impulse: Vector2, kind: String)
 signal state_changed(previous: int, current: int)
 signal jump_started(start: Vector2, charge_seconds: float, effective_strength: float, launch: Vector2)
 signal landed(at: Vector2)
@@ -19,6 +20,16 @@ var surface_normal: Vector2 = Vector2.UP
 var surface_body_name: StringName = &"world"
 var last_landing_velocity: Vector2 = Vector2.ZERO
 var charge_blocked: bool = false
+var rebound_count: int = 0
+var last_rebound_impulse: Vector2 = Vector2.ZERO
+var last_rebound_type: String = "none"
+var wall_contact_normal: Vector2 = Vector2.ZERO
+var current_zone: String = "LAB"
+var world_height: float = 0.0
+var maximum_height: float = 0.0
+var last_landing_surface: StringName = &"none"
+var _diagonal_used: bool = false
+var _previous_wall_body: int = 0
 var _previous_wall: Vector2 = Vector2.ZERO
 var _previous_ceiling: bool = false
 var state: State = State.FALLING
@@ -119,6 +130,7 @@ func step_movement(delta: float, direction: int, pressed: bool, held: bool, rele
 			var launch: Vector2 = JumpPhysics.launch_velocity(charge_duration, selected_direction, physics_config)
 			launch += velocity * active_surface.jump_momentum_retention
 			launch += get_platform_velocity() * collision_response.platform_velocity_inheritance
+			_diagonal_used = false
 			velocity = launch
 			jump_started.emit(global_position, charge_duration, JumpPhysics.strength(charge_duration, physics_config), launch)
 			charge_duration = 0.0
@@ -147,11 +159,13 @@ func step_movement(delta: float, direction: int, pressed: bool, held: bool, rele
 		# state, not the inward solver pressure, so slope momentum is neither lost nor inverted.
 		if is_on_floor():
 			var tangent: Vector2 = Vector2(-surface_normal.y, surface_normal.x)
-			velocity = Vector2.ZERO if is_on_wall() else tangent * intended_ground_velocity.dot(tangent)
+			var blocked: bool = is_on_wall() and intended_ground_velocity.dot(wall_contact_normal) < -0.01
+			velocity = Vector2.ZERO if blocked else tangent * intended_ground_velocity.dot(tangent)
 		else:
 			velocity = intended_ground_velocity + Vector2.DOWN * physics_config.gravity * delta
 	if is_on_floor():
 		if state == State.RISING or state == State.FALLING:
+			last_landing_surface = surface_body_name
 			last_landing_velocity = incoming
 			var tangent: Vector2 = Vector2(-surface_normal.y, surface_normal.x)
 			var retained: float = clampf(incoming.dot(tangent) * active_surface.landing_momentum_retention, -active_surface.maximum_slide_speed, active_surface.maximum_slide_speed)
@@ -160,6 +174,12 @@ func step_movement(delta: float, direction: int, pressed: bool, held: bool, rele
 			landing_remaining = physics_config.landing_recovery_time
 			_transition(State.LANDING)
 			landed.emit(global_position)
+			var top_response: CollisionResponseProfile = active_surface.contact_response
+			var relative: Vector2 = incoming - get_platform_velocity()
+			if top_response != null and top_response.top_restitution > 0.0 and relative.dot(surface_normal) < -30.0:
+				velocity = (relative - surface_normal * (1.0 + top_response.top_restitution) * relative.dot(surface_normal)).limit_length(relative.length()) + get_platform_velocity()
+				_transition(State.RISING)
+
 	else:
 		if state == State.GROUNDED or state == State.CHARGING or state == State.LANDING:
 			_cancel_charge()
@@ -187,7 +207,8 @@ func _ground_motion(delta: float, direction: int) -> void:
 	var target: float = direction * physics_config.ground_speed * active_surface.ground_speed_scale
 	if direction != 0:
 		# Inertia above walking speed is reduced with acceleration; never snap-clamped on entry.
-		speed = move_toward(speed, target, physics_config.ground_acceleration * active_surface.acceleration_scale * active_surface.input_influence * delta)
+		var braking: float = active_surface.reverse_braking_scale if direction * speed < 0.0 else 1.0
+		speed = move_toward(speed, target, physics_config.ground_acceleration * active_surface.acceleration_scale * active_surface.input_influence * braking * delta)
 	else:
 		speed = move_toward(speed, 0.0, physics_config.ground_deceleration * active_surface.friction * delta)
 	if active_surface.gravity_slide and slope_degrees() >= active_surface.minimum_slide_angle:
@@ -220,6 +241,8 @@ func _set_surface(profile: SurfacePhysicsProfile) -> void:
 
 func _resolve_contacts(incoming: Vector2) -> void:
 	var wall_normal: Vector2 = Vector2.ZERO
+	var wall_velocity: Vector2 = Vector2.ZERO
+	var wall_body: int = 0
 	var ceiling: bool = false
 	var response: CollisionResponseProfile = collision_response
 	var floor_distance: float = INF
@@ -243,6 +266,8 @@ func _resolve_contacts(incoming: Vector2) -> void:
 		else:
 			if absf(normal.x) > absf(wall_normal.x):
 				wall_normal = normal
+				wall_velocity = collision.get_collider_velocity()
+				wall_body = collision.get_collider_id()
 				var wall_profile: SurfacePhysicsProfile = _profile(collision.get_collider())
 				response = wall_profile.contact_response if wall_profile.contact_response != null else collision_response
 	if found_floor:
@@ -251,18 +276,37 @@ func _resolve_contacts(incoming: Vector2) -> void:
 		surface_normal = Vector2.UP
 		surface_body_name = &"air"
 		_set_surface(NORMAL)
-	if not wall_normal.is_zero_approx() and incoming.dot(wall_normal) < -0.01:
-		if not wall_normal.is_equal_approx(_previous_wall):
+	wall_contact_normal = wall_normal
+	if not wall_normal.is_zero_approx() and (incoming - wall_velocity).dot(wall_normal) < -0.01:
+		if wall_body != _previous_wall_body or not wall_normal.is_equal_approx(_previous_wall):
 			contact_impact.emit(wall_normal, incoming)
-			if not is_on_floor() and response.wall_mode == CollisionResponseProfile.WallMode.REBOUND:
-				velocity.x = signf(wall_normal.x) * absf(incoming.x) * response.wall_restitution
-				velocity = velocity.limit_length(incoming.length())
+			var relative: Vector2 = incoming - wall_velocity
+			if not is_on_floor() and not ceiling and absf(relative.x) >= response.minimum_impact_speed and response.wall_mode == CollisionResponseProfile.WallMode.REBOUND:
+				var outgoing: Vector2 = Vector2(signf(wall_normal.x) * absf(relative.x) * response.wall_restitution, relative.y)
+				last_rebound_type = "horizontal"
+				if response.diagonal_energy_fraction > 0.0 and relative.y < 0.0 and not _diagonal_used:
+					var transfer: float = outgoing.x * outgoing.x * response.diagonal_energy_fraction
+					var rise: float = minf(sqrt(relative.y * relative.y + transfer), maxf(absf(relative.y), response.diagonal_vertical_limit))
+					var used: float = rise * rise - relative.y * relative.y
+					outgoing.x = signf(outgoing.x) * sqrt(maxf(0.0, outgoing.x * outgoing.x - used))
+					outgoing.y = -rise
+					_diagonal_used = true
+					last_rebound_type = "diagonal"
+				velocity = outgoing.limit_length(relative.length()) + wall_velocity
+				last_rebound_impulse = velocity - incoming
+				_rebound_event(wall_normal)
+	_previous_wall_body = wall_body
 	if ceiling:
 		if not _previous_ceiling and incoming.y < 0.0:
 			contact_impact.emit(Vector2.DOWN, incoming)
 		velocity.y = maxf(velocity.y, minf(response.ceiling_downward_speed, absf(incoming.y)))
 	_previous_wall = wall_normal
 	_previous_ceiling = ceiling
+
+
+func _rebound_event(normal: Vector2) -> void:
+	rebound_count += 1
+	rebounded.emit(normal, last_rebound_impulse, last_rebound_type)
 
 
 func cancel_input_until_release() -> void:
@@ -276,6 +320,14 @@ func cancel_input_until_release() -> void:
 
 func reset_movement(at: Vector2) -> void:
 	global_position = at
+	reset_physics_interpolation()
+	rebound_count = 0
+	last_rebound_impulse = Vector2.ZERO
+	last_rebound_type = "none"
+	last_landing_surface = &"none"
+	wall_contact_normal = Vector2.ZERO
+	_previous_wall_body = 0
+	_diagonal_used = false
 	velocity = Vector2.ZERO
 	landing_remaining = 0.0
 	selected_direction = 0

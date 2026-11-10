@@ -1,6 +1,19 @@
 # Technical design
 
-## M02B mechanics architecture (current)
+## Milestone 02D — current architecture
+
+The current playable root is TowerAscent, opened from boot. It composes one shared PlayerController scene and LabCamera/HUD with TowerRoute data and four FloorTheme Resources. All 60 pads, 8 return banks, base and side boundaries remain loaded; this small static prototype does not need streaming, autoload managers or scene-boundary teleports. Fixed world boundaries determine current floor on both ascent and descent. No checkpoint/Assisted/Classic campaign mode existed, so none was invented.
+
+The same player.tscn is instantiated by PhysicsLab, EmergencyPowerChamber and TowerAscent. Normal launch math/Resource/collider keep their original SHA guards. The camera SHA guard was removed under explicit 02D authorization and replaced with engine-tested fractional transforms, long-fall visibility and interpolation checks. No camera or presentation code modifies velocity.
+
+Rendering deliberately uses canvas_items at physical window resolution, nearest textures, integer scaling and 2D physics interpolation. Visual inherits its body's floating transform; Camera2D updates in physics mode without rounding, and reset clears interpolation history. Native 320x180 output remains physically pixel-limited. See physics-spec for alternatives and Godot references.
+
+Contacts select one wall normal/body per move. Relative moving-collider velocity is reflected once; ceiling priority prevents corner impulses, contact identity suppresses repeat impulses, and optional diagonal energy redirection has a once-per-rising-jump budget. Surface coefficients are independently configurable. No collision is inferred from artwork or collider names; decorative reused shaft layers remain collision-free.
+
+Diagnostics add last landing, zone/height/max and rebound information to the existing 10Hz F3 readout; traces remain bounded. Runner includes refinement_test and tower_test, scene startups, existing suites and 30/60/120 cadence probes for normal jumps, moderate stopping and ordinary rebounds. Static validation normalizes CRLF before regex anchors and checks explicit resource paths; this addresses Windows line endings, not gameplay correctness. Generated engine logs/measurements stay ignored; the reviewed report lives under docs/validation.
+
+
+## M02B mechanics architecture (historical)
 
 The new prompt explicitly authorizes physics refinement and supersedes the 02A controller freeze. The old controller hash guard was removed intentionally, **not replaced with an arbitrary new hash**; its behavioral protection is the existing 177-check suite plus measured baseline arcs and new surface scenarios. JumpPhysics, default_player_physics.tres, player.tscn collider and LabCamera remain protected by their existing hashes. M02A art/background assets and chamber composition are unchanged.
 

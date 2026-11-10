@@ -1,6 +1,39 @@
 # Level design
 
-## M02B precision-platforming foundations (current)
+## Milestone 02D — continuous gameplay prototype
+
+`scenes/levels/tower_ascent.tscn` is the main playable ascent, selected by **Start Tower Ascent**. The original chamber remains a visual slice and Classic remains a lab regression. This is four provisional floors, not the eight-region final campaign.
+
+| Floor | Height range above base | Length | Landings | Main focus |
+|---|---:|---:|---:|---|
+| Public Access | 0-720 px | 720 px | 15 | Wide pads, varied rises, introductory return banks |
+| Commercial Atrium | 720-1456 px | 736 px | 15 | Narrower pads, long transfers, raised side/underside clearance |
+| Restricted Infrastructure | 1456-2188 px | 732 px | 15 | Moderate ice, controlled ramp/runout, rebound combinations |
+| Maintenance Ascent | 2188-3008 px | 820 px | 15 | 24-40px ledges, 52-60px rises, ice/ramp/bank combinations |
+
+Total: **60 numbered mandatory landing destinations over 3008 px**, from base feet y144 to summit y-2864. Two return banks per zone are exercised by the reference route (8 ricochets), plus 6 moderate-ice landings and 2 controlled ramp/runout pads. Ordinary pad widths progress from 48-64px to 24-40px; return ledges are 28px. Rise tables, spacing, widths and post-bank direction changes vary the rhythm. The route remains a prototype; human pacing and variety need acceptance rather than padding it with more identical jumps.
+
+TowerRoute contains the authored rhythm/geometry data; TowerAscent composes the existing IndustrialPlatform art, shared PhysicsSurface polygons and shared player. Raised return walls have solid tops, sides and undersides. The solver caught overhead blockages, short-approach side impacts and marginal edge landings during authoring; geometry and timings were revised until the complete route passed.
+
+All four floors occupy one continuous world: negative Y is up. Floor classification uses fixed boundaries at each previous zone's last pad minus 1px, with no reposition, velocity reset, loading screen or checkpoint teleport. Temporary FloorTheme Resources hold accent/tint/title; floor number signs and a current-zone HUD accompany preserved shaft textures. Future art can replace these Resources independently of physics. 71 solid bodies remain loaded; there is no streaming or save system.
+
+The final replay uses the actual controller on the final complete geometry, walking/braking between launches without inter-platform resets, and checks every landing body plus every reference collision sequence. Candidate discovery uses resets in a separate pass; it is not substituted for the continuous replay. Launch recipes and measured landing positions are in [validation/milestone-02d.md](validation/milestone-02d.md).
+
+A deterministic ideal-input replay takes about 115.47 simulation seconds, including walking, charging and ice braking. Reading geometry and recovering from mistakes will lengthen human attempts; a several-minute human completion time is a design intention, not a measured human result.
+
+Long-fall test: physically walk off the summit, fall 1263.75px at up to 600px/s into floor 3, camera follows after its normal update, land on solid geometry, cancel/charge again, pause and explicitly reset. The normal jump envelope remains 69.015px maximum rise and 132.007px same-height range. Earlier platforms and the base remain recovery surfaces; ordinary misses never auto-retry. Alternative charge/launch choices may bypass some banks; the validated reference deliberately exercises them, while the two-wall laboratory route requires ricochets.
+
+
+## Manual acceptance checklist (pending user playtest)
+
+- Ice: enter from normal ground, coast, counter-steer, reverse, stop completely, then hold/release Space. Try an early rejected charge, release/repress after braking, and compare mild/moderate/extreme tuning. Extreme is optional and absent from the tower.
+- Slides: use Lab F/G/H3 and tower pads 37/52. Observe shallow/steep/short/long polygon ramps at 960x540 and larger integer windows; counter-steer, run onto flat ground, run off, hit a wall and jump after braking. Compare 320x180, where display movement necessarily remains whole physical pixels.
+- Rebounds: Lab I/J/K/L/M/N. Hit ordinary walls from both directions; hit a raised pad's side, top and underside. Complete the return jump and two-wall shaft. Verify L preserves the rise and N explicitly redirects energy. Try low-speed supported corners without jitter. Moving-side response is automated; moving fixtures remain in H3.
+- Main game: Start Tower Ascent, climb all four floors and 60 numbered pads, inspect floor signage/tints, intentionally miss a transfer, fall into an earlier floor, brake/recover and continue. Reach PROTOTYPE SUMMIT. F3 shows zone/height/max/last landing/impulse; F6 explicitly resets to base, Esc/focus loss cancels charge and pauses.
+- Repeat WASD/arrows, W/S or Up/Down camera look, charging/slide pause and reset, different render FPS/window sizes. Judge ice feel, timing tolerances, visual smoothness and route variety; automation does not supply human approval.
+
+
+## M02B precision-platforming foundations (historical)
 
 Difficulty should come from repeatable charge timing, launch placement, surface awareness, route planning and risk management. It must not come from hidden rebound rules, random impulses, misleading art, inconsistent support or unreadable recovery. The old lab and chamber routes remain reachable with the unchanged normal-ground jump envelope.
 

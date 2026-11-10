@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="Cyberpunk: The Last Ascent"
-config/description="Unofficial noncommercial fan-game concept. Milestone 02B precision physics and surface laboratory."
-config/version="0.2.1-physics"
+config/description="Unofficial noncommercial fan-game concept. Milestone 02D continuous four-floor ascent and universal ricochets."
+config/version="0.2.3-ascent"
 run/main_scene="res://scenes/main/boot.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
@@ -22,7 +22,7 @@ window/size/viewport_width=320
 window/size/viewport_height=180
 window/size/window_width_override=960
 window/size/window_height_override=540
-window/stretch/mode="viewport"
+window/stretch/mode="canvas_items"
 window/stretch/scale_mode="integer"
 window/size/min_width=320
 window/size/min_height=180
@@ -100,3 +100,7 @@ textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 environment/defaults/default_clear_color=Color(0.025, 0.03, 0.07, 1)
+
+[physics]
+
+common/physics_interpolation=true

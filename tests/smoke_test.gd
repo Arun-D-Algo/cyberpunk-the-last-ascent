@@ -20,7 +20,7 @@ func _run() -> void:
 	_check(ResourceLoader.exists(main_path), "Main scene missing")
 	_check(ProjectSettings.get_setting("display/window/size/viewport_width") == 320, "Viewport width")
 	_check(ProjectSettings.get_setting("display/window/size/viewport_height") == 180, "Viewport height")
-	_check(ProjectSettings.get_setting("display/window/stretch/mode") == "viewport", "Stretch mode")
+	_check(ProjectSettings.get_setting("display/window/stretch/mode") == "canvas_items", "Stretch mode")
 	_check(ProjectSettings.get_setting("display/window/stretch/aspect") == "keep", "Aspect mode")
 	_check(ProjectSettings.get_setting("display/window/stretch/scale_mode") == "integer", "Integer scaling")
 	_check(ProjectSettings.get_setting("rendering/textures/canvas_textures/default_texture_filter") == 0, "Nearest filtering")
@@ -59,8 +59,8 @@ func _run() -> void:
 		await process_frame
 		var labels: Dictionary = {
 			"Content/Title": "CYBERPUNK: THE LAST ASCENT",
-			"Content/Subtitle": "Milestone 02B / Precision Mechanics",
-			"Content/Status": "Project initialized successfully.",
+			"Content/Subtitle": "Milestone 02D / Continuous Ascent",
+			"Content/Status": "Four floors / 60 landings / one tower",
 		}
 		for path: String in labels:
 			var label: Label = boot.get_node_or_null(path) as Label

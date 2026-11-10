@@ -2,8 +2,8 @@ class_name LabSections
 extends RefCounted
 ## Mechanics fixtures, not production levels. Coordinates match visible polygon boundaries.
 
-const LABELS: PackedStringArray = ["CLASSIC", "A JUMPS", "B WALLS", "C CEILING", "D LEDGES", "E ICE", "F SLOPES", "G RAMPS", "H1 ICE", "H2 REBOUND", "H3 RUNOFF"]
-const DESCRIPTIONS: PackedStringArray = ["CLASSIC / ORIGINAL ASCENT", "A / JUMP CALIBRATION", "B / STOP AND CONTROLLED REBOUND", "C / LOW CEILINGS AND CORNERS", "D / NARROW LEDGES AND RECOVERY", "E / ICE AND NORMAL TRANSITIONS", "F / SHALLOW AND STEEP SLOPES", "G / BRAKE THEN CHARGE ON RAMPS", "H1 / ICE APPROACH TO NARROW TARGET", "H2 / WALL REBOUND UNDER OVERHANG", "H3 / RAMP RUNOFF AND RECOVERY"]
+const LABELS: PackedStringArray = ["CLASSIC", "A JUMPS", "B WALLS", "C CEILING", "D LEDGES", "E ICE", "F SLOPES", "G RAMPS", "H1 ICE", "H2 REBOUND", "H3 RUNOFF", "I WALL", "J PAD SIDE", "K SHAFT", "L RISING", "M ICE BANK", "N DIAGONAL"]
+const DESCRIPTIONS: PackedStringArray = ["CLASSIC / ORIGINAL ASCENT", "A / JUMP CALIBRATION", "B / STOP AND CONTROLLED REBOUND", "C / LOW CEILINGS AND CORNERS", "D / NARROW LEDGES AND RECOVERY", "E / ICE AND NORMAL TRANSITIONS", "F / SHALLOW AND STEEP SLOPES", "G / BRAKE THEN CHARGE ON RAMPS", "H1 / ICE APPROACH TO NARROW TARGET", "H2 / WALL REBOUND UNDER OVERHANG", "H3 / RAMP RUNOFF AND RECOVERY", "I / ORDINARY WALL RICOCHET", "J / RAISED PAD SIDE REBOUND", "K / TWO WALL SHAFT", "L / PRESERVE RISING MOMENTUM", "M / ICE BRAKE AND RICOCHET", "N / OPTIONAL ENERGY REDIRECT"]
 const NORMAL: SurfacePhysicsProfile = preload("res://resources/surfaces/normal.tres")
 const ICE: SurfacePhysicsProfile = preload("res://resources/surfaces/ice.tres")
 const RAMP: SurfacePhysicsProfile = preload("res://resources/surfaces/sliding_ramp.tres")
@@ -74,4 +74,21 @@ static func populate(parent: Node, section: int) -> Vector2:
 			mover.motion_offset = Vector2(20, 0)
 			mover.motion_period = 3.0
 			return Vector2(55, 80 + 15 * 56.0 / 150.0)
+		11, 12, 14, 15, 16:
+			box(parent, "ReturnLedge", Rect2(164, 96, 28, 8))
+			var wall: PhysicsSurface = box(parent, "RaisedPad" if section == 12 else "OrdinaryWall", Rect2(188 if section in [14, 16] else 200, 40, 24 if section == 12 else 8, 104))
+			if section == 16:
+				var profile: SurfacePhysicsProfile = NORMAL.duplicate()
+				profile.contact_response = CollisionResponseProfile.new()
+				profile.contact_response.diagonal_energy_fraction = 0.5
+				wall.surface_profile = profile
+				wall.set_meta("surface_physics", profile)
+			if section == 15:
+				box(parent, "IceLaunch", Rect2(16, 144, 144, 8), ICE)
+			return Vector2(126, 144)
+		13:
+			box(parent, "ShaftLeft", Rect2(160, 40, 8, 80))
+			box(parent, "ShaftRight", Rect2(208, 40, 8, 80))
+			box(parent, "ShaftExit", Rect2(164, 80, 16, 8))
+			return Vector2(180, 144)
 	return Vector2(45, 144)

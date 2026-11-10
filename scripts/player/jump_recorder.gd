@@ -15,6 +15,7 @@ var trace: PackedVector2Array = PackedVector2Array()
 
 
 func _ready() -> void:
+	player.rebounded.connect(_on_rebound)
 	player.jump_started.connect(_on_started)
 	player.landed.connect(_on_landed)
 	player.physics_stepped.connect(_on_stepped)
@@ -37,7 +38,7 @@ func _on_started(start: Vector2, seconds: float, strength: float, launch: Vector
 	_active = {"start": start, "charge_seconds": seconds, "strength": strength,
 		"initial_velocity": launch, "peak_height": 0.0, "displacement": 0.0,
 		"airborne_seconds": 0.0, "landing": start, "hit_wall": false, "hit_ceiling": false,
-		"wall_collision_count": 0, "ceiling_collision_count": 0, "launch_surface": String(player.active_surface.id)}
+		"rebound_count": 0, "wall_collision_count": 0, "ceiling_collision_count": 0, "launch_surface": String(player.active_surface.id)}
 	_landing_pending = false
 	trace = PackedVector2Array([start])
 
@@ -91,3 +92,12 @@ func _on_stepped(delta: float) -> void:
 		_landing_pending = false
 		completed_count += 1
 		measurement_completed.emit(last_jump)
+
+
+func _on_rebound(normal: Vector2, impulse: Vector2, kind: String) -> void:
+	if not _active.is_empty():
+		_active["rebound_count"] += 1
+		_active["rebound_normal"] = normal
+		_active["rebound_impulse"] = impulse
+		_active["rebound_incoming"] = player.velocity - impulse
+		_active["rebound_type"] = kind

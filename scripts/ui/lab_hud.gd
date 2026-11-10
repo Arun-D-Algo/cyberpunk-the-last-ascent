@@ -50,3 +50,5 @@ func _process(delta: float) -> void:
 		jump.get("strength", 0.0), jump.get("peak_height", 0.0), jump.get("displacement", 0.0), jump.get("airborne_seconds", 0.0),
 		jump.get("wall_collision_count", 0), jump.get("ceiling_collision_count", 0), recorder.sliding_distance, recorder.maximum_sliding_speed,
 		Engine.physics_ticks_per_second, Engine.get_frames_per_second()]
+
+	debug_label.text += "\n%s H:%.0f MAX:%.0f land:%s\nB:%d %s N:%.0f,%.0f I:%.0f,%.0f" % [player.current_zone, player.world_height, player.maximum_height, player.last_landing_surface, player.rebound_count, player.last_rebound_type, player.wall_contact_normal.x, player.wall_contact_normal.y, player.last_rebound_impulse.x, player.last_rebound_impulse.y]

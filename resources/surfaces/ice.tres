@@ -3,7 +3,9 @@
 [resource]
 script = ExtResource("1")
 id = &"ice"
-acceleration_scale = 0.22
-friction = 0.025
-landing_momentum_retention = 0.92
-charge_speed_limit = 8.0
+acceleration_scale = 0.45
+friction = 0.12
+landing_momentum_retention = 0.68
+charge_speed_limit = 12.0
+reverse_braking_scale = 2.0
+stop_speed = 1.0

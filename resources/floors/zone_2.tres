@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="FloorTheme" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/environment/floor_theme.gd" id="1"]
+[resource]
+script = ExtResource("1")
+title = "COMMERCIAL ATRIUM"
+accent = Color(0.94902, 0.784314, 0.301961, 1)
+backdrop_tint = Color(0.87451, 0.733333, 0.807843, 1)

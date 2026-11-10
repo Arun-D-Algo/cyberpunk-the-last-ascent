@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="FloorTheme" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/environment/floor_theme.gd" id="1"]
+[resource]
+script = ExtResource("1")
+title = "MAINTENANCE ASCENT"
+accent = Color(0.956863, 0.639216, 0.333333, 1)
+backdrop_tint = Color(0.639216, 0.729412, 0.85098, 1)

@@ -1,5 +1,33 @@
 # Development log
 
+## 2026-11-11 - Milestone 02D: refined contacts and continuous vertical gameplay
+
+Inspected the user brief, existing instructions/design docs, controller/state/config/surfaces, collision/moving-platform policy, lab/chamber/camera/UI/tests and Git. Starting tree was clean on main at c77edf4. Verified the installed 4.7.2.stable.official.ed1daf0bf. The complete baseline runner passed before edits (177 physics, 169 visual/input, 608 surface checks and render-cadence probes). The latest brief authorizes camera refinement and a main-game route; no missing 02C work was inferred.
+
+Diagnosed 02B ice: 30 px/s2 released drag, 198 px/s2 acceleration, .92 landing retention and 8px/s charge threshold. Added separate reverse braking and mild/moderate/extreme Resources; extreme preserves the old coefficients. Moderate uses .45 acceleration, 2x opposite-input braking, .12 drag, .68 landing retention, 12px/s charge threshold and 1px/s exact-rest cutoff. Solver measurements from 65px/s: released stop 69.875px/2.167s -> 14.127px/.450s; reversal 10.117px/.333s -> 2.042px/.083s. Uncorrected full-landing coast after the same recovery: 372.748px/4.983s -> 35.700px/.717s. Charging remains stationary and fresh-press only. Updated H1 to position, brake and charge; changed the runoff fixture and driven seam approach to exercise intended transitions with stronger drag instead of relying on the obsolete long coast. Fixed outward floor-edge contacts incorrectly zeroing a slider's velocity.
+
+Diagnosed visible ramp steps in sprite rounding, camera rounding and the native viewport framebuffer, not integer physics or staircase geometry. Selected canvas_items at physical window resolution with nearest textures/integer scaling, fractional inherited player transforms, 2D interpolation and interpolation resets. The physics tick remains 60Hz. Removed only the explicitly obsolete camera SHA guard; normal launch formulas/config/collider keep original hashes. At 320x180 physical output, pixel quantization remains unavoidable. Nine actual 960x540 Compatibility captures on Intel Arc were inspected for layout/crispness; subjective moving-image comfort is pending human testing.
+
+Ordinary untagged walls/platform sides now use .6 restitution above 30px/s horizontal relative impact. Vertical motion is preserved. One side contact is selected, persistent collider+normal identities suppress duplicates, ceilings win at corners, supported walking corners stop and moving collider velocity is applied once. Optional diagonal response redirects bounded horizontal energy into rise only once per rising jump; default is disabled. Optional top restitution defaults to zero and ordinary landings remain stable. Added I-N lab fixtures, real mirrored/high-speed/moving-side/diagonal/persistent-contact/top-pad tests and recorder/F3 rebound/zone/height/landing data.
+
+Added TowerAscent, shared player/camera/HUD, authored TowerRoute and replaceable FloorTheme Resources. Four floors contain 15 required landing destinations each: Public Access 720px, Commercial Atrium 736px, Restricted Infrastructure 732px, Maintenance Ascent 820px; total 3008px from y144 to y-2864. Eight reference ricochets, six moderate-ice destinations and two controlled ramp/runout destinations reuse existing shaft/platform art. No source asset PNG was changed, no checkpoint teleport/loading boundary/streaming manager/story/final art/combat/save system was introduced. Zone display formatting updates only on transitions.
+
+Validation used actual final-geometry solver motion. Discovery trials were followed by a separate continuous walk/brake/charge replay of all 60 landings, including collision-sequence assertions, without inter-platform teleports. Ideal simulation time 115.467s; human multi-minute pacing is unmeasured. Walking off the summit produced a 1263.750px fall into floor 3, peak 600px/s, 2.417s, with camera visibility, solid landing, recovery charge, pause/cancel and explicit base reset verified. Early geometry failures (overheads, future walls obstructing approaches, marginal side/edge landings) were corrected rather than hidden by weaker checks.
+
+Final executed commands from project root:
+
+```powershell
+.\tests\validate_static.ps1
+.\tests\run_validation.ps1 -GodotExe 'C:\Users\Arunangshu Dasgupta\Tools\Godot\godot_console.exe'
+# Graphical QA with process-local AppData/cache isolation and an absolute ignored log:
+& $GodotExe --path . --script res://tools/capture_refinement_review.gd --log-file $CaptureLog
+```
+
+Results: 226 static source checks; headless import, boot/chamber/tower startup and smoke; 177 physics, 168 visual/input, 633 surface, 115 refinement and 393 tower checks; 30/60/120 render-cadence probes all passed. The visual count drops one because the authorized camera hash is replaced by behavior coverage. The static checker now handles CRLF anchors and explicit floor Resource paths. Capture command passed on the Compatibility renderer; git diff --check passed. Generated engine logs/cache remain ignored; measured ice/ricochet/60-pad recipes and the manual checklist are committed documentation.
+
+Implementation criteria are engine-verified. Remaining acceptance: human feel, interpolation comfort, physical input timing, route variety/difficulty/pacing and long-session hardware performance; Linux/exports are untested. A perfect reference run is under two minutes, so several-minute human duration is a design intention rather than a fabricated measurement. Alternative charges may bypass some banks. The final eight-region campaign and final floor art remain future work. No push was performed.
+
+
 ## 2026-11-10 — Milestone 02B: precision physics and surface mechanics
 
 ### Inspection, authorization and preservation

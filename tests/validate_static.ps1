@@ -24,7 +24,7 @@ foreach ($file in $requiredFiles) {
         Assert-Source ((Get-Item -LiteralPath $path).Length -gt 0) "Empty file: $file"
     }
 }
-$settings = Get-Content -LiteralPath (Join-Path $projectRoot 'project.godot') -Raw -Encoding UTF8
+$settings = (Get-Content -LiteralPath (Join-Path $projectRoot 'project.godot') -Raw -Encoding UTF8).Replace("`r`n", "`n")
 Assert-Source ($settings -match '(?m)^config_version=5$') 'Unexpected project format'
 $sceneMatch = [regex]::Match($settings, '(?m)^run/main_scene="res://([^"]+)"$')
 Assert-Source $sceneMatch.Success 'Missing res:// main scene'
@@ -34,7 +34,7 @@ if ($sceneMatch.Success) {
 $expectedSettings = @(
     'window/size/viewport_width=320', 'window/size/viewport_height=180',
     'window/size/window_width_override=960', 'window/size/window_height_override=540',
-    'window/stretch/mode="viewport"',
+    'window/stretch/mode="canvas_items"',
     'window/stretch/scale_mode="integer"',
     'renderer/rendering_method="gl_compatibility"',
     'textures/canvas_textures/default_texture_filter=0'
@@ -70,7 +70,7 @@ foreach ($action in $bindings.Keys) {
     }
 }
 $scene = Get-Content -LiteralPath (Join-Path $projectRoot 'scenes/main/boot.tscn') -Raw -Encoding UTF8
-foreach ($label in @('CYBERPUNK: THE LAST ASCENT', 'Milestone 02B / Precision Mechanics', 'Project initialized successfully.', 'Enter Physics Lab 2.0', 'Enter Power Chamber')) {
+foreach ($label in @('CYBERPUNK: THE LAST ASCENT', 'Milestone 02D / Continuous Ascent', 'Four floors / 60 landings / one tower', 'Enter Physics Lab 2.0', 'Enter Power Chamber')) {
     Assert-Source ($scene.Contains($label)) "Boot text missing: $label"
 }
 $ignore = Get-Content -LiteralPath (Join-Path $projectRoot '.gitignore') -Raw -Encoding UTF8
