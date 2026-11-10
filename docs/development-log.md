@@ -1,5 +1,62 @@
 # Development log
 
+## 2026-11-10 — Milestone 02B: precision physics and surface mechanics
+
+### Inspection, authorization and preservation
+
+Verified project root, main branch and Godot 4.7.2.stable.official.ed1daf0bf. M02A was actually committed at f2d044a, following cb1ce10 and 5460018. Read existing instructions/docs and inspected player/config/math/collider, lab, chamber, art architecture, camera/HUD/recorder, InputMap and tests. The only initial user change was project.godot's editor-expanded event serialization and omission of the default 60Hz setting; preserved it. Static validation now accepts an omitted default tick while the engine smoke verifies 60Hz. No unrelated files, source art/backgrounds, collider or camera were changed.
+
+The new user brief explicitly authorizes controller refinement. This supersedes the 02A source-freeze instruction for this scope. Removed only the obsolete controller SHA guard, not arbitrary new hashes or behavior checks; remaining four protected launch/config/collider/camera hashes still pass. The visual suite count becomes 169 from 170 for that documented reason. No user artistic approval is inferred, and no future production work was started.
+
+### Baseline established before implementation
+
+Ran the complete existing validation runner before edits: import, boot/chamber startup, foundation smoke, 177 physics checks and 170 visual/input checks passed. Saved the baseline measurement report under ignored .godot and copied the original tuning to resources/physics/m01_baseline.tres for comparison. Same-height normal-ground results at 60Hz: minimum/25/50/75/full rises 11.267/21.196/33.610/50.607/69.015px and ranges 15.006/33.822/57.279/92.950/132.007px. Flight times 0.333/0.450/0.550/0.683/0.800s.
+
+### Implemented systems and files
+
+- SurfacePhysicsProfile and CollisionResponseProfile Resource definitions, normal/ice/gravity-ramp/rebound-wall data and default/opt-in contact response Resources. Surface coefficients modify baseline walking; no hidden jump scaling or duplicate launch formula.
+- PhysicsSurface reusable AnimatableBody2D polygon scene with profile metadata and optional sinusoidal motion. Real polygon collision matches drawn fixture boundaries. World layer 1 / player layer 2 is retained. Moving fixture priority -20, live player priority 0.
+- PlayerController integrates supported tangent speed, chooses actual contact profiles/normals, preserves seam momentum, applies explicit landing retention and bounded airborne wall response, and gates charging by surface speed. Normal inclines rest without drifting; only designated ramps accelerate downhill. Stop remains the ordinary wall default. Optional restitution is 0.25 on marked test walls; ceiling kick defaults zero. No default air steering, ledge grab, buffered charge or double jump.
+- Explicit moving support carry/departure policy and reset handling. Passenger is carried while supported; implicit departure boost is disabled. Reset's first solve suppresses stale cached carry then reacquires real contact.
+- LabSections, Physics Lab selector and LabDiagnostics. Preserved Classic climb; added A calibration, B walls/rebound, C ceilings, D ledges, E ice, F slopes, G gravity ramps, H1 ice/narrow target, H2 rebound/roof and H3 ramp/runoff/moving recovery. Direct selection, supported spawns and F6 reset are tested; no long climb required. Selector/TRACE use focus-free controls, not new keyboard checks.
+- Extended JumpRecorder with collision counts, launch/landing profile/body, incoming landing velocity, slide travel/speed and capped actual trace. Landing's airborne movement tick is excluded from slide distance. F3 adds profile/friction/normal/angle/sliding/contact/eligibility/landing fields; optional TRACE shows actual body bounds, normal, velocity and history. Normal HUD retained.
+- surface_physics_test.gd and frame_rate_probe.gd extend the existing dependency-free harness. Runner executes all prior regressions, new mechanics and cadence comparisons. Updated README, AGENTS, physics/technical/level docs and roadmap; boot subtitle/entry text and version identify 02B without redesigning the menu.
+
+### Actual comparisons and deliberate tuning
+
+The final normal jump envelope matches all five baseline rows within 0.05px; no baseline launch constant/curve, gravity, fall cap or landing recovery was retuned. The old 330→360px/s trial remains a historical M01 check, not a new tuning change.
+
+Measured stopping from 65px/s: normal 1.250px / 0.067s; ice 69.875px / 2.167s. Reversal: normal 0.083s, ice 0.333s. Ice retains 92% of tangent impact momentum, has drag 30px/s², and requires speed ≤8px/s before a fresh stationary charge. Normal still brakes immediately when charging.
+
+Stop wall changes incoming +165px/s horizontal to 0. Opt-in restitution 0.25 changes it to -41.25px/s without increasing incoming speed magnitude. Default ceiling response remains zero; configured 5px/s downward response is separately tested, including immediate contact.
+
+Normal 14.03° / 34.99° polygon slopes show 0.0000px drift over the measured 30-tick rest interval, with continuous uphill/downhill support. A designated ramp reaches the configured 150px/s cap. Initial new ramp input influence 0.40 left +66.222px/s downhill speed after three seconds of counter-input from the cap; increased only this new coefficient to 0.65, which regains control and reaches -63.059px/s uphill. Both trials are reproduced using a duplicated trial Resource, not by mutating authored data. Ramp drag=48px/s², effective input acceleration=234px/s², configured downhill coefficient=260px/s²×sin(angle), charge limit=6px/s.
+
+### Failures found and corrected
+
+- Generic old bodies have no surface metadata. An initial nullable get_meta call logged errors; changed to explicit has_meta fallback, preserving ordinary solids rather than requiring retrofitted scenes.
+- Normal slopes drifted when engine constant-speed reprojection and our contact pressure interacted. Disabled the duplicate reprojection and separated pressure from intended tangent state. Godot clears supported vertical velocity; retaining that modified pressure as momentum also inverted the first ramp trial. Corrected stored tangent velocity after the solve, with real support/zero-drift tests.
+- Reset from a moving carrier initially shifted the new spawn by cached engine carry. Added a first-solve carry-layer suppression and exact-position regression; horizontal, ice and vertical carrier reset cases pass.
+- Immediate-ceiling test initially inspected after advancing beyond the contact tick. Corrected it to inspect the already-completed launch/contact before stepping again; no physics exception or relaxed assertion.
+- Combined H3's moving recovery was placed below the transfer route to avoid a ramp/headroom pinch. Recovery floor is y=176 and carrier y=152. Real reference routes now verify D's 24/16/8px climb plus all H1/H2/H3 goals without inter-jump teleports.
+- Recorder's landing tick was excluded from surface travel; a dedicated flat-runout test matches measured slide integration to actual displacement within 0.05px and verifies initial retained speed.
+
+### Validation actually executed
+
+- Baseline runner: clean pass before modifications, as recorded above.
+- Static source checks: PASS 193 at final implementation review (not an engine parser).
+- New mechanics suite: PASS 608 surface/mechanics checks in the latest direct run, including real collisions/ceilings/rebounds, partial ledges, friction/reversal/eligibility/runoff/reset, normal/ice/slope/ramp seams without extra landing events, genuine slopes, bounded ramps/control trials, horizontal/vertical/ice moving supports, paused carriers, exact reset spawn, all 11 menu entries, HUD/trace and actual combined challenge routes.
+- Complete runner also verifies unchanged 177-check M01 behavior/Classic route, 169-check 02A art/input/Power Chamber route, import, boot/chamber startup and foundation smoke. Final full sequence after recorder/combined-route changes: PASS import, boot startup, chamber startup, foundation smoke, 177 physics checks, 169 visual/input checks, 608 surface checks and all three cadence probes. Final static checks: PASS 193. No engine parse/resource/startup errors were reported.
+- Render cadence probes at 30/60/120 with physics fixed at 60Hz measured the same full arc: rise69.015px, dx132.007px, flight0.800s. This tests controlled simulated render cadence, not hardware performance or OS key timing.
+- Graphical engine probe rendered slope section and ice F3 diagnostics into ignored .godot PNGs at 320×180 with nearest 3× enlargement. Inspected both: section selector, actual sloped polygons, actor, TRACE toggle and detailed text fit the viewport. Debug text measured 144×107px in its 312×129px panel; made debug background opaque for readability. Screenshots are engineering checks, not new art or a claimed interactive playtest.
+- git diff --check, staged file/ignore review and cache exclusion before commit. Logs and reports are in ignored .godot; source Resources/scripts/.uid metadata are versioned. Nothing pushed, previous history not amended.
+
+### Known limitations and next gate
+
+Implementation is ready for user acceptance, with no known critical automated failures. Subjective ice/rebound/ramp feel, physical held-key timing, camera comfort under these challenges, long hardware sessions, Linux and exports remain unverified. Floor limit is still ~45°; steeper planes are walls. Very long polygons return slightly varying solver normals, so debug angle is observed rather than an ideal analytical value. Slide-distance integration is a relative tangent estimate (exact on tested flat runouts), not total world path length at every clipped corner. Traces cap at 2048 samples. Moving motion is a minimal sinusoidal fixture, not production platform routing.
+
+Follow the explicit manual checklist in physics-spec.md, including all selectors, ice charging/braking, ramp counter-input, wall/ceiling/edge cases, combined routes, pause and carrier reset. After user acceptance, agree a separate next milestone for production traversal/region integration. No new story/art, full regions, combat, cyberware, saves or bosses were built.
+
 ## 2026-11-10 — Milestone 02A: Neon Industrial Decay visual prototype
 
 ### Status, inspection and authorization

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SurfacePhysicsProfile" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/player/surface_physics_profile.gd" id="1"]
+[resource]
+script = ExtResource("1")
+id = &"ice"
+acceleration_scale = 0.22
+friction = 0.025
+landing_momentum_retention = 0.92
+charge_speed_limit = 8.0

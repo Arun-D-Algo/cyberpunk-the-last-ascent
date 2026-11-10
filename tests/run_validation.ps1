@@ -27,6 +27,10 @@ try {
     Invoke-EngineCheck 'smoke' @('--headless', '--path', $projectRoot, '--script', 'res://tests/smoke_test.gd')
     Invoke-EngineCheck 'physics' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/physics_test.gd')
     Invoke-EngineCheck 'visual_prototype' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/visual_prototype_test.gd')
+    Invoke-EngineCheck 'surfaces' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/surface_physics_test.gd')
+    foreach ($frameRate in @(30, 60, 120)) {
+        Invoke-EngineCheck "cadence_$frameRate" @('--headless', '--fixed-fps', "$frameRate", '--path', $projectRoot, '--script', 'res://tests/frame_rate_probe.gd')
+    }
     if ($Render) {
         Invoke-EngineCheck 'lab_render' @('--path', $projectRoot, '--scene', 'res://scenes/levels/physics_lab.tscn', '--write-movie', (Join-Path $projectRoot '.godot/lab.png'), '--quit-after', '12')
     }

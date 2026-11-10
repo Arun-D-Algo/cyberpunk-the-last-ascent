@@ -1,5 +1,23 @@
 # Technical design
 
+## M02B mechanics architecture (current)
+
+The new prompt explicitly authorizes physics refinement and supersedes the 02A controller freeze. The old controller hash guard was removed intentionally, **not replaced with an arbitrary new hash**; its behavioral protection is the existing 177-check suite plus measured baseline arcs and new surface scenarios. JumpPhysics, default_player_physics.tres, player.tscn collider and LabCamera remain protected by their existing hashes. M02A art/background assets and chamber composition are unchanged.
+
+PlayerController still owns one fixed-step movement/solver call. Focused helpers handle tangent integration, contact/profile selection and bounded contact response. New typed SurfacePhysicsProfile and CollisionResponseProfile Resources separate authored surface/response data from baseline launch data and live state. Profiles on collision bodies use surface_physics metadata; untagged old geometry falls back to normal. Closest floor-contact X selects a profile; a wall's response overrides the player's response only when authored. Profile changes preserve velocity and affect the next integration; landings explicitly apply destination retention.
+
+Slopes use actual CollisionPolygon2D normals and a rightward tangent. We integrate tangent speed ourselves, disable floor_constant_speed, and keep solver pressure separate from stored momentum because Godot clears the supported vertical component. Normal rest keeps floor_stop_on_slope; gravity ramps opt out and integrate configured downhill force. After a move, reconcile the intended tangent with the new normal (or stop at a floor/wall corner). Runoff transfers intended tangent velocity into airborne gravity. No animation/HUD/camera controls motion.
+
+PhysicsSurface is the reusable AnimatableBody2D polygon scene, with optional sinusoidal offset/period as the minimum moving test fixture. It runs at priority -20 before the live player. The engine carries the player while supported; implicit velocity inheritance on leave is disabled. Explicit inheritance is optional and defaults to zero. The first post-reset move disables old floor carry layers only for that solve to discard cached platform motion, then restores the mask and normal contact detection. Tests verify exact reset position, carry/reversal/launch/landing/pause on horizontal/vertical/ice platforms.
+
+LabSections composes isolated fixtures for A–G and three H challenges, preserving the original Classic layout. PhysicsLab owns a mouse selector, deferred geometry replacement, spawn/reset and moving-fixture resets. No new gameplay key actions or hardcoded keyboard checks were added. Focus-free selector/TRACE controls do not consume Space after a mouse selection. Scene-switch/reset clears live charge, recorder and camera state; no save or production region system is added.
+
+JumpRecorder retains the original jump fields and adds impact counts, landing velocity/body/profile, slide travel and max slide speed. Samples are measured after actual solver moves; debug traces cap at 2048 points. LabDiagnostics optionally draws the actual collider, normal, velocity and recorded trace. F3 text updates at 10Hz only when shown and includes profile/drag/eligibility/normal/angle/contacts/landing velocity. The normal charge HUD is preserved. The debug panel is larger/opaque to fit data, intentionally covering the scene only when requested.
+
+surface_physics_test.gd extends the existing real-tick harness; it is not a replacement framework. It tests Resource validation, baseline arcs, stop/rebound/ceilings, partial ledges, friction/reversal/eligibility, seam chains, slopes/ramps, moving platforms and every selector entry. frame_rate_probe.gd checks the same 60Hz arc at 30/60/120 render cadences. The Power Chamber's real route and arrow-input suite still run. Actual measurements and manual limits are in physics-spec.md/development-log.md.
+
+The M01/M02A sections below describe the preceding foundation and remain historical context where 02B explicitly supersedes controller behavior. Godot API references used for carry/slope semantics: [CharacterBody2D](https://docs.godotengine.org/en/4.5/classes/class_characterbody2d.html), [engine floor-velocity handling](https://github.com/godotengine/godot/blob/master/scene/2d/physics/character_body_2d.cpp).
+
 ## Decisions and current implementation
 
 Godot **4.7.2 stable**, standard GDScript build, is confirmed by the local executable (`4.7.2.stable.official.ed1daf0bf`). Target platforms are Windows and Linux desktop. M01 adds a playable physics lab to the preserved M00 boot scene. No autoload or global manager is needed. The M01 systems below are implemented; campaign interfaces in later sections remain proposals.

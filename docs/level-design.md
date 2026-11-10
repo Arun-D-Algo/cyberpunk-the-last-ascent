@@ -1,5 +1,34 @@
 # Level design
 
+## M02B precision-platforming foundations (current)
+
+Difficulty should come from repeatable charge timing, launch placement, surface awareness, route planning and risk management. It must not come from hidden rebound rules, random impulses, misleading art, inconsistent support or unreadable recovery. The old lab and chamber routes remain reachable with the unchanged normal-ground jump envelope.
+
+Suggested future progression: normal ledges → narrow targets → walls/overhangs → long gaps → moving supports → ice → normal slopes → gravity ramps → combinations. Introduce each rule on a forgiving, visible example before combining it with a punishing fall. Do not author production regions in this milestone. Gravity ramps are a distinct yellow/patterned surface; ordinary inclines do not auto-slide. Ice uses cyan hatching, rebound fixtures magenta outlines, and normal fixtures pale edges. Pattern/label cues supplement color. All greybox polygon edges are actual collision edges, not staircase approximations.
+
+Physics Lab 2.0 preserves **Classic** and adds directly selectable experiments:
+
+| Selector | Purpose / fixtures |
+| --- | --- |
+| A JUMPS | Clear calibration lane; rise marks at 11/21/34/51/69px for approximate minimum-to-full jumps |
+| B WALLS | Stop wall, low passage and explicit controlled-rebound wall |
+| C CEILING | Low ceiling, overhang and wall/roof corner |
+| D LEDGES | 24/16/8px targets above a recovery floor |
+| E ICE | Adjacent normal entry, ice lane and normal exit; raised 32px over recovery floor |
+| F SLOPES | Genuine shallow (~14°) and steep (~34°) polygons with flat tops |
+| G RAMPS | Downhill gravity ramp and brake pad; start directly on ramp |
+| H1 ICE | Ice approach, narrow target, incline and overhang |
+| H2 REBOUND | Rebound wall, return ledge and overhead constraint |
+| H3 RUNOFF | Gravity ramp, brake pad, small ice target and minimal moving recovery support |
+
+The selector is on the HUD at the upper right. Every section loads directly and has a tested supported spawn; F6 resets that section, moving phase and camera. TRACE toggles actual collider/normal/velocity/recorded path. F3 shows surface diagnostics. Do not require a full Classic ascent to reach another experiment. The combined setups are learning/testing challenges, not a production difficulty sequence. H3's moving recovery sits below the route (y=152, lower floor y=176), avoiding a squeeze against the ramp/brake pad.
+
+Automated reference routes additionally verify D's 24/16/8px climb and all three H goals without inter-jump teleports. D launches from X=45 at 0.50s right, X=110 at 0.60s right, X=183 at 0.65s left. H1 launches from X=30 at 0.45s right onto ice, counter-steers until speed ≤8px/s, then charges 0.62s right onto the narrow target. H2 launches full charge from X=126 right, rebounds once off the marked wall and lands on the return ledge. H3 allows the ramp to carry the player onto the normal brake pad, walks to X=221 and jumps 0.50s right onto the ice target. These are reproducible examples, not the only valid routes or proof of subjective difficulty quality.
+
+Reachability validation must state starting surface, charge, facing, retained velocity, normal/slope, wall mode and moving-platform phase. Same-height free-flight formulas alone cannot prove an ice approach, wall rebound or slope runoff. Use real controller traces and record the landing body, profile, pre-damping impact velocity and actual surface travel. Keep the 69.015px full normal rise / 132.007px same-height range as the control. The baseline snapshot Resource and historic Git commits remain available for comparison.
+
+Recovery should preserve the consequence of lost altitude while returning the player to a valid route. Clearly mark unusually slippery or gravity-driven approaches before exposing the player to a narrow target. Place normal brake pads intentionally; normal landings stop, but a supported seam applies new drag without instant velocity multiplication. Moving carriers default to no departure launch boost. Avoid invisible ledge grabs and unmarked bouncing walls. User playtesting of these new mechanics is still required before production geometry or final difficulty claims.
+
 ## M02A Emergency Power Chamber
 
 One 320px-wide, approximately 420px-tall visual slice at scenes/regions/sublevel_zero/emergency_power_chamber.tscn. Starting feet=(45,144); six service ledges end at y=-144, a 288px climb. It is not a complete Sublevel Zero region. A closed upper-relay door is explicitly a nonfunctional exit placeholder. The floor and intermediate ledges provide recovery; F6 resets prototype state. No checkpoints, hazards, region loading or story events are added.

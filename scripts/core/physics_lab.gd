@@ -25,6 +25,11 @@ const PLATFORMS: Array = [
 @onready var player: PlayerController = $Player
 @onready var camera: LabCamera = $LabCamera
 @onready var hud: LabHUD = $LabHUD
+var section_index: int = 0
+var section_spawn: Vector2 = SPAWN
+var section_selector: OptionButton
+var section_title: Label
+var diagnostics: LabDiagnostics
 
 
 func _ready() -> void:
@@ -41,6 +46,64 @@ func _ready() -> void:
 	camera.target = player
 	camera.reset_tracking()
 	hud.bind_player(player)
+	_setup_section_controls()
+	queue_redraw()
+
+
+func _setup_section_controls() -> void:
+	section_selector = OptionButton.new()
+	section_selector.theme = preload("res://resources/ui/industrial_theme.tres")
+	section_selector.position = Vector2(230, 0)
+	section_selector.size.x = 90
+	section_selector.focus_mode = Control.FOCUS_NONE
+	for label: String in LabSections.LABELS:
+		section_selector.add_item(label)
+	section_selector.item_selected.connect(select_section)
+	hud.add_child(section_selector)
+	section_title = Label.new()
+	section_title.theme = section_selector.theme
+	section_title.position = Vector2(6, 27)
+	section_title.text = LabSections.DESCRIPTIONS[0]
+	section_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hud.add_child(section_title)
+	diagnostics = preload("res://scripts/ui/lab_diagnostics.gd").new() as LabDiagnostics
+	diagnostics.player = player
+	diagnostics.z_index = 5
+	add_child(diagnostics)
+	var trace_button: CheckButton = CheckButton.new()
+	trace_button.theme = section_selector.theme
+	trace_button.text = "TRACE"
+	trace_button.position = Vector2(265, 20)
+	trace_button.focus_mode = Control.FOCUS_NONE
+	trace_button.toggled.connect(diagnostics.set_enabled)
+	hud.add_child(trace_button)
+
+
+func select_section(index: int) -> void:
+	if index < 0 or index >= LabSections.LABELS.size():
+		push_error("Invalid Physics Lab section")
+		return
+	call_deferred("_build_section", index)
+
+
+func _build_section(index: int) -> void:
+	section_index = index
+	for child: Node in $Geometry.get_children():
+		$Geometry.remove_child(child)
+		child.queue_free()
+	if index == 0:
+		for platform: Array in PLATFORMS:
+			_add_solid(platform[0], Rect2(platform[1], platform[2], platform[3], 8))
+		_add_solid("LeftWall", Rect2(8, -560, 8, 720))
+		_add_solid("RightWall", Rect2(304, -560, 8, 720))
+		_add_solid("CeilingTest", Rect2(224, 78, 26, 8))
+		_add_solid("TopBoundary", Rect2(8, -552, 304, 8))
+		section_spawn = SPAWN
+	else:
+		section_spawn = LabSections.populate($Geometry, index)
+	section_selector.select(index)
+	section_title.text = LabSections.DESCRIPTIONS[index]
+	reset_lab()
 	queue_redraw()
 
 
@@ -71,7 +134,10 @@ func toggle_pause() -> void:
 
 func reset_lab() -> void:
 	get_tree().paused = false
-	player.reset_movement(SPAWN)
+	for child: Node in $Geometry.get_children():
+		if child is PhysicsSurface:
+			child.reset_motion()
+	player.reset_movement(section_spawn)
 	camera.reset_tracking()
 	hud.refresh_debug()
 
@@ -97,6 +163,14 @@ func _draw() -> void:
 		draw_line(Vector2(16, y), Vector2(304, y), Color("101d31"))
 	for x: int in range(16, 305, 16):
 		draw_line(Vector2(x, -544), Vector2(x, 144), Color("10182a"))
+	if section_index != 0:
+		if section_index == 1:
+			for entry: Array in [[11, "MIN"], [21, "25"], [34, "50"], [51, "75"], [69, "MAX"]]:
+				var y: float = 144.0 - entry[0]
+				draw_line(Vector2(274, y), Vector2(290, y), Color("f5d547"))
+				draw_string(ThemeDB.fallback_font, Vector2(246, y), entry[1], HORIZONTAL_ALIGNMENT_LEFT, -1, 7, Color("a9c4cc"))
+		draw_string(ThemeDB.fallback_font, Vector2(22, 168), "F6 RESET / SELECT ANY SECTION ABOVE", HORIZONTAL_ALIGNMENT_LEFT, -1, 7, Color("a9c4cc"))
+		return
 	for platform: Array in PLATFORMS:
 		var rect: Rect2 = Rect2(platform[1], platform[2], platform[3], 8)
 		draw_rect(rect, Color("243c55"))

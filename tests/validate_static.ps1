@@ -35,13 +35,14 @@ $expectedSettings = @(
     'window/size/viewport_width=320', 'window/size/viewport_height=180',
     'window/size/window_width_override=960', 'window/size/window_height_override=540',
     'window/stretch/mode="viewport"',
-    'window/stretch/scale_mode="integer"', 'common/physics_ticks_per_second=60',
+    'window/stretch/scale_mode="integer"',
     'renderer/rendering_method="gl_compatibility"',
     'textures/canvas_textures/default_texture_filter=0'
 )
 foreach ($line in $expectedSettings) {
     Assert-Source ($settings -match ('(?m)^' + [regex]::Escape($line) + '$')) "Setting missing: $line"
 }
+Assert-Source ($settings -notmatch '(?m)^common/physics_ticks_per_second=(?!60\s*$)') 'Physics tick must be 60 (explicit or engine default)'
 $bindings = [ordered]@{
     move_left = @(65, 0); move_right = @(68, 0)
     look_up = @(87, 0); look_down = @(83, 0); jump_charge = @(32, 0)
@@ -69,7 +70,7 @@ foreach ($action in $bindings.Keys) {
     }
 }
 $scene = Get-Content -LiteralPath (Join-Path $projectRoot 'scenes/main/boot.tscn') -Raw -Encoding UTF8
-foreach ($label in @('CYBERPUNK: THE LAST ASCENT', 'Milestone 02A / Neon Industrial Decay', 'Project initialized successfully.', 'Enter Physics Lab', 'Enter Power Chamber')) {
+foreach ($label in @('CYBERPUNK: THE LAST ASCENT', 'Milestone 02B / Precision Mechanics', 'Project initialized successfully.', 'Enter Physics Lab 2.0', 'Enter Power Chamber')) {
     Assert-Source ($scene.Contains($label)) "Boot text missing: $label"
 }
 $ignore = Get-Content -LiteralPath (Join-Path $projectRoot '.gitignore') -Raw -Encoding UTF8

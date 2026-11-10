@@ -4,14 +4,14 @@ An unofficial, noncommercial 2D precision-platformer fan-game concept inspired b
 
 ## Current status
 
-Milestone 02A adds **Neon Industrial Decay**: original pixel artwork, reusable industrial platforms/fixtures, layered backgrounds, lightweight atmosphere, a humanoid placeholder, bitmap diagnostic UI, arrow-key equivalence, and one playable Emergency Power Chamber. The user approved M01 movement in the 02A brief; its controller, equations, physics Resource, collider scene and camera source are unchanged. The Physics Lab remains available. This is one visual slice, not a completed region. Visual approval is pending; Milestone 02B has not begun.
+Milestone 02B adds configurable wall/ceiling responses, normal/ice/slope/gravity-ramp surface rules, momentum transitions, minimal moving-platform compatibility and a directly selectable Physics Lab 2.0. The user explicitly authorized controller refinement; the normal-ground jump envelope, baseline tuning, launch equations, collider and camera remain unchanged. The original Classic climb, Emergency Power Chamber and all 02A art remain available. New surface feel is ready for user playtesting; no production regions, story, combat, cyberware or saves were added.
 
 ## Prerequisites and opening
 
 - Confirmed engine: **Godot 4.7.2 stable**, reporting `4.7.2.stable.official.ed1daf0bf` from the user's Tools/Godot installation. Verify your executable with `--version` on another machine.
 - Standard Godot build (GDScript); .NET is unnecessary. Desktop Windows or Linux. Git for version control; PowerShell 7 or Windows PowerShell for the static check.
 - Obtain the engine from [the official Godot download page](https://godotengine.org/download/) if needed; installation/extraction is a user action. If the requested version is unavailable, agree on a supported version before changing the target.
-- In Godot's Project Manager choose **Import**, select this directory's `project.godot`, then **Import & Edit**. Press **F5**, then click **Enter Power Chamber**. **Enter Physics Lab** remains available. Close the game window to exit. The foundation title/status remain with the current milestone subtitle and both entry buttons.
+- In Godot's Project Manager choose **Import**, select this directory's `project.godot`, then **Import & Edit**. Press **F5**, click **Enter Physics Lab 2.0**, and use the **CLASSIC** dropdown at upper right to select an experiment. **Enter Power Chamber** remains available. Close the game window to exit.
 
 From PowerShell, with your actual executable path:
 
@@ -64,6 +64,12 @@ Original editable art source: tools/generate_art.gd. Run it headless to rebuild 
 
 ## Playing and tuning the lab
 
+The upper-right selector offers Classic plus A Jumps, B Walls, C Ceiling, D Ledges, E Ice, F Slopes, G Ramps, and H1/H2/H3 combined challenges. Selection moves directly to that experiment, with no prerequisite climb. F6 resets the current section, moving-platform phase, velocity, charge, metrics and camera. TRACE toggles actual collider bounds, support normal, velocity and recorded jump path; it is a diagnostic history, not a predicted launch assist. F3 expands surface/friction/normal/slope/slide/impact/eligibility readouts. The debug panel intentionally covers much of the arena only when enabled.
+
+Normal surfaces retain the approved stop-and-charge behavior. Ice retains landing momentum and has much lower drag; a fresh charge press is rejected above 8px/s until you brake and release/repress. Yellow-patterned gravity ramps accelerate downhill up to 150px/s and require speed ≤6px/s to charge. Normal inclines do not auto-slide. Accepted charges are stationary on all supplied profiles. Magenta wall fixtures opt into 25% horizontal rebound; ordinary walls stop. Moving supports carry you while standing but do not inject a departure jump boost by default. Surface coefficients, not movement code copies, define these differences.
+
+Tune resources/surfaces/*.tres and resources/physics/*collision_response.tres in Godot's Inspector. Baseline launch parameters stay in default_player_physics.tres; m01_baseline.tres preserves prior values. See physics-spec.md for exact precedence, units, measured stops/reversals/ramp-control trial and the manual acceptance checklist. New mechanics have automated coverage, not yet user-verified feel.
+
 A/D or Left/Right walks while grounded. Hold Space to charge while stationary, choose direction, release to jump. Neither direction or opposite directions gives a vertical jump. Taps produce minimum strength; full charge stays capped until release. Air steering is disabled. W/S or Up/Down looks within safe camera limits. Esc pauses/resumes; pausing or losing focus cancels charge, so release and press Space again before another attempt. F6 resets without reloading; R is not repurposed. Holding Space through landing never automatically charges another jump.
 
 Climb the numbered platforms toward LAB COMPLETE. The first steps teach short/medium jumps; upper 52–56px rises require near-full charge. All platforms are solid, so feet must clear the destination's side before crossing it. Falling loses altitude but returns to a lower platform/floor. F3 shows state, position, velocity, support, charge and last completed jump measurements. It is a developer overlay and deliberately covers part of the arena when visible.
@@ -94,7 +100,7 @@ docs/             Design, technical plan, roadmap and development log
 AGENTS.md         Future coding-agent instructions
 ```
 
-The player, lab, camera, HUD and physics Resource directories now contain implemented systems; remaining future directories contain only .gitkeep markers. scenes/levels/physics_lab.tscn is the playable lab; scripts/player holds the controller, config definition, shared jump calculation, visual and recorder. See [technical design](docs/technical-design.md) for ownership and [roadmap](docs/roadmap.md) for the M02 traversal-framework gate. No M02 systems are implemented.
+The player, lab, camera, HUD, physics and surface directories contain implemented systems; other future directories keep markers only. scenes/levels/physics_lab.tscn hosts the preserved Classic climb and selectable mechanics fixtures. scripts/player holds baseline/surface/contact definitions, controller, jump calculation, visual and recorder. LabSections and PhysicsSurface provide test geometry; production regions remain future work. See [technical design](docs/technical-design.md) and [roadmap](docs/roadmap.md).
 
 ## Validation
 
@@ -107,6 +113,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tests\validate_static.ps1
 & $GodotExe --headless --path . --script res://tests/smoke_test.gd
 & $GodotExe --headless --fixed-fps 60 --path . --script res://tests/physics_test.gd
 & $GodotExe --headless --fixed-fps 60 --path . --script res://tests/visual_prototype_test.gd
+& $GodotExe --headless --fixed-fps 60 --path . --script res://tests/surface_physics_test.gd
+# Repeat the cadence probe with 30, 60 and 120 while project physics stays at 60Hz:
+& $GodotExe --headless --fixed-fps 30 --path . --script res://tests/frame_rate_probe.gd
 # Automated sequence with isolated writable editor/user paths and engine-error checks:
 .\tests\run_validation.ps1 -GodotExe $GodotExe
 # Add -Render to generate lab frame PNGs under ignored .godot/.
@@ -124,7 +133,7 @@ In a restricted agent workspace, normal Godot editor/user-data paths may be unwr
 
 Source writes/readbacks succeeded locally. The parent carries OneDrive attributes; sync health could not be independently established. Keep the project locally available using OneDrive's **Always keep on this device** if appropriate. Avoid concurrent edits on multiple synced machines and allow sync to settle before switching machines. Git ignores `.godot/`, but this does not exclude it from OneDrive. If cache locking/conflicts occur, close Godot and discuss pausing sync or using a user-approved nonsynced checkout. Never move this project automatically.
 
-M01 movement is user-approved and frozen for 02A. No rebinding/accessibility settings UI, saves, export presets/templates, knockback, moving platforms, slopes or campaign exist. The original character is still a placeholder, not final David art. Lighting uses painted pixels/alpha bands rather than shadow-casting/bloom. Pixel camera stepping and the small diagnostic font are deliberate compromises for review. Platform exports, extended human play of the new chamber, physical arrow-key feel and manual resize behavior remain unverified. Debug F3/F6 are editor/debug-build controls.
+Normal-ground launch tuning remains user-approved; 02B explicitly refines contact and surface behavior. There is no rebinding/accessibility settings UI, save system, production moving-platform level, combat, knockback or campaign. The character remains a placeholder. New surface feel, prolonged hardware testing, physical input timing, window/high-DPI behavior, Linux and exported builds need manual validation. Minimal moving fixtures use sinusoidal motion, not a production path/region framework. Surfaces above the existing ~45° floor limit are walls. Debug F3/F6/TRACE are prototype tools.
 
 ## Fan-project and asset policy
 

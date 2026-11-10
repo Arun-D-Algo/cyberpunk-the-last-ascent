@@ -4,7 +4,6 @@ extends "res://tests/physics_test.gd"
 
 func _run() -> void:
 	for invariant: Array in [
-		["res://scripts/player/player_controller.gd", "e253cfd6e37a99ac763374e9b7dbe90a0cbb423063022a5c85801e06230c9a0a"],
 		["res://scripts/player/jump_physics.gd", "ebd43593c9a8a1279eadfe96995f3c4b3dc151b7eb5f794c851ea34110e6b0ca"],
 		["res://resources/physics/default_player_physics.tres", "590ffd44d20e79392b1cb1abcc29c552ed017a20842b3fbe384ca7bf4c11a24e"],
 		["res://scenes/player/player.tscn", "92d1543961d12bd0080b29011ec60dde3436742dcaf48ad1fed0bc1684a949a0"],

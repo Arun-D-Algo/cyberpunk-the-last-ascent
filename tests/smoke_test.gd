@@ -59,7 +59,7 @@ func _run() -> void:
 		await process_frame
 		var labels: Dictionary = {
 			"Content/Title": "CYBERPUNK: THE LAST ASCENT",
-			"Content/Subtitle": "Milestone 02A / Neon Industrial Decay",
+			"Content/Subtitle": "Milestone 02B / Precision Mechanics",
 			"Content/Status": "Project initialized successfully.",
 		}
 		for path: String in labels:

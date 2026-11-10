@@ -1,6 +1,79 @@
-# Physics specification — Milestone 01 implementation
+# Physics specification — Milestone 02B
 
-The controller is implemented and measured in Godot 4.7.2 at 60 Hz. Defaults are **provisional**, not production game-feel approval. Future difficulty modes must share this physics model. Default air control is disabled. No coyote time, jump buffering, double/wall jump, dash or moving platform exists.
+The controller is measured in Godot 4.7.2 at 60 Hz. The user approved the earlier movement and explicitly authorized collision/surface refinement in 02B. The normal-ground launch constants and linear curve remain unchanged; new surface tuning is provisional pending playtesting. Difficulty modes must share baseline launch physics. No coyote time, jump buffering, ledge grab, double/wall jump, dash or default air steering is introduced.
+
+## Current 02B rules and precedence
+
+PlayerPhysicsConfig remains the baseline. CollisionResponseProfile owns wall/ceiling/platform-departure settings; SurfacePhysicsProfile owns walking/drag/retention/slide/charge policies. PhysicsSurface is a reusable AnimatableBody2D polygon with optional sinusoidal movement. Ordinary untagged solids resolve to the normal profile, so the existing lab and chamber need no geometry changes. Authored data is not mutated by the controller.
+
+On solver floor contacts, choose the contacted profile nearest the feet X (first solver result on a tie); update its normal and name. Apply the new coefficients on the next grounded tick. Switching profiles never multiplies velocity or grants an impulse. Landing is a separate transition that explicitly applies the destination's retention. Contact metadata is surface_physics; no name-based surface branches exist in the controller. Floor classification uses floor_max_angle (~45 degrees). A steeper plane is a wall, not a floor. Invalid Resources report errors and fall back to normal contact behavior; invalid fixture geometry/configuration reports errors rather than silently running.
+
+| Surface parameter | Normal | Ice | Sliding ramp | Units / meaning |
+| --- | --- | --- | --- | --- |
+| acceleration_scale | 1 | 0.22 | 0.4 | baseline ground acceleration multiplier |
+| friction | 1 | 0.025 | 0.04 | released-input drag / baseline deceleration |
+| ground_speed_scale | 1 | 1 | 1 | walking target multiplier |
+| landing_momentum_retention | 0 | 0.92 | 0.85 | retained incoming tangent component |
+| maximum_slide_speed | 180 | 180 | 150 | px/s along tangent; cap applies on special sliding surfaces |
+| stop_speed | 0.5 | 0.5 | 0.5 | px/s; smaller residuals become zero |
+| charge_speed_limit | 1000 | 8 | 6 | px/s along tangent before accepting a fresh press |
+| moving_charge_allowed | false | false | false | accepted charges brake to stationary |
+| jump_momentum_retention | 0 | 0 | 0 | explicit opt-in only, useful with moving charge |
+| gravity_slide | false | false | true | only designated ramps accelerate downhill |
+| minimum_slide_angle | unused | unused | 10 | degrees |
+| downhill_acceleration | unused | unused | 260 | px/s² times signed sin(slope angle) |
+| input_influence | 1 | 1 | 0.65 | multiplies active-input acceleration |
+
+friction is our kinematic dry-drag coefficient, not a Godot RigidBody PhysicsMaterial friction value. Effective released drag is 1200×friction px/s². Effective input acceleration is 900×acceleration_scale×input_influence px/s². These parameters do not duplicate a second unrelated friction/deceleration mechanism.
+
+## Ground tangent integration and slopes
+
+For floor unit normal n, rightward tangent u=(-n.y,n.x). Integrate signed speed v along u: approach the input walking target with effective input acceleration, or approach zero with effective drag. A designated ramp above its minimum angle also adds DOWN.dot(u)×downhill_acceleration×delta; clamp special-surface speed and clear tiny drift. Ordinary ramps do not receive this force and remain stationary without input. Counter-input on gravity ramps competes with the force; no new air steering compensates for sliding.
+
+Movement uses u×v plus inward contact pressure for one move_and_slide. Godot can clear vertical velocity on supported motion; after the solve, restore the intended tangent component using the new floor normal, excluding contact pressure. Wall+floor support stops tangent motion. At a ramp runoff, keep intended tangent momentum and apply world gravity. This prevents uphill drift caused by feeding solver pressure into the next tick's momentum. floor_constant_speed is disabled because tangent motion is integrated explicitly; normal rest uses downward pressure with floor_stop_on_slope, while designated ramps disable that automatic stopping. Fixed snap remains 1px and safe_margin remains 0.02px.
+
+Tests use genuine polygon ramps, not staircase boxes. Shallow 14.03-degree and steep 34.99-degree normal ramps show 0.0000px rest drift over 30 ticks, continuous uphill/downhill support and successful baseline-impulse jumps. Long collision polygons can return slightly varying solver normals; debug angles are measured normals, not ideal authored-angle claims. Repeated support and bounded motion are tested.
+
+## Charge eligibility and momentum transitions
+
+Normal ground accepts a charge immediately and brakes, retaining the familiar rule. Ice/ramp rejects a fresh press above its speed limit, sets no charge, and does not buffer the held key until the player slows. Release then press again below the limit. Once accepted, default charging is stationary even on a designated ramp. A future profile can explicitly allow moving charge and configure inherited tangent momentum; shipped profiles leave both off, so no hidden jump-distance modifier exists.
+
+Normal landings erase relative momentum. Ice/ramp project the incoming velocity onto the destination tangent, apply retention and cap it; recovery lasts the same 0.06s while drag/slide continue. Standing on normal slopes does not slide. Crossing a seam while supported preserves velocity and applies new coefficients next tick, rather than instantly zeroing or multiplying it. Ice-to-normal ground therefore brakes strongly but continuously. Tests traverse normal→ice, ice→slope→flat and ramp→ice→normal without repeated landing events. Walking/sliding off an edge retains committed momentum; air charging remains disallowed.
+
+## Deliberate wall and ceiling responses
+
+Default wall mode is STOP: the solver removes blocked horizontal motion. Vertical motion follows gravity. REBOUND is opt-in on the player response or on a contacted wall profile, with per-wall response taking precedence. The supplied wall fixture uses restitution 0.25: +165px/s becomes -41.25px/s. A rebound only occurs on a new inward airborne impact, never simply from standing against a wall on a floor. Clamp response energy to at most the incoming speed magnitude. Persistent contact does not count as another impact every frame.
+
+Ceilings interrupt ascent, keep allowed horizontal motion, and transition into falling. Default downward kick is zero. Optional ceiling_downward_speed is bounded by both its 0..100px/s configuration range and incoming vertical impact speed; the suite exercises a 5px/s response. Ceiling/wall/floor corners remain solver contacts with no ledge assistance. Eight ceiling scenarios cover neutral/diagonal low-to-near-apex hits; partial-overlap versus true-miss tests cover an 8px ledge.
+
+CollisionResponseProfile defaults: STOP, wall_restitution=0.25 (unused by STOP), ceiling_downward_speed=0, platform_velocity_inheritance=0. Resource validation rejects nonfinite/out-of-range coefficients and restitution above one. No claim of exact proprietary Jump King mechanics or subjective rebound quality is made.
+
+## Moving-platform policy
+
+PhysicsSurface optionally moves by offset×sin(TAU×time/period) at physics priority -20, before the live player, with AnimatableBody2D sync_to_physics. Normal and slippery horizontal carriers and a vertical carrier are tested through reversal, launch, landing, pause and reset. While supported, Godot carries the passenger. Departure uses PLATFORM_ON_LEAVE_DO_NOTHING; no implicit launch boost. An explicit collision_response.platform_velocity_inheritance coefficient can opt in later, default zero. See [Godot CharacterBody2D](https://docs.godotengine.org/en/4.5/classes/class_characterbody2d.html) and [AnimatableBody2D](https://docs.godotengine.org/en/4.1/classes/class_animatablebody2d.html).
+
+Reset cancels charge, motion, surface state, impacts and recorder data; the lab resets fixture phase and camera. Because Godot caches the previous support body/carry velocity, the first post-teleport movement temporarily suppresses platform floor layers, then restores them and reacquires actual contact. This fixes stale carry shifting a reset spawn. No saves or scene reload are involved. Platform collision/wall layers otherwise remain world=1/player=2 as before.
+
+## Measured comparisons and tuning rationale
+
+| Scenario | Control / before | Current comparison |
+| --- | --- | --- |
+| Normal stop from 65px/s | 1.250px / 0.067s | unchanged |
+| Ice stop from 65px/s | no prior ice model | 69.875px / 2.167s |
+| Reverse from +65px/s | normal 0.083s | ice 0.333s |
+| Rising wall at +165px/s | STOP → 0px/s | opt-in rebound → -41.25px/s |
+| Designated ramp | no prior gravity slide | reaches bounded 150px/s |
+| Ramp counter-input after 3s | initial influence 0.40: still +66.222px/s downhill | influence 0.65: -63.059px/s uphill/control regained |
+
+The ramp trial showed inadequate braking, so only its new input_influence changed from 0.40 to 0.65. The trial is reproduced with a duplicated Resource, without mutating authored data. Baseline jump constants/curve, gravity, maximum fall speed and landing recovery were not retuned. resources/physics/m01_baseline.tres preserves old values for comparison; Git cb1ce10/f2d044a retain the former controller. Existing old 330→360 M01 tuning comparisons remain historical tests, not a new 02B launch change.
+
+## Recorder and debug contract
+
+JumpRecorder now records impact counts, launch/landing surface type, landing body name, pre-damping landing velocity, surface travel while sliding and maximum relative slide speed, in addition to original charge/launch/rise/displacement/flight fields. Slide distance integrates absolute tangent speed×physics delta, excludes platform carry and the airborne landing tick, and includes controlled movement while the special-surface sliding flag is active; it is not airborne X displacement. Initial retained contact speed contributes to the maximum, while distance starts on the following grounded movement tick. This integral is exact within tolerance on tested flat runouts; collision clipping/curved transitions can make it an approximation rather than world path length. The last completed jump's slide fields continue updating during runout. Reset clears them. An actual sampled trace is capped at 2048 points; it is a debug history, not a theoretical trajectory or an input to movement.
+
+F3 reports profile/friction, normal/angle, sliding/contact status, eligibility and last landing velocity without altering the normal HUD. TRACE in the lab toggles actual body bounds, normal, velocity and recorded trajectory. These are diagnostic overlays, not hidden collision assistance. Physics Lab 2.0 has direct selection of A–G and H1–H3 plus preserved Classic climb; F6 resets the selected section. tests/surface_physics_test.gd exercises actual contacts and navigation. tests/frame_rate_probe.gd compares the same 60Hz maximum arc at render cadences 30/60/120, not different physics tick rates.
+
+## Baseline normal-ground reference
 
 ## Editable configuration
 
@@ -39,7 +112,7 @@ Apply vy=min(vy+g×delta,fall_cap) before one move_and_slide each tick, includin
 
 | From | Trigger | Result |
 | --- | --- | --- |
-| GROUNDED | Armed Space press on solver floor | CHARGING; vx=0 |
+| GROUNDED | Armed Space press on solver floor, profile speed eligibility passes | CHARGING; stationary for supplied profiles |
 | CHARGING | Release with floor support | RISING; launch once, clear meter |
 | RISING | vy≥0 or ceiling blocks ascent | FALLING |
 | RISING/FALLING | Solver reports floor | LANDING; zero velocity, emit landed once |
@@ -54,7 +127,7 @@ LANDING has a bounded timer. Ceiling contact can move RISING directly to FALLING
 
 Player layer 2 / mask 1; solid world layer 1 / mask 2. The rectangular collider is 10×24px centered at (0,-12); silhouette is 14×26px. A feet origin simplifies placement/measurements; the visible outline is slightly wider for readable edge placement. Appearance does not define collision. All platforms, walls and ceilings are solid rectangles, not one-way or pixel-perfect surfaces.
 
-safe_margin=0.02px, floor_snap_length=1px, floor_max_angle≈45°. Downward pressure refreshes grounded contact each tick. The solver removes blocked velocity at walls/ceilings; there are no extra bounces/impulses. Landing clears horizontal momentum and charge. Tests cover rising/falling wall contact, ceilings, 24px platforms, edge landings and terminal-speed falls onto ordinary solids. Slopes and moving-platform carry remain unimplemented/unvalidated.
+safe_margin=0.02px, floor_snap_length=1px, floor_max_angle≈45°. Normal ground preserves the original stop/landing policy; special surfaces and optional contact responses follow the 02B rules above. Tests cover walls, ceilings, narrow/partial-overlap ledges, terminal-speed falls, real polygon slopes and moving-platform carry. No automatic ledge grab or generous invisible corner correction exists.
 
 ## Measurement collection
 
@@ -84,4 +157,16 @@ Twelve-platform ascent uses 16/32px introductory rises then 52/56px upper rises.
 
 LabCamera uses a 10px vertical dead zone, exponential tracking speed 14/s and 42px W/S look, bounded by world limits and a visibility guard. Displayed positions round to pixels, trading subpixel fluidity for pixel clarity. Camera state never changes jump physics or zoom. Normal charge UI updates per render frame; hidden debug text does not format, and visible debug text updates at 10 Hz.
 
-Manual checklist: boot button; A/D positioning; tap/medium/full hold-release; left/right/neutral/A+D; airborne press/release; hold through landing; edge charging; walls/ceilings; climb/fall/recover; W/S framing; HUD/state feedback; F3/F6; Esc during charge/flight; focus loss; reset during charge/air; repeated attempts at varied rendering frame rates. Automated semantic input is tested. Physical held-key timing, subjective feel/camera comfort, Linux and exports remain unverified. Computer Use was stopped by the user's physical Escape key during the brief window inspection; this was not a completed playthrough.
+Historical M01 checklist: boot button, positioning, tap/medium/full release, neutral/opposites, air input, hold through landing, edge charge, walls/ceilings, climb/fall/recover, camera/HUD/debug/reset/pause/focus behavior. The user later approved that movement. The new 02B surface feel still requires the manual checklist below; automated comparisons are not subjective approval.
+
+## M02B manual acceptance checklist — not yet user-verified
+
+- Launch Physics Lab from boot; select Classic and every A–G/H1–H3 entry without climbing between experiments. Confirm F6 resets the current section and moving fixture phase, not the whole game.
+- A: tap/quarter/half/three-quarter/full/overcharge; left/right/neutral/mixed opposites using WASD and arrows. Observe capped meter and no air correction. Hold through landing and confirm no buffered charge.
+- B/C: rising/falling stop walls, magenta rebound fixture, grounded wall/floor corners, low/diagonal/near-apex ceilings and overhangs. No extra upward motion, clipping or sticky-wall behavior.
+- D: partial overlap, 24/16/8px targets, misses and long falls. Confirm failure is understandable and recovery remains possible.
+- E: enter/leave ice, stop near edges, reverse direction, land with momentum, try charging while sliding, brake below the threshold, release/repress to charge, then reset during slide. Rejecting an early press must not silently launch later.
+- F: rest, walk up/down both polygon slopes, reverse and jump from them; inspect no hopping/drift and transitions to flats.
+- G/H: build downhill speed, counter-steer, brake and charge; distinguish intentional ramp acceleration from ice coasting; transition to normal brake pads. Try combined narrow-target, rebound/roof and ramp-runoff challenges. Check moving recovery carry/reversal/landing/reset and slippery carrier behavior in the fixtures/tests.
+- Pause/focus loss during charging, sliding, ascent and a moving-platform ride. Resume without stale charge. Verify normal HUD remains clear, F3 fields are accurate and TRACE is optional.
+- Review charge timing, ramp braking, surface patterns, camera comfort and recovery at different render FPS/window sizes. Linux, exports, prolonged hardware performance and human physical-key timing remain unverified.

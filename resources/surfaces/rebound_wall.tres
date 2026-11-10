@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="SurfacePhysicsProfile" load_steps=3 format=3]
+[ext_resource type="Script" path="res://scripts/player/surface_physics_profile.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/physics/rebound_collision_response.tres" id="2"]
+[resource]
+script = ExtResource("1")
+id = &"rebound_wall"
+contact_response = ExtResource("2")

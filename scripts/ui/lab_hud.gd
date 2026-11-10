@@ -41,10 +41,12 @@ func _process(delta: float) -> void:
 		return
 	_debug_elapsed = 0.0
 	var jump: Dictionary = recorder.last_jump
-	debug_label.text = "%s  floor:%s\npos %.1f, %.1f  vel %.1f, %.1f\ncharge %.3fs / %.0f%%  dir:%d\nlast %.2f  rise %.1fpx  dx %.1fpx\nair %.3fs  wall:%s ceil:%s\nphysics %dHz  render %dFPS" % [
+	debug_label.text = "%s floor:%s\npos %.1f,%.1f vel %.1f,%.1f\ncharge %.3fs %.0f%% dir:%d blocked:%s\nsurface:%s friction:%.3f\nnormal %.2f,%.2f slope %.1fdeg\nslide:%s wall:%s ceiling:%s\nlanding vel %.1f,%.1f\nlast %.2f rise %.1f dx %.1f\nair %.3fs hits wall:%d ceiling:%d\nslide dx %.1f max %.1f / %dHz %dFPS" % [
 		player.state_name(), player.is_on_floor(), player.position.x, player.position.y,
 		player.velocity.x, player.velocity.y, player.charge_duration, charge * 100.0,
-		player.selected_direction, jump.get("strength", 0.0), jump.get("peak_height", 0.0),
-		jump.get("displacement", 0.0), jump.get("airborne_seconds", 0.0),
-		jump.get("hit_wall", false), jump.get("hit_ceiling", false),
+		player.selected_direction, player.charge_blocked, player.active_surface.id, player.active_surface.friction,
+		player.surface_normal.x, player.surface_normal.y, player.slope_degrees(),
+		player.is_sliding(), player.is_on_wall(), player.is_on_ceiling(), player.last_landing_velocity.x, player.last_landing_velocity.y,
+		jump.get("strength", 0.0), jump.get("peak_height", 0.0), jump.get("displacement", 0.0), jump.get("airborne_seconds", 0.0),
+		jump.get("wall_collision_count", 0), jump.get("ceiling_collision_count", 0), recorder.sliding_distance, recorder.maximum_sliding_speed,
 		Engine.physics_ticks_per_second, Engine.get_frames_per_second()]

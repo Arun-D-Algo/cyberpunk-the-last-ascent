@@ -4,7 +4,7 @@
 [ext_resource type="Theme" path="res://resources/ui/industrial_theme.tres" id="2"]
 
 [sub_resource type="StyleBoxFlat" id="DebugStyle"]
-bg_color = Color(0.02, 0.03, 0.07, 0.94)
+bg_color = Color(0.02, 0.03, 0.07, 1)
 border_width_bottom = 1
 border_color = Color(0.2, 0.6, 0.7, 1)
 
@@ -42,10 +42,11 @@ theme_override_font_sizes/font_size = 7
 text = "F3:DIAG F6:RESET ESC:PAUSE"
 
 [node name="DebugPanel" type="Panel" parent="."]
+z_index = 10
 visible = false
 offset_top = 26.0
 offset_right = 312.0
-offset_bottom = 100.0
+offset_bottom = 155.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("DebugStyle")
 
