@@ -1,6 +1,6 @@
 # Milestone roadmap
 
-The deliverables below are scope gates, not promises that later mechanics already exist. M00 creates a runnable foundation only. Each later milestone needs its own implementation prompt and validation evidence. Current M00 check results are recorded in development-log.md.
+M00 foundation is complete. M01 implementation and automated acceptance pass; full manual playtesting is still pending after Computer Use was stopped by the user's physical Escape key. The lab is ready for user review, not a claim of final movement feel. M02 has not started. Each later milestone needs its own prompt and evidence; see development-log.md.
 
 | Milestone | Deliverables | Dependencies | Acceptance criteria |
 | --- | --- | --- | --- |
@@ -15,3 +15,5 @@ The deliverables below are scope gates, not promises that later mechanics alread
 | 08 — Polish and release assessment | Original/licensed assets and audio, accessibility pass, performance work, Windows/Linux exports, IP/distribution review | Validated M07 campaign; matching export templates and permissions | Exported campaign smoke/soak tests on both systems; input/scaling/saves verified; credits/provenance complete; known issues documented; public release only after separate rights decision |
 
 Stop at each gate to measure and revise. Favor one validated representative mechanic over bulk content. A milestone is not complete merely because its source files exist; record failures and unavailable tooling separately from passes. Deferred/rejected ideas belong in design notes, not incidental scope expansion.
+
+Before M02, review the M01 manual checklist, charge window/minimum-hop usefulness, solid-side clearance, camera look/dead zone and recovery experience with the user. Preserve measured physics or intentionally retune and revalidate the entire route. The reusable M01 camera is the starting point for M02, not an instruction to replace it. Streaming, region/checkpoint data and mode policies remain M02 scope.

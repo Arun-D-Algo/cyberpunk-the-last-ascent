@@ -1,0 +1,34 @@
+param(
+    [Parameter(Mandatory = $true)][string]$GodotExe,
+    [switch]$Render
+)
+$ErrorActionPreference = 'Stop'
+$projectRoot = Split-Path -Parent $PSScriptRoot
+$engine = (Resolve-Path -LiteralPath $GodotExe).Path
+$savedValidationAppData = $env:APPDATA
+$savedValidationLocalData = $env:LOCALAPPDATA
+try {
+    # Process-local isolation; no machine settings or installed engine are changed.
+    $env:APPDATA = Join-Path $projectRoot '.godot/validation-user'
+    $env:LOCALAPPDATA = Join-Path $projectRoot '.godot/validation-cache'
+    New-Item -ItemType Directory -Path $env:APPDATA,$env:LOCALAPPDATA -Force | Out-Null
+    function Invoke-EngineCheck([string]$Name, [string[]]$EngineArgs) {
+        $logPath = Join-Path $projectRoot ".godot/$Name.log"
+        & $engine @EngineArgs --log-file $logPath
+        if ($LASTEXITCODE -ne 0) { throw "$Name exited $LASTEXITCODE" }
+        if ((Get-Content -LiteralPath $logPath -Raw) -match '(?m)^(SCRIPT ERROR|ERROR:)') {
+            throw "$Name reported engine errors; see $logPath"
+        }
+        Write-Output "PASS: $Name"
+    }
+    Invoke-EngineCheck 'import' @('--headless', '--path', $projectRoot, '--editor', '--import')
+    Invoke-EngineCheck 'startup' @('--headless', '--path', $projectRoot, '--quit-after', '5')
+    Invoke-EngineCheck 'smoke' @('--headless', '--path', $projectRoot, '--script', 'res://tests/smoke_test.gd')
+    Invoke-EngineCheck 'physics' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/physics_test.gd')
+    if ($Render) {
+        Invoke-EngineCheck 'lab_render' @('--path', $projectRoot, '--scene', 'res://scenes/levels/physics_lab.tscn', '--write-movie', (Join-Path $projectRoot '.godot/lab.png'), '--quit-after', '12')
+    }
+} finally {
+    $env:APPDATA = $savedValidationAppData
+    $env:LOCALAPPDATA = $savedValidationLocalData
+}

@@ -2,6 +2,29 @@
 
 This document records intended content and proposed authoring rules. There are no playable regions in M00. Implement and validate the jump prototype before placing production gaps.
 
+## Implemented M01 physics laboratory
+
+scenes/levels/physics_lab.tscn is a standalone test arena, not any production region. It uses one table of solid rectangles for collision/drawing in scripts/core/physics_lab.gd. Walls are x=8..16 and x=304..312. Spawn feet=(45,144); floor surface y=144. Upper route ends at y=-444, a 588px climb. The camera shows one 320×180 view, not the whole arena. Ceiling-test geometry is x=224..250 at y=78; an alternative vertical-hop ledge is x=254..288 at y=88. A small side ledge at x=22..50,y=-8 supports alternate attempts. Broad floor/recovery surfaces prevent permanent traps.
+
+The default measured envelope is 11.267px minimum rise, 33.610px near-half rise, and 69.015px full rise with 132.007px same-height horizontal displacement. Intro rises are 16/32px; upper rises 52/56px leave measured vertical clearance. Side clearance still matters because all platforms are solid. The automated harness executes the route below by walking on the previous surface, charging, releasing and landing through actual collisions; it never teleports between these jumps.
+
+| Destination | Surface span X | Surface Y | Launch X on previous surface | Hold seconds | Direction |
+| --- | --- | --- | --- | --- | --- |
+| 01 TAP | 64..112 | 128 | 45 | 0.34 | right |
+| 02 LOW | 136..194 | 96 | 103 | 0.58 | right |
+| 03 CLIMB | 56..114 | 44 | 170 | 0.75 | left |
+| 04 RECOVER | 154..242 | -8 | 105 | 0.75 | right |
+| 05 CLIMB | 70..128 | -60 | 180 | 0.75 | left |
+| 06 EDGE | 160..204 | -116 | 104 | 0.75 | right |
+| 07 NARROW | 88..112 | -168 | 188 | 0.75 | left |
+| 08 RECOVER | 166..244 | -220 | 100 | 0.75 | right |
+| 09 CLIMB | 68..132 | -276 | 185 | 0.75 | left |
+| 10 CLIMB | 164..212 | -332 | 108 | 0.75 | right |
+| 11 CLIMB | 82..146 | -388 | 195 | 0.75 | left |
+| 12 SUMMIT | 170..250 | -444 | 115 | 0.75 | right |
+
+These are reproducible reference launches with positioning tolerance, not the only valid route. Human playtesting must assess whether the charge/position windows are understandable and enjoyable. Initial max vertical impulse 330 gave only 57.765px rise and fragile upper clearance; the 360px/s tuned value and revised launch positions pass the full route. After summit ascent, the harness walks off and lands on lower geometry to verify loss of progress and recovery without reset. No checkpoint/save/region loading is introduced here.
+
 ## Region plan
 
 | Region / stable proposed ID | Theme and major hazards | Story / cyberware | Difficulty goal |

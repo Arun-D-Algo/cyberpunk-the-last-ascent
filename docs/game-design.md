@@ -1,6 +1,6 @@
 # Game design
 
-Status: approved direction from the M00 brief unless labeled **proposal**. This is a design target, not an implementation inventory. Only the boot foundation exists.
+Status: approved direction from the briefs unless labeled **proposal**. This is a campaign design target, not an implementation inventory. M01 implements a standalone physics lab (see physics-spec.md), not campaign content. It resolves charge timing, neutral direction, wall response and landing policy for the provisional prototype; later campaign/assist/ability designs remain proposals.
 
 ## Premise and campaign
 

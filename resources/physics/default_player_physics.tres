@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PlayerPhysicsConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/player_physics_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ground_speed = 65.0
+ground_acceleration = 900.0
+ground_deceleration = 1200.0
+minimum_charge_time = 0.06
+maximum_charge_time = 0.75
+minimum_jump_impulse = 150.0
+maximum_jump_impulse = 360.0
+minimum_horizontal_impulse = 45.0
+maximum_horizontal_impulse = 165.0
+gravity = 900.0
+maximum_fall_speed = 600.0
+landing_recovery_time = 0.06
+air_control_factor = 0.0

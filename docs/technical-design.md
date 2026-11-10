@@ -2,7 +2,26 @@
 
 ## Decisions and current implementation
 
-Godot **4.7.2 stable**, standard GDScript build, is confirmed by the local executable (`4.7.2.stable.official.ed1daf0bf`). Target platforms are Windows and Linux desktop. M00 implements project settings, a native Control boot scene, input bindings and validation only. No autoload, game manager or configuration manager is needed to display the boot screen. All gameplay interfaces below are plans for future milestones.
+Godot **4.7.2 stable**, standard GDScript build, is confirmed by the local executable (`4.7.2.stable.official.ed1daf0bf`). Target platforms are Windows and Linux desktop. M01 adds a playable physics lab to the preserved M00 boot scene. No autoload or global manager is needed. The M01 systems below are implemented; campaign interfaces in later sections remain proposals.
+
+## Implemented M01 composition
+
+- scenes/player/player.tscn: reusable CharacterBody2D, 10×24 rectangular collider at feet origin, procedural Visual and JumpRecorder component. Player layer 2/mask 1; world layer 1/mask 2. The 14×26 visual exceeds collider width for readable ledge placement; visual changes cannot affect collision.
+- PlayerController owns semantic input, enum states GROUNDED/CHARGING/RISING/FALLING/LANDING, fixed-tick velocity and one move_and_slide call. No level/UI node references. State changes, launches, landings, completed physics steps and resets are signals. Tests call the same step_movement once per real physics tick; live input is separately tested through Godot's InputEventAction dispatch.
+- PlayerPhysicsConfig is an editable Resource, authored in resources/physics/default_player_physics.tres. Validation rejects nonfinite values, invalid ranges and sampled nonmonotone/out-of-range curves before enabling player physics. Null curve means linear. JumpPhysics is the shared pure normalization/direction/launch model.
+- JumpRecorder connects to player signals and samples after each completed move. It retains one completed jump, reports signed displacement rather than path length, and clears on reset. No disk writes during normal play. The harness exports a comparison report under ignored .godot/.
+- PhysicsLab owns static geometry, spawn, pause, debug actions and reset. One PLATFORMS table supplies drawing/collision; tests climb the actual solids. The lab root runs while paused to receive Esc/F6; player/camera/geometry are pausable. HUD runs while paused to show status. No campaign/region/save responsibilities.
+- LabCamera is a reusable Camera2D with exported target/dead-zone/look/tracking/world bounds. It follows physics ticks after the player, smooths an internal center, then rounds display position to pixels. A visibility guard limits look/tracking lag to keep the silhouette on screen below the HUD. This trades subpixel fluidity for pixel stability; assess at native scale.
+- LabHUD receives a player reference from the lab and reads state/recorder without changing physics. The normal meter updates every rendered frame; debug text formats at 10 Hz only while visible. No UI paths in the player.
+- boot.gd connects the existing boot screen's Enter Physics Lab button to a scene change and reports failures. No menu framework.
+
+F6 reset and F3 overlay act only in debug builds; retry_boss is unchanged. Reset moves the existing player, clears transient state/measurements and resets camera tracking without reloading the scene. Floor contact is reacquired next tick because cached is_on_floor belongs to the previous transform. Pause/focus loss cancel charge and require release/repress. Minimum taps always launch. Exact rules are in physics-spec.md.
+
+## M01 test harness
+
+tests/physics_test.gd extends the existing dependency-free SceneTree convention. It builds real StaticBody2D fixtures, drives the production controller at 60 Hz, dispatches live semantic events separately, and tests calculations, states, taps/caps, air input, reset/pause, wall/ceiling/narrow/edge collisions, repeated arcs, camera, HUD, boot navigation, twelve-platform ascent and fall/recovery. It measures the actual solver. --fixed-fps 60 accelerates simulated ticks without changing the model; results do not establish subjective feel or cross-platform bitwise determinism.
+
+tests/run_validation.ps1 takes -GodotExe, temporarily redirects child-process AppData/cache into .godot, runs import/startup/foundation/physics checks, and rejects engine errors even on exit 0. -Render captures actual Compatibility-rendered lab frames. The static validator accepts editor-expanded InputEventKey serialization and omitted default aspect=keep; the engine smoke verifies loaded values. This preserves the user's pre-existing editor rewrite instead of reverting it to satisfy a brittle text check.
 
 Use snake_case paths/scripts/resources and PascalCase nodes/classes. Scene dependencies point downward to components/data; communicate upward using typed signals. Prefer scene-local ownership over singleton access. Godot Resources hold authored data; Nodes own active behavior. Do not make mutable runtime state shared by accidentally modifying a loaded Resource used by multiple scenes.
 
@@ -47,12 +66,12 @@ Checkpoint representation: stable region_id + marker_id + schema/version, resolv
 
 ## Configuration scope
 
-No Resource scripts are necessary yet. Introduce a definition when its first real consumer exists, with units, editor ranges and validation. Proposed organization:
+M01 introduces PlayerPhysicsConfig for its real player consumer. Introduce other definitions when their first consumer exists, with units, editor ranges and validation. Scope organization:
 
 | Scope | Future data / responsibility |
 | --- | --- |
 | Project/global defaults | InputMap, physics tick, viewport, renderer, audio bus layout |
-| Shared authored physics | JumpTuning Resource under resources/physics; immutable gravity, charge curve and launch ranges used by player and trajectory preview |
+| Shared authored physics | Implemented PlayerPhysicsConfig under resources/physics; shared player/test launch model; future trajectory previews must reuse JumpPhysics |
 | Per-session mode | DifficultyProfile Resource under resources/difficulty; Assisted default; checkpoint policy, hazard timing, recovery/assist flags, never jump constants |
 | Per-player runtime | Charge, energy, cooldowns, unlocked IDs; separate from authored CyberwareDefinition data |
 | Per-level | RegionDefinition and camera tuning/limits, spawn markers, hazard resources |
@@ -84,4 +103,4 @@ Later create Windows x86_64 and Linux x86_64 export presets with matching engine
 
 ## Validation
 
-tests/validate_static.ps1 checks source structure/settings/contracts without an engine. Headless editor import checks resource parsing; headless startup checks the configured entry scene; tests/smoke_test.gd inspects loaded settings, InputMap and scene content. Visual review and physical left/right keyboard tests are separate. M01 adds a physics lab and repeatable tick-based measurements. Use deterministic initial conditions and tolerances, not screenshot-only physics claims. Record actual results in development-log.md.
+tests/validate_static.ps1 checks source contracts without an engine. Headless import checks parsing; startup checks the entry scene; smoke_test.gd inspects loaded settings, InputMap and boot; physics_test.gd validates actual gameplay. Physical keyboard timing, human feel and exports need separate checks. Use deterministic conditions and tolerances. Record actual results in development-log.md; M00 history does not imply M01 manual acceptance.

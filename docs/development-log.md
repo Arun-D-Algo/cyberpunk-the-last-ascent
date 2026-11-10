@@ -1,5 +1,48 @@
 # Development log
 
+## 2026-11-10 — Milestone 01: playable physics laboratory
+
+### Status and scope
+
+Implementation, tuning and automated acceptance pass. Full manual playtesting remains pending. M02 has not begun. Existing M00 boot/project/Git history remain intact. Initial Git status had an editor-generated project.godot rewrite (expanded key events and omitted defaults); it was preserved, not discarded. Current prompt resolves the older provisional charge formula and movement policy in physics-spec.md.
+
+### Files and systems
+
+- Added player.tscn, PlayerController with five enum states and semantic input, PlayerPhysicsConfig plus default .tres, shared JumpPhysics, procedural original Player Visual, and JumpRecorder.
+- Added physics_lab.tscn with authored solid geometry and lab-owned pause/reset; LabCamera with vertical follow/look/pixel rounding/visibility guard; lab_hud.tscn and LabHUD with separate charge and debug panels.
+- Added boot navigation script/button while retaining original title/status; updated subtitle/version to M01/0.1.0. Added F3/F6 actions without changing retry_boss.
+- Extended existing static/smoke tests and added physics_test.gd plus run_validation.ps1. No test framework, plugins, downloaded assets, autoloads, production regions, saves, abilities, dialogue or combat.
+- Updated README, AGENTS, game/technical/physics/level design and roadmap. Commit source .uid metadata; ignore editor caches, reports, logs and rendered frames.
+
+### Architecture and behavior
+
+One reusable CharacterBody2D owns movement; UI/visual/camera/recorder never alter physics. Configuration is authored Resource data and runtime state stays on the player. Ground acceleration/deceleration are configurable; charging is stationary; taps launch minimum strength; both A+D/neither are neutral; capped full charge waits for release; no default air steering or double jump. Physics runs at 60 Hz and calls move_and_slide once per tick. Solid rectangular collision uses world layer 1 / player layer 2. Reset reacquires floor support next tick, clears motion/charge/measurements and resets the camera without a scene reload. Pause/focus loss cancels stale charge.
+
+### Measurements and tuning
+
+Measured real solver launches on a same-height floor at 60 Hz, rightward, no air control. Minimum/25/50/75/100% requested charges respectively produced rises 11.267/21.196/33.610/50.607/69.015px, signed displacements +15.006/+33.822/+57.279/+92.950/+132.007px, and flight times 0.333/0.450/0.550/0.683/0.800s. Tick-quantized effective strengths and exact hold times are in physics-spec.md. Normal play records start/landing, initial velocity, actual charge, peak rise, signed displacement, flight duration and wall/ceiling flags in memory; automated comparisons also write ignored .godot/jump_measurements.json.
+
+Initial maximum vertical impulse 330px/s gave rise 57.765px, dx121.008px and flight0.733s: insufficient clearance margin for 56px upper gaps. Raised only this parameter to 360px/s (rise69.015px, dx132.007px, flight0.800s) and adjusted intended launch positions for solid-side clearance. Other defaults remained unchanged. The harness reproduces both configurations and completes twelve actual platform landings, from feet (45,144) to approximately (208.454,-444.019), then validates a fall to lower recovery. This establishes reachability, not enjoyable subjective feel.
+
+### Checks actually executed
+
+- Godot executable --version: 4.7.2.stable.official.ed1daf0bf, matching the approved target.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File tests/validate_static.ps1`: PASS, 123 source-contract checks. The validator now handles compact and editor-expanded InputEventKey serialization; loaded values remain engine-tested.
+- `tests/run_validation.ps1 -GodotExe <confirmed console executable>`: PASS for headless --editor --import, configured main-scene startup (--quit-after 5), smoke_test.gd, and physics_test.gd (--fixed-fps 60). Latest run: PASS foundation smoke and PASS 177 physics/integration checks. No reported engine parse/resource/startup errors. The runner isolates child-process AppData/cache/logs within ignored .godot and restores process environment afterwards.
+- Physics coverage: charge formulas/clamps/curve/config validation; directions; five states; taps/caps/ground acceleration/stopping; stationary charging; air input/double-jump prevention; held key through landing; pause and reset; real walls/ceilings/narrow/edge/terminal-speed collisions; repeated and mirrored arcs; measurement output; boot button navigation; HUD/debug; camera look/follow; whole route and recovery. Live InputEventAction dispatch is tested separately from direct physics stepping.
+- First integration run failed three checks: falling-wall fixture was not intersecting the falling path, S-look assertion ignored the intended bottom bound, and the upper route lacked clearance. Corrected fixtures/assertion to test the intended behavior, tuned the real physics/route, then reran successfully. No failing checks were suppressed.
+- `tests/run_validation.ps1 -GodotExe <confirmed console executable> -Render`: PASS at the 163-check stage; rendered twelve 320×180 lab frames using OpenGL 3.3 Compatibility on Intel Arc. Inspected a final lab frame for player/platform/HUD layout. Later changes added live-input/recovery checks and revised boot subtitle/button ordering; final import/startup/smoke/177-check suite passed afterwards.
+- Brief native-window inspection through the computer-use skill showed the running lab and pause overlay. Computer Use then reported that the user stopped it with physical Escape; no further desktop input was issued. This is not a completed interactive playthrough and no subjective game-feel claim is made.
+- `git diff --check`: PASS before final documentation staging. Staged source/metadata review and cache-ignore verification are performed before the milestone commit. No push or history rewrite.
+
+### Remaining manual acceptance / limitations
+
+No known critical automated startup or gameplay failure remains. Physical held-key timing, extended interactive traversal, camera comfort, debug text readability during play, window resize/high-DPI behavior, varied render-FPS playtesting, Linux and exported builds are unverified. No final art/audio exists. Minimum hops are intentionally small (11.267px) and cannot clear the first16px step; review this with the user. Full manual checklist is in physics-spec.md. OneDrive sync health is not established; local files remain accessible and the destination/settings were not changed. An interactive debug window was left untouched after Computer Use was stopped.
+
+### Next milestone gate
+
+Before M02, collect user feedback on charge responsiveness, small-hop usefulness, ledge alignment, wall/ceiling clarity, camera look/dead zone and fall recovery. Preserve default reach unless intentionally retuning and revalidating geometry. M02 can then add connected greybox regions and checkpoint/difficulty policy using this player/camera foundation under a separate prompt.
+
 ## 2026-11-10 — Milestone 00: foundation
 
 ### Implemented
