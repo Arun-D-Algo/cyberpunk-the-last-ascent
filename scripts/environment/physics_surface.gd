@@ -70,7 +70,10 @@ func reset_motion() -> void:
 func _draw() -> void:
 	var color: Color = Color("34475a")
 	var edge: Color = Color("a9c4cc")
-	if surface_profile.id == &"ice":
+	if has_meta("forced_slide"):
+		color = Color("50303a")
+		edge = Color("ff8f73")
+	elif surface_profile.id == &"ice":
 		color = Color("193d52")
 		edge = Color("00d9e8")
 	elif surface_profile.gravity_slide:

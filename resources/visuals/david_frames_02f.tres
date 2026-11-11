@@ -1,0 +1,184 @@
+[gd_resource type="SpriteFrames" load_steps=30 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/player/david_martinez_02f.png" id="atlas"]
+
+[sub_resource type="AtlasTexture" id="idle_0"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(0, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="idle_1"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(32, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="idle_2"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(64, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="idle_3"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(96, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="walk_0"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(0, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="walk_1"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(32, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="walk_2"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(64, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="walk_3"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(96, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="walk_4"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(128, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="walk_5"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(160, 40, 32, 40)
+
+[sub_resource type="AtlasTexture" id="charge_0"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(0, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="charge_1"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(32, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="charge_2"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(64, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="charge_3"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(96, 80, 32, 40)
+
+[sub_resource type="AtlasTexture" id="launch_0"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(0, 120, 32, 40)
+
+[sub_resource type="AtlasTexture" id="launch_1"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(32, 120, 32, 40)
+
+[sub_resource type="AtlasTexture" id="rise_0"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(0, 160, 32, 40)
+
+[sub_resource type="AtlasTexture" id="rise_1"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(32, 160, 32, 40)
+
+[sub_resource type="AtlasTexture" id="fall_0"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(0, 200, 32, 40)
+
+[sub_resource type="AtlasTexture" id="fall_1"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(32, 200, 32, 40)
+
+[sub_resource type="AtlasTexture" id="land_0"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(0, 240, 32, 40)
+
+[sub_resource type="AtlasTexture" id="land_1"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(32, 240, 32, 40)
+
+[sub_resource type="AtlasTexture" id="slide_0"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(0, 280, 32, 40)
+
+[sub_resource type="AtlasTexture" id="slide_1"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(32, 280, 32, 40)
+
+[sub_resource type="AtlasTexture" id="forced_0"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(0, 320, 32, 40)
+
+[sub_resource type="AtlasTexture" id="forced_1"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(32, 320, 32, 40)
+
+[sub_resource type="AtlasTexture" id="impact_0"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(0, 360, 32, 40)
+
+[sub_resource type="AtlasTexture" id="impact_1"]
+
+atlas = ExtResource("atlas")
+
+region = Rect2(32, 360, 32, 40)
+
+[resource]
+
+animations = [{"frames": [{"duration": 1.0, "texture": SubResource("idle_0")}, {"duration": 1.0, "texture": SubResource("idle_1")}, {"duration": 1.0, "texture": SubResource("idle_2")}, {"duration": 1.0, "texture": SubResource("idle_3")}], "loop": true, "name": &"idle", "speed": 5.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("walk_0")}, {"duration": 1.0, "texture": SubResource("walk_1")}, {"duration": 1.0, "texture": SubResource("walk_2")}, {"duration": 1.0, "texture": SubResource("walk_3")}, {"duration": 1.0, "texture": SubResource("walk_4")}, {"duration": 1.0, "texture": SubResource("walk_5")}], "loop": true, "name": &"walk", "speed": 10.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("charge_0")}, {"duration": 1.0, "texture": SubResource("charge_1")}, {"duration": 1.0, "texture": SubResource("charge_2")}, {"duration": 1.0, "texture": SubResource("charge_3")}], "loop": false, "name": &"charge", "speed": 1.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("launch_0")}, {"duration": 1.0, "texture": SubResource("launch_1")}], "loop": false, "name": &"launch", "speed": 30.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("rise_0")}, {"duration": 1.0, "texture": SubResource("rise_1")}], "loop": true, "name": &"rise", "speed": 8.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("fall_0")}, {"duration": 1.0, "texture": SubResource("fall_1")}], "loop": true, "name": &"fall", "speed": 8.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("land_0")}, {"duration": 1.0, "texture": SubResource("land_1")}], "loop": false, "name": &"land", "speed": 30.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("slide_0")}, {"duration": 1.0, "texture": SubResource("slide_1")}], "loop": true, "name": &"slide", "speed": 7.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("forced_0")}, {"duration": 1.0, "texture": SubResource("forced_1")}], "loop": true, "name": &"forced", "speed": 8.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("impact_0")}, {"duration": 1.0, "texture": SubResource("impact_1")}], "loop": false, "name": &"impact", "speed": 20.0}]

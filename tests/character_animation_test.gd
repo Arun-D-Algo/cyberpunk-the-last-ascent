@@ -1,8 +1,8 @@
 extends "res://tests/physics_test.gd"
 
-const FRAMES: SpriteFrames = preload("res://resources/visuals/david_frames.tres")
-const EXPECTED := {"idle": 3, "walk": 6, "charge": 4, "launch": 2, "rise": 2,
-	"fall": 2, "land": 2, "slide": 2, "impact": 2}
+const FRAMES: SpriteFrames = preload("res://resources/visuals/david_frames_02f.tres")
+const EXPECTED := {"idle": 4, "walk": 6, "charge": 4, "launch": 2, "rise": 2,
+	"fall": 2, "land": 2, "slide": 2, "forced": 2, "impact": 2}
 
 func _run() -> void:
 	_check_frames()
@@ -25,6 +25,11 @@ func _run() -> void:
 			await process_frame
 			await _ticks(30)
 			check(body.is_on_floor() and sprite.animation == &"slide", "Lab ramp activates slide in live physics")
+			scene.select_section(20)
+			await process_frame
+			await _ticks(12, -1)
+			check(body.state == PlayerController.State.FORCED_SLIDING and sprite.animation == &"forced" and not sprite.flip_h,
+				"Committed slide has its own pose and downhill facing")
 		scene.free()
 	print("Animation checks: %d, failures: %d" % [checks, failures.size()])
 	quit(0 if failures.is_empty() else 1)
@@ -36,9 +41,9 @@ func _check_frames() -> void:
 		var pixel_keys: Array[int] = []
 		for index in count:
 			var texture: AtlasTexture = FRAMES.get_frame_texture(name, index)
-			check(texture.region.size == Vector2(24, 40), "Frame size for " + name)
+			check(texture.region.size == Vector2(32, 40), "Frame size for " + name)
 			var pixels := texture.atlas.get_image().get_region(Rect2i(texture.region))
-			if name in ["idle", "walk", "charge", "land", "slide"]:
+			if name in ["idle", "walk", "charge", "land", "slide", "forced"]:
 				var planted := false
 				for x in pixels.get_width():
 					planted = planted or pixels.get_pixel(x, 37).a > 0.0
@@ -52,8 +57,16 @@ func _check_playback() -> void:
 	var sprite: AnimatedSprite2D = body.get_node("Visual/David")
 	check(sprite.animation == &"idle", "Grounded at rest is idle")
 	var idle_frame := sprite.frame
+	var feet := body.position
+	var low: AtlasTexture = FRAMES.get_frame_texture(&"idle", 0)
+	var high: AtlasTexture = FRAMES.get_frame_texture(&"idle", 2)
+	var low_bounds := low.atlas.get_image().get_region(Rect2i(low.region)).get_used_rect()
+	var high_bounds := high.atlas.get_image().get_region(Rect2i(high.region)).get_used_rect()
+	check(low_bounds.position.y - high_bounds.position.y == 2 and low_bounds.end.y == high_bounds.end.y,
+		"Idle raises the silhouette by two pixels with planted soles")
 	await _ticks(22)
 	check(sprite.animation == &"idle" and sprite.frame != idle_frame, "Idle advances")
+	check(feet.distance_to(body.position) < 0.01, "Idle bob leaves the physics body planted")
 	await _ticks(10, -1)
 	check(sprite.animation == &"walk" and sprite.flip_h, "Walking follows left facing")
 	var walk_frame := sprite.frame

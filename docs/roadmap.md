@@ -1,6 +1,10 @@
 # Roadmap
 
-## Current gate — Milestone 02E
+## Current gate — Milestone 02F
+
+Forced-slide lab routes and the revised David sprite are ready for owner playtesting. Review the connected slide, fall recovery, native-resolution anatomy and the planted full-charge crouch before placing a committed chute in a production route.
+
+## Previous prototype — Milestone 02E
 
 The slope correction, animated David prototype and environmental platforming rules are ready for owner playtesting and art review. Record feedback on ramp entry, braking, air and landing pose readability and player scale before building the first environment-integrated route slice. The eight-region plan is provisional.
 

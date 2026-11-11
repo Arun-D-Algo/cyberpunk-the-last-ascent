@@ -1,5 +1,23 @@
 # David Martinez character art guide
 
+## Milestone 02F prototype
+
+The user's current-sprite screenshot was the primary before reference. The attached front-facing bead artwork informed jacket mass, wide sleeves, dark blue trousers and separated shoes. The attached back-facing pixel artwork informed the shoulder span, collar and balance stance. All three were inspected directly. The 02E publisher guide research below remains reference context. The new pixel clusters were authored for this project and the attachments are outside distributed assets.
+
+The canvas is **32×40** compared with **24×40** in 02E. The **192×400** atlas has **28** original keys. The feet pivot is **(16, 38)** and planted soles occupy row 37. The compact face fits under the hairline, the near and far sleeves have separate outlines, and each trouser leg has a four-pixel fabric span in its wider sections. The yellow jacket retains cool collar and reflective sleeve highlights. The 10×24 collision body sits within the wider silhouette, so the visual sleeves and shoes can overlap nearby scenery.
+
+| Animation | Frames and behavior |
+| --- | --- |
+| Idle | 4 keys, 2-pixel vertical upper-body bob with both shoes planted |
+| Walking | 6 keys with independent leg placement and sleeve swing |
+| Charge | 4 keys, planted feet, outward knees and up to 6 pixels of torso compression |
+| Launch, rise, fall, land | 2 keys each with separate limbs and crouch extension or recovery |
+| Ice or ordinary slide | 2 keys, standing balance |
+| Forced slide | 2 keys, low braced stance and extended downhill foot |
+| Wall impact | 2 keys, abbreviated raised-arm reaction |
+
+Run tools/generate_david_02f.py with Python 3 to regenerate the new PNG and SpriteFrames. The first render review exposed a detached-looking far sleeve and a flat facial edge. The second pass connected the shoulder and adjusted the brow, cheek and jaw. The [review package](visual-review/milestone-02f/README.md) contains both facings, the old and new sprites, native and enlarged views and all animation keys. Final likeness and motion approval remain with the owner.
+
 Milestone 02E supplies an original animated pixel-art prototype based on the early-series David design. The cues are swept spiked hair with a shaved temple, a warm face, a raised cyan-lined collar, a yellow jacket with a silver sleeve stripe, a black shirt, a small gold pendant, dark cuffed trousers and light-soled sneakers.
 
 ## Reference manifest

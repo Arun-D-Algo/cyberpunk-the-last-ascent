@@ -1,5 +1,13 @@
 # Cyberpunk: The Last Ascent
 
+## Milestone 02F
+
+Open **Physics Lab 2.0** and choose **R Slide**, **S Reverse**, **T Jump Lock**, **U Connected** or **V Fall Penalty**. Orange ramp faces commit David to a downhill route until the runout. F3 shows the movement state and F6 resets the selected fixture. The main tower and the lab share the revised David sprite.
+
+- [Forced-slide behavior and configuration](docs/physics-spec.md#milestone-02f-forced-downhill-obstacles)
+- [Character proportions and animation keys](docs/character-art-guide.md#milestone-02f-prototype)
+- [Native and enlarged visual review](docs/visual-review/milestone-02f/README.md)
+
 ## Milestone 02E
 
 The shared player now uses an original animated David Martinez prototype with nine animation sets. Designated ramps build downhill speed from rest. Select **O Shallow**, **P Tower Ramp** or **Q Steep** in Physics Lab 2.0 to try the revised movement. **F3** shows support, slope angle and slide status.

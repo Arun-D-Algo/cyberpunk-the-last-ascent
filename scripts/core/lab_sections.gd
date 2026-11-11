@@ -2,8 +2,8 @@ class_name LabSections
 extends RefCounted
 ## Mechanics fixtures, not production levels. Coordinates match visible polygon boundaries.
 
-const LABELS: PackedStringArray = ["CLASSIC", "A JUMPS", "B WALLS", "C CEILING", "D LEDGES", "E ICE", "F SLOPES", "G RAMPS", "H1 ICE", "H2 REBOUND", "H3 RUNOFF", "I WALL", "J PAD SIDE", "K SHAFT", "L RISING", "M ICE BANK", "N DIAGONAL", "O SHALLOW", "P TOWER RAMP", "Q STEEP"]
-const DESCRIPTIONS: PackedStringArray = ["CLASSIC / ORIGINAL ASCENT", "A / JUMP CALIBRATION", "B / STOP AND CONTROLLED REBOUND", "C / LOW CEILINGS AND CORNERS", "D / NARROW LEDGES AND RECOVERY", "E / ICE AND NORMAL TRANSITIONS", "F / SHALLOW AND STEEP SLOPES", "G / BRAKE THEN CHARGE ON RAMPS", "H1 / ICE APPROACH TO NARROW TARGET", "H2 / WALL REBOUND UNDER OVERHANG", "H3 / RAMP RUNOFF AND RECOVERY", "I / ORDINARY WALL RICOCHET", "J / RAISED PAD SIDE REBOUND", "K / TWO WALL SHAFT", "L / PRESERVE RISING MOMENTUM", "M / ICE BRAKE AND RICOCHET", "N / OPTIONAL ENERGY REDIRECT", "O / 12 DEG SLIDE TO FLAT", "P / 18 DEG TOWER RAMP", "Q / 35 DEG SLIDE TO PLATFORM"]
+const LABELS: PackedStringArray = ["CLASSIC", "A JUMPS", "B WALLS", "C CEILING", "D LEDGES", "E ICE", "F SLOPES", "G RAMPS", "H1 ICE", "H2 REBOUND", "H3 RUNOFF", "I WALL", "J PAD SIDE", "K SHAFT", "L RISING", "M ICE BANK", "N DIAGONAL", "O SHALLOW", "P TOWER RAMP", "Q STEEP", "R SLIDE", "S REVERSE", "T JUMP LOCK", "U CONNECTED", "V FALL PENALTY"]
+const DESCRIPTIONS: PackedStringArray = ["CLASSIC / ORIGINAL ASCENT", "A / JUMP CALIBRATION", "B / STOP AND CONTROLLED REBOUND", "C / LOW CEILINGS AND CORNERS", "D / NARROW LEDGES AND RECOVERY", "E / ICE AND NORMAL TRANSITIONS", "F / SHALLOW AND STEEP SLOPES", "G / BRAKE THEN CHARGE ON RAMPS", "H1 / ICE APPROACH TO NARROW TARGET", "H2 / WALL REBOUND UNDER OVERHANG", "H3 / RAMP RUNOFF AND RECOVERY", "I / ORDINARY WALL RICOCHET", "J / RAISED PAD SIDE REBOUND", "K / TWO WALL SHAFT", "L / PRESERVE RISING MOMENTUM", "M / ICE BRAKE AND RICOCHET", "N / OPTIONAL ENERGY REDIRECT", "O / 12 DEG SLIDE TO FLAT", "P / 18 DEG TOWER RAMP", "Q / 35 DEG SLIDE TO PLATFORM", "R / RELEASE ALL CONTROLS", "S / WALK ON THEN HOLD LEFT", "T / TRY PRESSING SPACE", "U / TWO CONNECTED FACES", "V / MISS TO LOWER RECOVERY"]
 const NORMAL: SurfacePhysicsProfile = preload("res://resources/surfaces/normal.tres")
 const ICE: SurfacePhysicsProfile = preload("res://resources/surfaces/ice.tres")
 const RAMP: SurfacePhysicsProfile = preload("res://resources/surfaces/sliding_ramp.tres")
@@ -106,5 +106,23 @@ static func populate(parent: Node, section: int) -> Vector2:
 			points.append(Vector2(0, rise + 10))
 			polygon(parent, "ControlledRamp", start, points, profile)
 			return start + Vector2(8, -2)
+
+		20, 21, 22, 23, 24:
+			var slide := ForcedSlide.new()
+			slide.name = "ForcedSlide"
+			slide.position = Vector2(72, 69)
+			if section == 23:
+				slide.points = PackedVector2Array([Vector2.ZERO, Vector2(58, 16), Vector2(128, 56)])
+			parent.add_child(slide)
+			if section != 24:
+				box(parent, "Runout", Rect2(200, 125, 87, 12))
+			if section == 21:
+				box(parent, "Approach", Rect2(25, 69, 47, 12))
+				return Vector2(54, 69)
+			if section == 24:
+				box(parent, "LaunchLedge", Rect2(35, 49, 64, 8))
+				box(parent, "UpperTarget", Rect2(183, 12, 35, 8))
+				return Vector2(63, 49)
+			return Vector2(84, 69 + 12 * slide.points[1].y / slide.points[1].x)
 
 	return Vector2(45, 144)

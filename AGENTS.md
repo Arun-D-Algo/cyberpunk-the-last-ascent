@@ -36,3 +36,6 @@
 31. M02E authorizes designated downhill ramp contact and integration plus visual-only David animation. Keep non-ramp physics and the shared player collider invariant. Run the slope and animation suites through the validation runner.
 32. Edit David's palette-indexed poses in tools/generate_david.py and regenerate both atlas and SpriteFrames. Keep native pixel density, feet pivot, nearest filtering and gameplay-driven poses. Keep reference sources out of distributed assets. See docs/character-art-guide.md.
 33. Future production geometry follows the environmental geometry standard in docs/level-design.md. Verify visible edges, structural context, measured reach and recovery. The provisional eight-region plan is a design reference.
+
+34. M02F forced slides use a dedicated ForcedSlide route and committed controller state. Keep normal slope, gravity ramp and ice rules separate. Verify headroom, seams, open-end recovery and the configured exit. Treat obstruction warnings as level defects.
+35. Use tools/generate_david_02f.py for the active 32×40 sprite. Preserve its feet pivot, native pixel density and event-driven visual controller. Keep the 02E assets available for historical comparison.

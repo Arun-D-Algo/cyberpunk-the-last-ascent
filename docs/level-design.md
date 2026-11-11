@@ -1,5 +1,11 @@
 # Level design
 
+## Forced-slide obstacle placement
+
+Use committed slides as readable penalties below a missed landing. Give the player a visible recovery destination and enough headroom for the shared collider. A chute or inclined service panel provides a physical reason for the descent. Give its top face a consistent hazard treatment and distinguish normal inclined floors and ice visually.
+
+Place a ForcedSlide route with strictly descending connected faces and a clear exit beyond the final face. Test both entry from above and the approach edge. Confirm the authored exit velocity and the lower catch point with the shared controller. Inspect seams and remove blockers or overlapping colliders before making a route playable. Lab R–V demonstrate the patterns with temporary geometry.
+
 ## Environmental geometry standard
 
 The environment provides much of the traversable geometry. Build routes from surfaces that serve an architectural or industrial purpose. Use visually supported building ledges, balconies, escalators, billboard mounts, walkways, pipes, vents, elevator frames, security booth roofs, beams and broken stairs. Generic floating pads are an exception for explicit training or an authored suspension mechanism.

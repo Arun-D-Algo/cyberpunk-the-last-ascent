@@ -1,5 +1,11 @@
 # Technical design
 
+## Milestone 02F forced-slide and visual boundaries
+
+ForcedSlide authors a static downhill polyline, generates its solid PhysicsSurface segments and provides route configuration. Each segment references its owner through metadata. PlayerController recognizes that owner after floor contact, owns the committed movement state and continues using one solver move per physics tick. A designated exit, invalid geometry recovery or reset releases commitment. Invalid configurations report their authoring error at startup.
+
+The visual controller selects a dedicated forced-slide animation from gameplay state. The enlarged cells use the same logical pixel density and anchor around the existing feet origin. Idle moves the head, sleeves, jacket and knees through authored pixels with stationary soles. Charge frames follow the existing charge fraction. Future cyberware effects can subscribe to the existing jump_started signal using the launch origin, strength and velocity, with upgrade eligibility supplied by that future system. This milestone adds no effects subscriber.
+
 ## Milestone 02E movement and animation
 
 PlayerController derives downhill drive from supported polygon faces and bounds coasting drag on those inclines. Godot's floor classifier and snap continue to determine support. The shared player instantiates AnimatedSprite2D from Visual at runtime and keeps its collider scene hash. Visual observes physics steps, jump, rebound and reset signals. Charge and landing frames derive from gameplay progress. Launch and impact timers affect presentation. Walk advances in proportion to ground speed. The interpolated player transform carries the sprite and its invariant feet pivot.

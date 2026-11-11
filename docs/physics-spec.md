@@ -1,5 +1,26 @@
 # Physics specification
 
+## Milestone 02F forced downhill obstacles
+
+The earlier gravity ramps apply downhill drive while still accepting braking, uphill travel and charge input. That remains useful for ordinary traversal. A ForcedSlide node opts a specific static route into a separate committed player state. Normal ground, ordinary slopes and controllable ice use their own existing surface rules.
+
+The node builds solid polygon faces from an ordered, strictly downhill polyline. A solver-confirmed top contact enters the state, cancels charge and uses the greater of configured entry speed and incoming downhill momentum, capped at maximum speed. Side-only and underside contacts use their normal collision responses. After entry the fixed tick integrates downhill speed and follows the authored tangent. The controller selects each face using the uphill edge of the rectangular collider. The physics solver resolves all movement and the existing floor snap. Brief support loss across a seam retains commitment and applies downward pressure while reacquiring the route. Connected faces share one route and one speed.
+
+| Setting | Lab default |
+| --- | --- |
+| Direction | Right. A left-descending route uses decreasing X points |
+| Entry speed | 58 px/s |
+| Minimum speed | 45 px/s |
+| Acceleration | 145 px/s² |
+| Maximum speed | 156 px/s |
+| Exit velocity | 74 px/s downhill, 0 vertical |
+| Exit clearance | 6 px beyond the final face |
+| Optional tangent smoothing | 0 s, immediate change at the authored seam |
+
+Charge duration stays zero and directional input has no effect on speed or facing. At the exit plane the controller applies the configured exit velocity and resumes grounded or airborne movement. Space must be released before another charge. Pause retains the state and reset clears it. A route stalled against an obstruction for 0.25 s logs a geometry warning and restores control with re-entry suppressed until the player leaves support or contacts another slide. Test scenes exercise this recovery. Author static, unscaled routes under 45 degrees with clear headroom and a tested runout or lower catch surface. The gap fixture covers a 3 px drop. Larger gaps, moving slides and branching paths require separate design and validation.
+
+Lab R–V cover passive descent, walking entry and reverse input, Space lock, connected faces and a missed-jump penalty. Section V exits into a lower recovery floor. Existing production ramps remain traversable comparison surfaces.
+
 ## Milestone 02E slope movement
 
 At 60 Hz the former integrator applied a full flat drag step, then a downhill gravity step. On the controlled ramp, drag was 144 px/s² while gravity projected to 37.95 px/s² at 18.435 degrees. Drag erased the previous tick's gain and left roughly 0.632 px/s every tick. On a 12-degree slope the 0.5 px/s rest cutoff erased even that gain. The character always moved in fractional world coordinates. Slow movement made physical pixel steps conspicuous despite interpolation.

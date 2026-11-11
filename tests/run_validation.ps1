@@ -31,9 +31,11 @@ try {
     Invoke-EngineCheck 'refinement' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/refinement_test.gd')
     Invoke-EngineCheck 'slopes_02e' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/slope_test.gd')
     Invoke-EngineCheck 'character_animation' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/character_animation_test.gd')
+    Invoke-EngineCheck 'lab_startup' @('--headless', '--path', $projectRoot, '--scene', 'res://scenes/levels/physics_lab.tscn', '--quit-after', '5')
     Invoke-EngineCheck 'tower' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/tower_test.gd')
     Invoke-EngineCheck 'tower_startup' @('--headless', '--path', $projectRoot, '--scene', 'res://scenes/levels/tower_ascent.tscn', '--quit-after', '5')
     foreach ($frameRate in @(30, 60, 120)) {
+        Invoke-EngineCheck "forced_slide_$frameRate" @('--headless', '--fixed-fps', "$frameRate", '--path', $projectRoot, '--script', 'res://tests/forced_slide_test.gd')
         Invoke-EngineCheck "cadence_$frameRate" @('--headless', '--fixed-fps', "$frameRate", '--path', $projectRoot, '--script', 'res://tests/frame_rate_probe.gd')
     }
     if ($Render) {

@@ -10,7 +10,7 @@ signal physics_stepped(delta: float)
 signal contact_impact(normal: Vector2, incoming: Vector2)
 signal surface_changed(previous: SurfacePhysicsProfile, current: SurfacePhysicsProfile)
 
-enum State { GROUNDED, CHARGING, RISING, FALLING, LANDING }
+enum State { GROUNDED, CHARGING, RISING, FALLING, LANDING, FORCED_SLIDING }
 
 @export var physics_config: PlayerPhysicsConfig
 @export var collision_response: CollisionResponseProfile = preload("res://resources/physics/default_collision_response.tres")
@@ -42,6 +42,13 @@ var _charge_press: bool = false
 var _charge_release: bool = false
 var _jump_armed: bool = true
 var _discard_floor_once: bool = false
+var _forced_slide: ForcedSlide
+var _floor_slide: ForcedSlide
+var _blocked_slide: ForcedSlide
+var _slide_speed := 0.0
+var _slide_tangent := Vector2.RIGHT
+var _slide_stall := 0.0
+@onready var _support_half_width: float = ($CollisionShape2D.shape as RectangleShape2D).size.x * 0.5
 
 
 func _ready() -> void:
@@ -83,6 +90,10 @@ func _physics_process(delta: float) -> void:
 ## Call only once per physics tick; owns the single move_and_slide invocation.
 func step_movement(delta: float, direction: int, pressed: bool, held: bool, released: bool) -> void:
 	if get_tree().paused:
+		return
+	if state == State.FORCED_SLIDING:
+		_step_forced_slide(delta)
+		physics_stepped.emit(delta)
 		return
 	var reacquiring_floor: bool = _discard_floor_once
 	var floor_before: bool = is_on_floor() and not reacquiring_floor
@@ -154,6 +165,12 @@ func step_movement(delta: float, direction: int, pressed: bool, held: bool, rele
 	move_and_slide()
 	platform_floor_layers = carry_layers
 	_resolve_contacts(incoming)
+	if not is_on_floor() or (_floor_slide != null and _floor_slide != _blocked_slide):
+		_blocked_slide = null
+	if is_on_floor() and is_instance_valid(_floor_slide) and _floor_slide != _blocked_slide and not _floor_slide.passed_exit(global_position.x):
+		_begin_forced_slide(incoming)
+		physics_stepped.emit(delta)
+		return
 	if floor_before and not launched and state in [State.GROUNDED, State.CHARGING, State.LANDING]:
 		# Godot clears the vertical component on floor contact. Restore our tangential
 		# state, not the inward solver pressure, so slope momentum is neither lost nor inverted.
@@ -189,6 +206,71 @@ func step_movement(delta: float, direction: int, pressed: bool, held: bool, rele
 	physics_stepped.emit(delta)
 
 
+func _begin_forced_slide(incoming: Vector2) -> void:
+	var was_airborne := state == State.RISING or state == State.FALLING
+	_forced_slide = _floor_slide
+	_slide_tangent = Vector2(-surface_normal.y, surface_normal.x) * _forced_slide.direction
+	_slide_speed = clampf(incoming.dot(_slide_tangent), _forced_slide.entry_speed, _forced_slide.maximum_speed)
+	_slide_stall = 0.0
+	velocity = _slide_tangent * _slide_speed
+	facing_direction = _forced_slide.direction
+	selected_direction = 0
+	landing_remaining = 0.0
+	cancel_input_until_release()
+	charge_blocked = true
+	_transition(State.FORCED_SLIDING)
+	if was_airborne:
+		last_landing_surface = surface_body_name
+		last_landing_velocity = incoming
+		landed.emit(global_position)
+
+
+func _step_forced_slide(delta: float) -> void:
+	if not is_instance_valid(_forced_slide):
+		_end_forced_slide(Vector2.ZERO)
+		return
+	# The uphill sole reaches a downhill seam after the body's center.
+	var support_x := global_position.x - _support_half_width * _forced_slide.direction
+	var target := _forced_slide.tangent_at(support_x)
+	var supported := is_on_floor()
+	var route_normal := Vector2(target.y, -target.x) * _forced_slide.direction
+	var blend := 1.0
+	if _forced_slide.transition_seconds > 0.0:
+		blend = minf(delta / _forced_slide.transition_seconds, 1.0)
+	_slide_tangent = _slide_tangent.lerp(target, blend).normalized()
+	_slide_speed = clampf(_slide_speed + _forced_slide.acceleration * delta,
+		_forced_slide.minimum_speed, _forced_slide.maximum_speed)
+	var travel := _slide_tangent * _slide_speed
+	# Pressure keeps floor contact and reacquires support across short seams.
+	velocity = travel + (Vector2.DOWN if not supported else -route_normal) * physics_config.gravity * delta
+	floor_stop_on_slope = false
+	var before := global_position
+	move_and_slide()
+	_resolve_contacts(velocity)
+	var progress := (global_position.x - before.x) * _forced_slide.direction
+	if _forced_slide.passed_exit(global_position.x):
+		var output := _forced_slide.exit_velocity
+		output.x *= _forced_slide.direction
+		_end_forced_slide(output)
+		return
+	_slide_stall = _slide_stall + delta if progress < 0.05 else 0.0
+	if _slide_stall >= 0.25:
+		push_warning("Obstructed forced slide at " + str(_forced_slide.get_path()))
+		_blocked_slide = _forced_slide
+		_end_forced_slide(Vector2.ZERO)
+		return
+	velocity = travel
+	surface_normal = route_normal
+
+
+func _end_forced_slide(output: Vector2) -> void:
+	_forced_slide = null
+	velocity = output
+	charge_blocked = false
+	cancel_input_until_release()
+	_transition(State.GROUNDED if is_on_floor() else State.FALLING)
+
+
 func tangent_speed() -> float:
 	return velocity.dot(Vector2(-surface_normal.y, surface_normal.x))
 
@@ -198,6 +280,8 @@ func slope_degrees() -> float:
 
 
 func is_sliding() -> bool:
+	if state == State.FORCED_SLIDING:
+		return true
 	if not is_on_floor() or state == State.CHARGING:
 		return false
 	var speed := absf(tangent_speed())
@@ -263,6 +347,7 @@ func _resolve_contacts(incoming: Vector2) -> void:
 	var floor_distance: float = INF
 	var floor_profile: SurfacePhysicsProfile = active_surface
 	var found_floor: bool = false
+	_floor_slide = null
 	for index: int in get_slide_collision_count():
 		var collision: KinematicCollision2D = get_slide_collision(index)
 		var normal: Vector2 = collision.get_normal()
@@ -274,7 +359,8 @@ func _resolve_contacts(incoming: Vector2) -> void:
 				floor_profile = _profile(collision.get_collider())
 				surface_normal = normal
 				var collider: Node = collision.get_collider() as Node
-				if floor_profile.gravity_slide and collider is PhysicsSurface:
+				_floor_slide = collider.get_meta("forced_slide") as ForcedSlide if collider != null and collider.has_meta("forced_slide") else null
+				if (floor_profile.gravity_slide or _floor_slide != null) and collider is PhysicsSurface:
 					surface_normal = collider.ramp_face_normal(collision.get_position(), normal)
 				surface_body_name = collider.name if collider != null else &"world"
 				found_floor = true
@@ -294,6 +380,8 @@ func _resolve_contacts(incoming: Vector2) -> void:
 		surface_body_name = &"air"
 		_set_surface(NORMAL)
 	wall_contact_normal = wall_normal
+	if state == State.FORCED_SLIDING:
+		return
 	if not wall_normal.is_zero_approx() and (incoming - wall_velocity).dot(wall_normal) < -0.01:
 		if wall_body != _previous_wall_body or not wall_normal.is_equal_approx(_previous_wall):
 			contact_impact.emit(wall_normal, incoming)
@@ -336,6 +424,9 @@ func cancel_input_until_release() -> void:
 
 
 func reset_movement(at: Vector2) -> void:
+	_forced_slide = null
+	_floor_slide = null
+	_blocked_slide = null
 	global_position = at
 	reset_physics_interpolation()
 	rebound_count = 0

@@ -1,7 +1,7 @@
 extends Node2D
 ## Presentation derives poses from gameplay signals and fixed-tick state.
 
-const FRAMES: SpriteFrames = preload("res://resources/visuals/david_frames.tres")
+const FRAMES: SpriteFrames = preload("res://resources/visuals/david_frames_02f.tres")
 const LAUNCH_SECONDS := 2.0 / 30.0
 const IMPACT_SECONDS := 0.10
 
@@ -19,7 +19,7 @@ func _ready() -> void:
 	sprite.name = "David"
 	sprite.sprite_frames = FRAMES
 	sprite.centered = false
-	sprite.offset = Vector2(-12, -38)
+	sprite.offset = Vector2(-16, -38)
 	add_child(sprite)
 	player.jump_started.connect(_on_launch)
 	player.rebounded.connect(_on_impact)
@@ -68,7 +68,7 @@ func _on_step(delta: float) -> void:
 			frame = frame % count if FRAMES.get_animation_loop(pose) else mini(frame, count - 1)
 	sprite.frame = frame
 	var facing := _impact_facing if pose == &"impact" else player.facing_direction
-	if pose == &"slide" and absf(player.velocity.x) > 0.01:
+	if pose in [&"slide", &"forced"] and absf(player.velocity.x) > 0.01:
 		facing = 1 if player.velocity.x > 0.0 else -1
 	sprite.flip_h = facing < 0
 	var rate := absf(player.tangent_speed()) / maxf(player.physics_config.ground_speed, 1.0) if pose == &"walk" else 1.0
@@ -80,6 +80,8 @@ func _on_step(delta: float) -> void:
 
 func _select_pose() -> StringName:
 	match player.state:
+		PlayerController.State.FORCED_SLIDING:
+			return &"forced"
 		PlayerController.State.CHARGING:
 			return &"charge"
 		PlayerController.State.LANDING:

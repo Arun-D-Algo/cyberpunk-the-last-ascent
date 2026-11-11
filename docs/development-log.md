@@ -1,5 +1,16 @@
 # Development log
 
+## 2026-11-11 - Milestone 02F forced slides and David redraw
+
+Started on 0e52ae0 with the existing editor reorder in project.godot. The earlier ramp code integrated gravity with ordinary input and braking. Added a separate ForcedSlide polyline component and committed controller state. Real polygon contacts gate entry and the authored tangent keeps movement coherent across both faces and brief support loss. An explicit exit plane restores control, with a separate warning and escape path for obstructed geometry.
+
+Lab R–V cover passive travel, walking and reversal attempts, jump lock, two connected faces, and a missed jump followed by open-end recovery. From commitment to exit they took 64, 69, 64, 65 and 31 physics ticks respectively at all three render cadences. The deliberate obstruction fixture warned and returned control. The gap fixture lost and reacquired floor support at a 3 px step without releasing the slide.
+
+Inspected the three user attachments and redrew the 24×40 sprite in a 32×40 cell. The new 28 keys use a compact face, broader jacket, separated sleeves, two baggy legs, planted idle bob and athletic crouch. The dedicated forced-slide pose follows the gameplay state. Reworked the far shoulder connection and facial edge after inspecting the first render. Captured native and enlarged atlas, tower and connected-route evidence in the 02F review package.
+
+On Godot 4.7.2, 248 static checks and the full validation runner passed. The runner recorded 177 movement, 168 visual/input, 665 surface, 115 refinement, 55 slope, 109 animation, and 393 tower checks, including all 60 tower landings. Forced-slide checks passed 53 per cadence at 30, 60 and 120 FPS. Import, smoke, boot, lab, chamber and tower startup passed. The obstruction warning is intentional test evidence. Owner motion and art approval remain pending.
+
+
 ## 2026-11-11 - Milestone 02E ramp movement, David prototype and environment rules
 
 Started at bd8e87c on main. The working tree already contained an editor reorder of the physics section in project.godot. That edit is preserved outside the milestone commit. Godot reported 4.7.2.stable.official.ed1daf0bf.
