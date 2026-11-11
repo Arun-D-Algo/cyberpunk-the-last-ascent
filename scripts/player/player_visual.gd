@@ -1,9 +1,16 @@
 extends Node2D
 ## Presentation derives poses from gameplay signals and fixed-tick state.
 
-const FRAMES: SpriteFrames = preload("res://resources/visuals/david_frames_02f.tres")
-const LAUNCH_SECONDS := 2.0 / 30.0
+const FRAMES: SpriteFrames = preload("res://resources/visuals/david_frames_02g.tres")
+const LAUNCH_SECONDS := 3.0 / 30.0
 const IMPACT_SECONDS := 0.10
+const APEX_SPEED := 40.0
+const FALL_HYSTERESIS := 24.0
+
+enum FallPhase { EARLY, NORMAL, FAST }
+
+@export_range(40.0, 150.0) var normal_fall_speed := 75.0
+@export_range(175.0, 600.0) var fast_fall_speed := 315.0
 
 @onready var player: PlayerController = get_parent() as PlayerController
 var sprite: AnimatedSprite2D
@@ -12,6 +19,7 @@ var _pose_time := 0.0
 var _launch_left := 0.0
 var _impact_left := 0.0
 var _impact_facing := 1
+var _fall_phase := FallPhase.EARLY
 
 
 func _ready() -> void:
@@ -19,7 +27,7 @@ func _ready() -> void:
 	sprite.name = "David"
 	sprite.sprite_frames = FRAMES
 	sprite.centered = false
-	sprite.offset = Vector2(-16, -38)
+	sprite.offset = Vector2(-20, -38)
 	add_child(sprite)
 	player.jump_started.connect(_on_launch)
 	player.rebounded.connect(_on_impact)
@@ -40,6 +48,7 @@ func _on_impact(normal: Vector2, _impulse: Vector2, _kind: String) -> void:
 
 
 func _on_reset() -> void:
+	_fall_phase = FallPhase.EARLY
 	_launch_left = 0.0
 	_impact_left = 0.0
 	_pose_time = 0.0
@@ -51,6 +60,7 @@ func _on_reset() -> void:
 
 
 func _on_step(delta: float) -> void:
+	_update_fall_phase()
 	var next := _select_pose()
 	if next != pose:
 		pose = next
@@ -78,6 +88,19 @@ func _on_step(delta: float) -> void:
 	queue_redraw()
 
 
+func _update_fall_phase() -> void:
+	if player.state != PlayerController.State.FALLING:
+		_fall_phase = FallPhase.EARLY
+		return
+	var descent := player.velocity.y
+	if descent >= fast_fall_speed or (_fall_phase == FallPhase.FAST and descent >= fast_fall_speed - FALL_HYSTERESIS):
+		_fall_phase = FallPhase.FAST
+	elif descent >= normal_fall_speed or (_fall_phase != FallPhase.EARLY and descent >= normal_fall_speed - FALL_HYSTERESIS):
+		_fall_phase = FallPhase.NORMAL
+	else:
+		_fall_phase = FallPhase.EARLY
+
+
 func _select_pose() -> StringName:
 	match player.state:
 		PlayerController.State.FORCED_SLIDING:
@@ -91,7 +114,15 @@ func _select_pose() -> StringName:
 				return &"impact"
 			if _launch_left > 0.0 and player.state == PlayerController.State.RISING:
 				return &"launch"
-			return &"rise" if player.state == PlayerController.State.RISING else &"fall"
+			if player.state == PlayerController.State.RISING:
+				return &"apex" if player.velocity.y >= -APEX_SPEED else &"rise"
+			match _fall_phase:
+				FallPhase.FAST:
+					return &"fall_fast"
+				FallPhase.NORMAL:
+					return &"fall"
+				_:
+					return &"fall_early"
 	var speed := player.tangent_speed()
 	var going_downhill := player.active_surface.gravity_slide and player.surface_normal.x * speed > 0.0
 	if player.is_sliding() and (player.selected_direction * speed <= 0.0 or going_downhill):

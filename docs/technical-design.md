@@ -1,5 +1,11 @@
 # Technical design
 
+## Milestone 02G airborne visuals
+
+PlayerVisual reads PlayerController's existing state and vertical velocity on the fixed-tick signal. Launch and wall-impact timers take precedence during their visual windows. An apex key bridges rise to early fall. Two configurable downward velocity thresholds choose the normal and fast animations with a 24 px/s hysteresis band. The band continues updating during wall-impact playback and resets outside falling. Each selection changes the AnimatedSprite2D frame only.
+
+The active atlas and SpriteFrames come from tools/generate_david_02g.py, which reuses the 02F exporter and ground key data. The renderer checks that painted pixels fit inside a padded 40×40 cell. A (20, 38) pivot keeps the same feet origin while nearest filtering and the shared player interpolation carry the artwork through the scene.
+
 ## Milestone 02F forced-slide and visual boundaries
 
 ForcedSlide authors a static downhill polyline, generates its solid PhysicsSurface segments and provides route configuration. Each segment references its owner through metadata. PlayerController recognizes that owner after floor contact, owns the committed movement state and continues using one solver move per physics tick. A designated exit, invalid geometry recovery or reset releases commitment. Invalid configurations report their authoring error at startup.

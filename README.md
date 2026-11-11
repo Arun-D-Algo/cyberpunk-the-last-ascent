@@ -1,5 +1,12 @@
 # Cyberpunk: The Last Ascent
 
+## Milestone 02G
+
+David's current sprite has a compact face, angled jacket opening and baggier trousers. Launch and rise use new keys. The fall progresses from open arms near the apex to stronger jacket flare at higher downward speed. Try a charged jump in **Physics Lab 2.0 → A Jumps** and a long drop in **Start Tower Ascent**.
+
+- [Character art guide and fall thresholds](docs/character-art-guide.md#milestone-02g-airborne-refinement)
+- [Before and after, animation strips and engine captures](docs/visual-review/milestone-02g/README.md)
+
 ## Milestone 02F
 
 Open **Physics Lab 2.0** and choose **R Slide**, **S Reverse**, **T Jump Lock**, **U Connected** or **V Fall Penalty**. Orange ramp faces commit David to a downhill route until the runout. F3 shows the movement state and F6 resets the selected fixture. The main tower and the lab share the revised David sprite.

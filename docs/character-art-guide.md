@@ -1,5 +1,24 @@
 # David Martinez character art guide
 
+## Milestone 02G airborne refinement
+
+The 02G attachment is a full-body David illustration. I inspected the spiked dark-brown crown, exposed forehead, narrow jaw, asymmetrical jacket opening, blue collar and folds around the loose knees and cuffs. The 02F standing key from the committed atlas is the before comparison. Earlier user attachments and the publisher reference research below provide context. The 02G pixel clusters and motion keys are original artwork.
+
+The current renderer reuses the 02F ground poses. The head keeps its original height and fits a stepped forehead, cheek and chin into a compact right-facing profile. A dark brow and restrained cheek highlights define the face. The head draws over the sleeves where an airborne gesture crosses the jaw. The near lapel covers the lower left side of the shirt and the far edge tapers into shadow. The trousers use six fabric pixels through the thigh and knee with a folded highlight, dark crease, tapered cuff and separate sole. These clusters carry across all frames.
+
+The 40×40 cells provide horizontal room for open arms and rising jacket hems. The 240×520 atlas contains 37 distinct authored keys across 13 animations. The origin is (20, 38). Ground poses plant a sole on row 37 at native pixel density. Jacket tails rise from their seams and grow wider with each fall phase. Offset folds alternate during each phase while the collar and front panels keep their place on the torso.
+
+| Animation | Keys | Timing or selection |
+| --- | ---: | --- |
+| Idle / walk / charge | 4 / 6 / 4 | Existing planted bob, speed-driven walk and charge fraction |
+| Launch / rise / apex | 3 / 3 / 1 | 100 ms visual takeoff, then ascending keys and open apex pose from −40 px/s |
+| Early fall / normal / fast | 2 / 3 / 3 | 10 / 12 / 14 fps. Entry thresholds of 75 and 315 px/s downward |
+| Land / ordinary slide / forced slide / impact | 2 each | Existing recovery, slide and impact selection |
+
+The two fall thresholds are inspector properties on Player Visual. A 24 px/s hysteresis band keeps each pose stable until descent speed drops below 51 or 291 px/s with the defaults. The wall-impact pose takes visual priority and resumes the current fall band afterward. The wider sleeves and hems may extend outside the 10×24 gameplay collider. At native resolution a few pixels represent each facial feature and fabric fold. The artwork awaits owner review.
+
+Regenerate the active atlas and SpriteFrames with Python 3 and tools/generate_david_02g.py. It reuses the 02F pose data and frame exporter. The 02F exporter still reproduces its existing files byte for byte. See the [02G review package](visual-review/milestone-02g/README.md) for comparison sheets, air poses and Godot captures.
+
 ## Milestone 02F prototype
 
 The user's current-sprite screenshot was the primary before reference. The attached front-facing bead artwork informed jacket mass, wide sleeves, dark blue trousers and separated shoes. The attached back-facing pixel artwork informed the shoulder span, collar and balance stance. All three were inspected directly. The 02E publisher guide research below remains reference context. The new pixel clusters were authored for this project and the attachments are outside distributed assets.

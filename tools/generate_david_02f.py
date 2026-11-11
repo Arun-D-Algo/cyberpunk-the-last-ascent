@@ -94,7 +94,7 @@ def draw_pixels(canvas, width, x, y, rows):
             canvas[offset:offset + 4] = bytes.fromhex(PALETTE[pixel] + "ff")
 
 
-def draw_pose(canvas, width, x, y, pose):
+def draw_pose(canvas, width, x, y, pose, _name, _frame):
     dx, dy, near_arm, nx, ny, far_arm, fx, fy, near_leg, far_leg = pose
     cell = bytearray(WIDTH * HEIGHT * 4)
     draw_pixels(cell, WIDTH, fx - 2, fy, ARMS[far_arm])
@@ -122,33 +122,33 @@ def draw_pose(canvas, width, x, y, pose):
         canvas[offset:offset + WIDTH * 4] = cell[row * WIDTH * 4:(row + 1) * WIDTH * 4]
 
 
-def main():
-    width = COLUMNS * WIDTH
-    height = len(POSES) * HEIGHT
+def export_frames(stem, frame_width, poses_by_name, render_pose, loops):
+    width = COLUMNS * frame_width
+    height = len(poses_by_name) * HEIGHT
     canvas = bytearray(width * height * 4)
-    frame_count = sum(len(poses) for _, poses in POSES.values())
+    frame_count = sum(len(poses) for _, poses in poses_by_name.values())
     resource = [
         f'[gd_resource type="SpriteFrames" load_steps={frame_count + 2} format=3]',
-        '[ext_resource type="Texture2D" path="res://assets/player/david_martinez_02f.png" id="atlas"]',
+        f'[ext_resource type="Texture2D" path="res://assets/player/david_martinez_{stem}.png" id="atlas"]',
     ]
     animations = []
-    for row, (name, (fps, poses)) in enumerate(POSES.items()):
+    for row, (name, (fps, poses)) in enumerate(poses_by_name.items()):
         frames = []
         for column, pose in enumerate(poses):
-            x, y = column * WIDTH, row * HEIGHT
-            draw_pose(canvas, width, x, y, pose)
+            x, y = column * frame_width, row * HEIGHT
+            render_pose(canvas, width, x, y, pose, name, column)
             frame_id = f"{name}_{column}"
             resource += [f'[sub_resource type="AtlasTexture" id="{frame_id}"]',
-                         'atlas = ExtResource("atlas")', f'region = Rect2({x}, {y}, {WIDTH}, {HEIGHT})']
+                         'atlas = ExtResource("atlas")', f'region = Rect2({x}, {y}, {frame_width}, {HEIGHT})']
             frames.append(f'{{"duration": 1.0, "texture": SubResource("{frame_id}")}}')
-        loop = "true" if name in {"idle", "walk", "rise", "fall", "slide", "forced"} else "false"
+        loop = "true" if name in loops else "false"
         animations.append('{"frames": [' + ", ".join(frames) +
                           f'], "loop": {loop}, "name": &"{name}", "speed": {fps}.0}}')
-    write_png(ROOT / "assets/player/david_martinez_02f.png", width, height, canvas)
+    write_png(ROOT / f"assets/player/david_martinez_{stem}.png", width, height, canvas)
     resource += ["[resource]", "animations = [" + ",\n".join(animations) + "]"]
     (ROOT / "resources/visuals").mkdir(exist_ok=True)
-    (ROOT / "resources/visuals/david_frames_02f.tres").write_text("\n\n".join(resource) + "\n", encoding="utf-8", newline="\n")
+    (ROOT / f"resources/visuals/david_frames_{stem}.tres").write_text("\n\n".join(resource) + "\n", encoding="utf-8", newline="\n")
 
 
 if __name__ == "__main__":
-    main()
+    export_frames("02f", WIDTH, POSES, draw_pose, {"idle", "walk", "rise", "fall", "slide", "forced"})

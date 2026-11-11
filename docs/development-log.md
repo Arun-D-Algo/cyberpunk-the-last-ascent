@@ -1,5 +1,15 @@
 # Development log
 
+## 2026-11-11 - Milestone 02G David anatomy and airborne animation
+
+Started on a21851c with the existing editor reorder in project.godot. Used the attached full-body David illustration for the compact face, swept crown, jacket opening and knee folds. Used the 02F atlas as the before image. Reused the ground poses and made the export function reusable. Regenerating 02F reproduced its PNG and SpriteFrames byte for byte.
+
+The new 40×40 cells leave space for air poses at the existing character height and feet origin. Refined the shirt overlap and widened each trouser leg through the thigh and knee. Added three launch keys, three rise keys, an apex key and three fall bands. Downward speed selects normal at 75 px/s and fast at 315 px/s. Hysteresis is 24 px/s. Spread arms and two layered jacket tails widen and lift across the descent. During the first review the far sleeve read as detached and a raised near sleeve interrupted the face. Connected the shoulder fold and composited the head over the sleeve.
+
+Captured the native and enlarged before/after, anatomy, takeoff and descent strips. Godot Compatibility rendered the character in the tower and each fall band in Lab A. The art remains open for owner approval.
+
+Godot 4.7.2 passed import, smoke and boot, chamber, lab and tower startup. The runner passed 176 animation checks including frame padding, pivot, a real fall, hysteresis and impact recovery. Existing suites passed 177 movement, 168 visual/input, 665 surface, 115 refinement, 55 slope and 393 tower checks, including all 60 continuous landings. The forced-slide checks passed 53 per render cadence at 30, 60 and 120 FPS, with normal movement cadence probes passing as well. Static validation passed 254 checks.
+
 ## 2026-11-11 - Milestone 02F forced slides and David redraw
 
 Started on 0e52ae0 with the existing editor reorder in project.godot. The earlier ramp code integrated gravity with ordinary input and braking. Added a separate ForcedSlide polyline component and committed controller state. Real polygon contacts gate entry and the authored tangent keeps movement coherent across both faces and brief support loss. An explicit exit plane restores control, with a separate warning and escape path for obstructed geometry.

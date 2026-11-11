@@ -1,12 +1,13 @@
 extends "res://tests/physics_test.gd"
 
-const FRAMES: SpriteFrames = preload("res://resources/visuals/david_frames_02f.tres")
-const EXPECTED := {"idle": 4, "walk": 6, "charge": 4, "launch": 2, "rise": 2,
-	"fall": 2, "land": 2, "slide": 2, "forced": 2, "impact": 2}
+const FRAMES: SpriteFrames = preload("res://resources/visuals/david_frames_02g.tres")
+const EXPECTED := {"idle": 4, "walk": 6, "charge": 4, "launch": 3, "rise": 3, "apex": 1,
+	"fall_early": 2, "fall": 3, "fall_fast": 3, "land": 2, "slide": 2, "forced": 2, "impact": 2}
 
 func _run() -> void:
 	_check_frames()
 	await _check_playback()
+	await _check_descent()
 	world.free()
 	world = null
 	for path: String in ["res://scenes/levels/tower_ascent.tscn", "res://scenes/levels/physics_lab.tscn"]:
@@ -41,13 +42,16 @@ func _check_frames() -> void:
 		var pixel_keys: Array[int] = []
 		for index in count:
 			var texture: AtlasTexture = FRAMES.get_frame_texture(name, index)
-			check(texture.region.size == Vector2(32, 40), "Frame size for " + name)
+			check(texture.region.size == Vector2(40, 40), "Frame size for " + name)
 			var pixels := texture.atlas.get_image().get_region(Rect2i(texture.region))
 			if name in ["idle", "walk", "charge", "land", "slide", "forced"]:
 				var planted := false
 				for x in pixels.get_width():
 					planted = planted or pixels.get_pixel(x, 37).a > 0.0
 				check(planted, "Grounded key uses the planted sole baseline")
+			var bounds := pixels.get_used_rect()
+			check(bounds.has_area() and bounds.position.x > 0 and bounds.end.x < 40 and bounds.position.y > 0 and bounds.end.y < 40,
+				"Visible pixels leave clear frame padding")
 			var key := hash(pixels.get_data())
 			check(key not in pixel_keys, "Distinct authored frame for " + name)
 			pixel_keys.append(key)
@@ -84,7 +88,7 @@ func _check_playback() -> void:
 		await _tick()
 		if sprite.animation not in poses:
 			poses.append(sprite.animation)
-	check(&"rise" in poses and &"fall" in poses and &"land" in poses and &"idle" in poses,
+	check(&"rise" in poses and &"apex" in poses and &"fall_early" in poses and &"fall" in poses and &"land" in poses and &"idle" in poses,
 		"Rise, fall, land and idle follow a real jump")
 
 	await _new_fixture()
@@ -112,3 +116,49 @@ func _check_playback() -> void:
 	check(sprite.animation == &"slide", "Ice coasting activates slide")
 	await _ticks(45)
 	check(sprite.animation == &"idle", "Slide returns to idle on rest")
+
+func _check_descent() -> void:
+	await _new_fixture()
+	body.reset_movement(Vector2(0, -480))
+	var sprite: AnimatedSprite2D = body.get_node("Visual/David")
+	var ordered: Array[StringName] = []
+	for tick in 120:
+		await _tick()
+		var animation := sprite.animation
+		if animation not in ordered:
+			ordered.append(animation)
+		if body.is_on_floor():
+			break
+	check(ordered == [&"fall_early", &"fall", &"fall_fast", &"land"], "Real long fall plays every phase in order")
+
+	body.reset_movement(Vector2(0, -480))
+	await _tick()
+	# Each solver step adds 15 px/s of gravity, so these samples bracket the bands.
+	body.velocity.y = 300.0
+	await _tick()
+	check(sprite.animation == &"fall_fast", "Fast band enters at 315 px/s")
+	body.velocity.y = 285.0
+	await _tick()
+	check(sprite.animation == &"fall_fast", "Fast band holds across small velocity changes")
+	body.velocity.y = 270.0
+	await _tick()
+	check(sprite.animation == &"fall", "Fast band releases below 291 px/s")
+	body.velocity.y = 50.0
+	await _tick()
+	check(sprite.animation == &"fall", "Normal band holds below its entry threshold")
+	body.velocity.y = 25.0
+	await _tick()
+	check(sprite.animation == &"fall_early", "Normal band releases below 51 px/s")
+
+	_solid(Rect2(38, -550, 8, 500))
+	body.reset_movement(Vector2(0, -450))
+	body.velocity = Vector2(165, 315)
+	var hit := false
+	for tick in 25:
+		await _tick()
+		if sprite.animation == &"impact":
+			hit = true
+			break
+	check(hit and body.state == PlayerController.State.FALLING, "Falling side impact takes visual priority")
+	await _ticks(8)
+	check(sprite.animation == &"fall_fast", "After impact the sprite resumes the current speed band")
