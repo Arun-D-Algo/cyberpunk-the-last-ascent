@@ -32,3 +32,7 @@
 29. M02D deliberately replaces strict native viewport rendering with canvas_items, nearest textures and 2D interpolation. Keep logical 320x180/integer scaling and 60Hz physics. Do not reintroduce sprite/camera rounding or globally blur pixel textures. Review actual 960x540 captures with tools/capture_refinement_review.gd; a 320x180 physical window still quantizes movement.
 
 30. The owner manually approved the current physics on 2026-11-11. Preserve this accepted baseline and distinguish future tuning from regression fixes. GitHub repository creation/publication was explicitly authorized for the publication task; future pushes still require task authorization. See docs/session-summary-2026-11-11.md.
+
+31. M02E authorizes designated downhill ramp contact and integration plus visual-only David animation. Keep non-ramp physics and the shared player collider invariant. Run the slope and animation suites through the validation runner.
+32. Edit David's palette-indexed poses in tools/generate_david.py and regenerate both atlas and SpriteFrames. Keep native pixel density, feet pivot, nearest filtering and gameplay-driven poses. Keep reference sources out of distributed assets. See docs/character-art-guide.md.
+33. Future production geometry follows the environmental geometry standard in docs/level-design.md. Verify visible edges, structural context, measured reach and recovery. The provisional eight-region plan is a design reference.

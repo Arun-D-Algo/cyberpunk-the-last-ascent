@@ -1,8 +1,14 @@
 # Game design
 
+## Milestone 02E presentation and traversal
+
+David Martinez is the current playable character prototype. Idle, gait, charge compression, extension, airborne poses, landing, slide and impact expose cues from the shared controller. Charge poses track actual stored charge. Try the revised gravity ramps directly from Lab O–Q.
+
+Future Arasaka Tower routes take their platform vocabulary from architecture and machinery. Use the provisional eight-region progression and measured traversal rules in [Level design](level-design.md).
+
 ## Milestone 02D implementation status
 
-The current playable prototype is one continuous four-floor, 60-landing ascent with controllable moderate ice, polygon ramps and configurable ordinary wall/platform-side ricochets. Space charge/release, committed air motion and consequential recoverable falls remain the core loop. Floor tints/signage are temporary, not final campaign art. The eight-region narrative below remains a future design target. No story scenes, combat, cyberware, saves or automatic checkpoint teleportation were added. Physics feel, route pacing and art direction still need human acceptance; see level-design and the 02D validation report.
+The current playable prototype is one continuous four-floor, 60-landing ascent with controllable moderate ice, polygon ramps and configurable ordinary wall/platform-side ricochets. Space charge/release, committed air motion and consequential recoverable falls remain the core loop. Floor tints/signage are temporary, not final campaign art. The eight-region narrative below remains a future design target. No story scenes, combat, cyberware, saves or automatic checkpoint teleportation were added. The owner approved the 02D movement. Route pacing and art direction still need human review; see level-design and the 02D validation report.
 
 
 Status: approved direction from the briefs unless labeled **proposal**. This is a campaign design target, not an implementation inventory. M01 implements a standalone physics lab (see physics-spec.md), not campaign content. It resolves charge timing, neutral direction, wall response and landing policy for the provisional prototype; later campaign/assist/ability designs remain proposals.
@@ -27,7 +33,9 @@ Assisted is the default: automatic region checkpoints, optional trajectory assis
 
 Trajectory assistance must remain optional and use the actual launch model once implemented. Show charge state without relying on color alone. Plan remapping and an alternative charge interaction for players who cannot comfortably hold a key; neither exists yet. Provide readable high-contrast text, independent audio controls, reduced flashes/shake, clear hazard telegraphs and no mandatory rapid tapping. Accessibility must preserve readable timing and geometry; verify with users rather than assuming assistance works.
 
-## Region progression
+## Earlier campaign outline
+
+The table below records the original campaign concept. The current provisional region order is in [Level design](level-design.md#environmental-geometry-standard).
 
 | Order | Region | Gameplay / narrative role |
 | --- | --- | --- |

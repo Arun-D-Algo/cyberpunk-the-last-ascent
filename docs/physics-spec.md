@@ -1,5 +1,35 @@
 # Physics specification
 
+## Milestone 02E slope movement
+
+At 60 Hz the former integrator applied a full flat drag step, then a downhill gravity step. On the controlled ramp, drag was 144 px/s² while gravity projected to 37.95 px/s² at 18.435 degrees. Drag erased the previous tick's gain and left roughly 0.632 px/s every tick. On a 12-degree slope the 0.5 px/s rest cutoff erased even that gain. The character always moved in fractional world coordinates. Slow movement made physical pixel steps conspicuous despite interpolation.
+
+On designated slopes at or above their minimum angle, drive is the configured downhill acceleration times the signed slope sine. With no directional input and with motion downhill or at rest, drag is capped at 75% of the drive magnitude. This leaves at least 25% available to build speed after the first tick. The flat rest cutoff applies when downhill drive is zero. Uphill motion and active braking use their existing rules. Supported movement derives the slide condition and charging excludes it.
+
+After the solver confirms floor contact on a gravity-slide polygon, a nearby authored edge with a closely matching normal supplies the movement tangent. The solver decides contacts and seams with its existing floor snap. The controller falls back to the reported normal if no matching edge is nearby.
+
+Nearest-filtered canvas_items rendering preserves fractional movement at the window's physical resolution. The sprite follows the interpolated player transform. At 320×180 the raster advances a physical pixel at a time. Even 3× rendering can repeat a raster position at very low speed.
+
+| Controlled fixture | Before, peak in 12 s | After, first tick | After, peak | Time to flat after fix |
+| --- | ---: | ---: | ---: | ---: |
+| 12°, 36 px, joined runout | 0.000 px/s | 0.416 px/s | 20.999 px/s | 3.333 s |
+| 18.435°, 24 px, joined runout | 0.633 px/s | 0.632 px/s | 21.345 px/s | 2.217 s |
+| 35°, 180 px, separate platform | 1.148 px/s | 1.147 px/s | 86.324 px/s | 4.983 s |
+| 30°, 720 px, separate platform | 1.001 px/s | 1.000 px/s | 120.000 px/s | 10.867 s |
+
+Each fixture starts from rest after acquiring support near the upper edge. None reached the runout in 12 seconds before the fix. All four began sliding in 16.7 ms afterward, with zero airborne ticks. The 18.435-degree left-descending mirror matched the right-descending speed and traversal time. The first tick shows projected drive from rest. Subsequent downhill acceleration is approximately 6.24, 9.49, 17.21 and 15.00 px/s² respectively until the cap or runout.
+
+| Degrees | Speed at tick 6 | Tick 12 | Tick 30 | Tick 60 |
+| --- | ---: | ---: | ---: | ---: |
+| 12 | 0.936 | 1.559 | 3.431 | 6.549 |
+| 18.435 | 1.423 | 2.372 | 5.218 | 9.961 |
+| 35 | 2.581 | 4.302 | 9.464 | 18.068 |
+| 30 | 2.250 | 3.750 | 8.250 | 15.750 |
+
+Speeds are in px/s. The measured movement normal was constant on each straight face until the runout. The long fixture previously reported 29.977–30.028 degrees while creeping. An intermediate full-speed trial with the raw solver normal reported 26.565–31.607 degrees and recorded a speed drop on the same face. The final movement tangent follows the authored 30-degree face.
+
+Playtest Lab O **Shallow**, P **Tower Ramp** and Q **Steep** with no input, then brake or walk against the descent and charge after coming to rest. Use F3 to check support and slide status. Compare 320×180 with 960×540. The [render sequence](visual-review/milestone-02e/ramp_timeline.png) shows the controller moving through successive slope positions. Motion feel remains open for human playtesting.
+
 ## Milestone 02D — current authoritative behavior
 
 Owner playtest acceptance, 11 November 2026: the current physics is explicitly approved. The detailed checklist below remains useful for future regression/route reviews; it no longer represents a pending physics approval gate.

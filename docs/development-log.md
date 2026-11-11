@@ -1,5 +1,20 @@
 # Development log
 
+## 2026-11-11 - Milestone 02E ramp movement, David prototype and environment rules
+
+Started at bd8e87c on main. The working tree already contained an editor reorder of the physics section in project.godot. That edit is preserved outside the milestone commit. Godot reported 4.7.2.stable.official.ed1daf0bf.
+
+Measured four controlled-ramp fixtures before touching the controller. The 12-degree fixture stalled. The 18.435-, 35- and 30-degree fixtures peaked at 0.633, 1.148 and 1.001 px/s and failed to reach their runouts within 12 seconds. The flat drag step erased downhill gains each tick. The rest threshold compounded the problem on shallow inclines.
+
+Capped unforced downhill drag relative to projected drive and kept the rest cutoff for zero-drive surfaces. The floor solver still owns support. Long-ramp testing exposed reported normal drift and a speed drop on a constant face. The integrator now uses a closely matching nearby authored face after confirmed ramp contact. All four fixtures slide on their first supported tick, reach the runouts in 2.217–10.867 seconds, and show zero airborne ticks. Added a mirrored ramp and Lab O–Q. Full measurements are in physics-spec.md.
+
+Created a 25-key palette-indexed David prototype and SpriteFrames generator. The shared visual controller observes movement steps and jump, rebound and reset signals. Charge and landing poses follow gameplay progress. The sprite follows the existing interpolated transform. Inspected the first atlas and refined the hair silhouette, shoes and reaching arm. Captured actual 320×180 and 960×540 tower frames and a four-frame ramp sequence using the Compatibility renderer. Character art guide records what reference material was accessible and the remaining likeness and motion review.
+
+Documented environment-integrated architecture as the default platform vocabulary and recorded the provisional eight-region progression in level-design.md.
+
+Verified 239 static source checks and the full Godot validation runner. Import, smoke and boot, chamber and tower startup passed. The suite recorded 177 physics, 168 visual/input, 645 surface, 115 refinement, 55 slope, 96 animation and 393 tower checks. All 60 tower landings and the 30/60/120 fps cadence probes passed. Graphical review used tools/capture_david_review.gd on Intel Arc. Owner slope feel and visual approval are pending.
+
+
 ## 2026-11-11 - Physics acceptance and GitHub repository preparation
 
 The project owner manually tested and explicitly approved the current physics: "the physics is working perfectly fine now." The owner then requested a new GitHub repository using the game name, the full project/history and proper README/documentation, and selected public visibility. This authorizes the repository creation and push for this task.

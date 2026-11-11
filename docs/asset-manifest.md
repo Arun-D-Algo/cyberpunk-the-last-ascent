@@ -17,3 +17,7 @@ All listed art was authored for this project by the versioned tools/generate_art
 Atlas region coordinates and naming are centralized in scripts/environment/industrial_art.gd. Preserve integer bounds and avoid rescaling pixel textures. Source PNGs and import metadata belong in Git; .godot imported textures do not. The generation script intentionally clips long background braces at canvas edges. An initial unbounded raster call was corrected before clean regeneration; no generator errors remain.
 
 Review imagery is actual Godot Compatibility output under docs/visual-review/milestone-02a. Atlas overview is labeled as an asset preview. No reference-game screenshot is packaged in the project. Public redistribution/character replacement/IP review remains a separate future decision.
+
+## Milestone 02E character prototype
+
+The David Martinez fan-art prototype uses original palette-indexed pixel clusters and pose keys authored in tools/generate_david.py. It emits assets/player/david_martinez.png and resources/visuals/david_frames.tres. The former maintenance runner remains a historical source asset. Reference and frame details are in [Character art guide](character-art-guide.md).

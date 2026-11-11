@@ -198,24 +198,39 @@ func slope_degrees() -> float:
 
 
 func is_sliding() -> bool:
-	return is_on_floor() and (active_surface.landing_momentum_retention > 0.0 or active_surface.gravity_slide) and absf(tangent_speed()) > active_surface.stop_speed
+	if not is_on_floor() or state == State.CHARGING:
+		return false
+	var speed := absf(tangent_speed())
+	if _downhill_drive() != 0.0:
+		return not is_zero_approx(speed)
+	return (active_surface.landing_momentum_retention > 0.0 or active_surface.gravity_slide) and speed > active_surface.stop_speed
+
+
+func _downhill_drive() -> float:
+	if active_surface.gravity_slide and slope_degrees() >= active_surface.minimum_slide_angle:
+		return surface_normal.x * active_surface.downhill_acceleration
+	return 0.0
 
 
 func _ground_motion(delta: float, direction: int) -> void:
 	var tangent: Vector2 = Vector2(-surface_normal.y, surface_normal.x)
 	var speed: float = velocity.dot(tangent)
+	var drive := _downhill_drive()
 	var target: float = direction * physics_config.ground_speed * active_surface.ground_speed_scale
 	if direction != 0:
 		# Inertia above walking speed is reduced with acceleration; never snap-clamped on entry.
 		var braking: float = active_surface.reverse_braking_scale if direction * speed < 0.0 else 1.0
 		speed = move_toward(speed, target, physics_config.ground_acceleration * active_surface.acceleration_scale * active_surface.input_influence * braking * delta)
 	else:
-		speed = move_toward(speed, 0.0, physics_config.ground_deceleration * active_surface.friction * delta)
-	if active_surface.gravity_slide and slope_degrees() >= active_surface.minimum_slide_angle:
-		speed += Vector2.DOWN.dot(tangent) * active_surface.downhill_acceleration * delta
+		var drag := physics_config.ground_deceleration * active_surface.friction
+		if drive != 0.0 and speed * drive >= 0.0:
+			# Keep at least one quarter of projected gravity available to build downhill speed.
+			drag = minf(drag, absf(drive) * 0.75)
+		speed = move_toward(speed, 0.0, drag * delta)
+	speed += drive * delta
 	if active_surface.gravity_slide or active_surface.landing_momentum_retention > 0.0:
 		speed = clampf(speed, -active_surface.maximum_slide_speed, active_surface.maximum_slide_speed)
-	if absf(speed) < active_surface.stop_speed:
+	if drive == 0.0 and absf(speed) < active_surface.stop_speed:
 		speed = 0.0
 	velocity = tangent * speed
 
@@ -259,6 +274,8 @@ func _resolve_contacts(incoming: Vector2) -> void:
 				floor_profile = _profile(collision.get_collider())
 				surface_normal = normal
 				var collider: Node = collision.get_collider() as Node
+				if floor_profile.gravity_slide and collider is PhysicsSurface:
+					surface_normal = collider.ramp_face_normal(collision.get_position(), normal)
 				surface_body_name = collider.name if collider != null else &"world"
 				found_floor = true
 		elif up_dot <= -cos(floor_max_angle) + 0.001:

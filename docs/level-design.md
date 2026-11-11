@@ -1,5 +1,31 @@
 # Level design
 
+## Environmental geometry standard
+
+The environment provides much of the traversable geometry. Build routes from surfaces that serve an architectural or industrial purpose. Use visually supported building ledges, balconies, escalators, billboard mounts, walkways, pipes, vents, elevator frames, security booth roofs, beams and broken stairs. Generic floating pads are an exception for explicit training or an authored suspension mechanism.
+
+- Show how load-bearing surfaces attach to the tower. Preserve readable silhouettes against deeper scenery.
+- Match collider edges and ramp angles to visible surfaces. Reserve consistent edge highlights and material cues for solid landings, slick patches and intentional rebound faces. Keep decorative meshes and sprites free of surprise collision.
+- Derive difficulty from spacing, approach direction, ledge width, slope, material and rebound angles. Make intended options readable before the jump.
+- Use each floor's architecture to explain its mechanics. A service pipe can be a ramp, a frozen rail can carry ice, and an elevator frame can provide a rebound face. Keep connections visible across seams.
+- Maintain coherent vertical relationships through long falls. Earlier floors should be recognizable and offer recovery landings.
+- Measure jump reach with the actual controller and verify intended landings, slopes, rebounds and recovery paths. Use the approved jump envelope before drawing the final platform shape.
+
+The following progression is provisional. Palette, height, mechanics and route language are planning directions for a later art and layout pass.
+
+| Region | Architecture and traverse vocabulary | Background and palette | Mechanic and progression |
+| --- | --- | --- | --- |
+| Corporate Plaza | Entrance canopy, building ledges, security booth roofs | Open facade with pale concrete, navy recesses and warm signage | Teach short charge jumps with wide landings and a plaza recovery route |
+| Neon Atrium | Escalators, balconies, glass walkway frames and suspended billboards | Layered concourse with cyan, violet and amber | Introduce inclined transitions and longer gaps above interconnected balconies |
+| Corporate Offices | Office mullions, service bridges and architectural beams | Repeating glass grids with slate and cold white | Tighten landings and test vertical planning with recoverable office tiers |
+| Industrial Spine | Pipe runs, ventilation units, elevator machinery and catwalks | Ribbed shafts with steel blue and hazard yellow | Link sustained slopes and rebound surfaces over maintenance catch points |
+| Cryogenic Research | Cryogenic vessels, insulated pipe braces and containment lips | Frosted machinery with pale cyan and dark cobalt | Emphasize braking and ice-to-dry transitions with wide recovery bays |
+| Security & Data Core | Booth roofs, rack frames, cable trays and shaft braces | Dense server layers with magenta and terminal teal | Chain controlled rebounds and narrow drops across reachable structural tiers |
+| Executive Citadel | Broad roofs, hanging signs and glass support frames | Open atria with charcoal, gold and cool glass | Combine precise charge and ricochet routes with visible lower balconies |
+| The Summit | Roof parapets, antenna mounts and rooftop equipment | Exposed skyline with blue-gray and warm beacons | Test the widest approved jumps and vertical commitment with recoverable falls into the citadel |
+
+The four-floor prototype is the current playable route. Assign production heights after reachability and recovery checks on each future region.
+
 ## Milestone 02D — continuous gameplay prototype
 
 `scenes/levels/tower_ascent.tscn` is the main playable ascent, selected by **Start Tower Ascent**. The original chamber remains a visual slice and Classic remains a lab regression. This is four provisional floors, not the eight-region final campaign.
@@ -102,7 +128,9 @@ The default measured envelope is 11.267px minimum rise, 33.610px near-half rise,
 
 These are reproducible reference launches with positioning tolerance, not the only valid route. Human playtesting must assess whether the charge/position windows are understandable and enjoyable. Initial max vertical impulse 330 gave only 57.765px rise and fragile upper clearance; the 360px/s tuned value and revised launch positions pass the full route. After summit ascent, the harness walks off and lands on lower geometry to verify loss of progress and recovery without reset. No checkpoint/save/region loading is introduced here.
 
-## Region plan
+## Earlier region concepts
+
+This section records the initial concept. Use the environmental geometry standard and provisional progression above for future layout work.
 
 | Region / stable proposed ID | Theme and major hazards | Story / cyberware | Difficulty goal |
 | --- | --- | --- | --- |

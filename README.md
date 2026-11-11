@@ -1,5 +1,14 @@
 # Cyberpunk: The Last Ascent
 
+## Milestone 02E
+
+The shared player now uses an original animated David Martinez prototype with nine animation sets. Designated ramps build downhill speed from rest. Select **O Shallow**, **P Tower Ramp** or **Q Steep** in Physics Lab 2.0 to try the revised movement. **F3** shows support, slope angle and slide status.
+
+- [Character art guide and sprite production](docs/character-art-guide.md)
+- [Native and enlarged engine captures](docs/visual-review/milestone-02e/README.md)
+- [Slope measurements and test procedure](docs/physics-spec.md#milestone-02e-slope-movement)
+- [Environmental geometry standard](docs/level-design.md#environmental-geometry-standard)
+
 A 2D precision-platforming prototype built with **Godot 4.7.2 and GDScript**, inspired by Cyberpunk: Edgerunners and Jump King. Hold to charge, choose a direction, release, and commit to the jump. Climb a continuous tower through deliberate positioning, controllable ice, ramps and wall ricochets.
 
 This is an unofficial, noncommercial fan project in active development. The current playable game has four connected prototype floors. The proposed eight-region narrative, cyberware and ending remain future design scope.

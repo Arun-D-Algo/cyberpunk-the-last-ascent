@@ -1,6 +1,10 @@
 # Roadmap
 
-## Current gate — Milestone 02D
+## Current gate — Milestone 02E
+
+The slope correction, animated David prototype and environmental platforming rules are ready for owner playtesting and art review. Record feedback on ramp entry, braking, air and landing pose readability and player scale before building the first environment-integrated route slice. The eight-region plan is provisional.
+
+## Accepted physics baseline — Milestone 02D
 
 02D supersedes the previous stop-at-02B scope: implement and validate ice control, fractional/interpolated presentation, ordinary side rebounds, six ricochet lab fixtures and a continuous four-zone/60-landing main ascent. Implementation and engine validation are complete; physics/game feel was manually approved by the project owner on 11 November 2026; full-route pacing and remaining art/platform acceptance are separate. See docs/validation/milestone-02d.md and physics-spec manual checklist. No 02C implementation is inferred from the numbering.
 

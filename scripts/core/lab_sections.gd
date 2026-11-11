@@ -2,8 +2,8 @@ class_name LabSections
 extends RefCounted
 ## Mechanics fixtures, not production levels. Coordinates match visible polygon boundaries.
 
-const LABELS: PackedStringArray = ["CLASSIC", "A JUMPS", "B WALLS", "C CEILING", "D LEDGES", "E ICE", "F SLOPES", "G RAMPS", "H1 ICE", "H2 REBOUND", "H3 RUNOFF", "I WALL", "J PAD SIDE", "K SHAFT", "L RISING", "M ICE BANK", "N DIAGONAL"]
-const DESCRIPTIONS: PackedStringArray = ["CLASSIC / ORIGINAL ASCENT", "A / JUMP CALIBRATION", "B / STOP AND CONTROLLED REBOUND", "C / LOW CEILINGS AND CORNERS", "D / NARROW LEDGES AND RECOVERY", "E / ICE AND NORMAL TRANSITIONS", "F / SHALLOW AND STEEP SLOPES", "G / BRAKE THEN CHARGE ON RAMPS", "H1 / ICE APPROACH TO NARROW TARGET", "H2 / WALL REBOUND UNDER OVERHANG", "H3 / RAMP RUNOFF AND RECOVERY", "I / ORDINARY WALL RICOCHET", "J / RAISED PAD SIDE REBOUND", "K / TWO WALL SHAFT", "L / PRESERVE RISING MOMENTUM", "M / ICE BRAKE AND RICOCHET", "N / OPTIONAL ENERGY REDIRECT"]
+const LABELS: PackedStringArray = ["CLASSIC", "A JUMPS", "B WALLS", "C CEILING", "D LEDGES", "E ICE", "F SLOPES", "G RAMPS", "H1 ICE", "H2 REBOUND", "H3 RUNOFF", "I WALL", "J PAD SIDE", "K SHAFT", "L RISING", "M ICE BANK", "N DIAGONAL", "O SHALLOW", "P TOWER RAMP", "Q STEEP"]
+const DESCRIPTIONS: PackedStringArray = ["CLASSIC / ORIGINAL ASCENT", "A / JUMP CALIBRATION", "B / STOP AND CONTROLLED REBOUND", "C / LOW CEILINGS AND CORNERS", "D / NARROW LEDGES AND RECOVERY", "E / ICE AND NORMAL TRANSITIONS", "F / SHALLOW AND STEEP SLOPES", "G / BRAKE THEN CHARGE ON RAMPS", "H1 / ICE APPROACH TO NARROW TARGET", "H2 / WALL REBOUND UNDER OVERHANG", "H3 / RAMP RUNOFF AND RECOVERY", "I / ORDINARY WALL RICOCHET", "J / RAISED PAD SIDE REBOUND", "K / TWO WALL SHAFT", "L / PRESERVE RISING MOMENTUM", "M / ICE BRAKE AND RICOCHET", "N / OPTIONAL ENERGY REDIRECT", "O / 12 DEG SLIDE TO FLAT", "P / 18 DEG TOWER RAMP", "Q / 35 DEG SLIDE TO PLATFORM"]
 const NORMAL: SurfacePhysicsProfile = preload("res://resources/surfaces/normal.tres")
 const ICE: SurfacePhysicsProfile = preload("res://resources/surfaces/ice.tres")
 const RAMP: SurfacePhysicsProfile = preload("res://resources/surfaces/sliding_ramp.tres")
@@ -91,4 +91,20 @@ static func populate(parent: Node, section: int) -> Vector2:
 			box(parent, "ShaftRight", Rect2(208, 40, 8, 80))
 			box(parent, "ShaftExit", Rect2(164, 80, 16, 8))
 			return Vector2(180, 144)
+		17, 18, 19:
+			var run: float = [110.0, 48.0, 110.0][section - 17]
+			var rise: float = [23.4, 16.0, 77.0][section - 17]
+			var start := Vector2(40, 130 - rise)
+			var profile := preload("res://resources/surfaces/controlled_ramp.tres")
+			var points := PackedVector2Array([Vector2.ZERO, Vector2(run, rise)])
+			if section != 19:
+				points.append(Vector2(run + 90, rise))
+				points.append(Vector2(run + 90, rise + 10))
+			else:
+				points.append(Vector2(run, rise + 10))
+				box(parent, "RunoutPlatform", Rect2(start.x + run, 130, 90, 10))
+			points.append(Vector2(0, rise + 10))
+			polygon(parent, "ControlledRamp", start, points, profile)
+			return start + Vector2(8, -2)
+
 	return Vector2(45, 144)

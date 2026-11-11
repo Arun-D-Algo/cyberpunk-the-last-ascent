@@ -29,6 +29,8 @@ try {
     Invoke-EngineCheck 'visual_prototype' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/visual_prototype_test.gd')
     Invoke-EngineCheck 'surfaces' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/surface_physics_test.gd')
     Invoke-EngineCheck 'refinement' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/refinement_test.gd')
+    Invoke-EngineCheck 'slopes_02e' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/slope_test.gd')
+    Invoke-EngineCheck 'character_animation' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/character_animation_test.gd')
     Invoke-EngineCheck 'tower' @('--headless', '--fixed-fps', '60', '--path', $projectRoot, '--script', 'res://tests/tower_test.gd')
     Invoke-EngineCheck 'tower_startup' @('--headless', '--path', $projectRoot, '--scene', 'res://scenes/levels/tower_ascent.tscn', '--quit-after', '5')
     foreach ($frameRate in @(30, 60, 120)) {

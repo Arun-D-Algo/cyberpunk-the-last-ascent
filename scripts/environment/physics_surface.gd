@@ -31,6 +31,30 @@ func _ready() -> void:
 	queue_redraw()
 
 
+## Use the authored face for tangent integration after the solver confirms support.
+## Long edges can return slightly different normals at different contact positions.
+func ramp_face_normal(contact: Vector2, solver_normal: Vector2) -> Vector2:
+	var best_distance := 1.0
+	var result := solver_normal
+	for i in polygon.size():
+		var start := to_global(polygon[i])
+		var finish := to_global(polygon[(i + 1) % polygon.size()])
+		var edge := finish - start
+		if edge.is_zero_approx():
+			continue
+		var face := Vector2(edge.y, -edge.x).normalized()
+		if face.y > 0.0:
+			face = -face
+		if face.dot(solver_normal) < 0.99:
+			continue
+		var closest := Geometry2D.get_closest_point_to_segment(contact, start, finish)
+		var distance := contact.distance_squared_to(closest)
+		if distance < best_distance:
+			best_distance = distance
+			result = face
+	return result
+
+
 func _physics_process(delta: float) -> void:
 	if not motion_offset.is_zero_approx():
 		elapsed += delta

@@ -1,5 +1,11 @@
 # Technical design
 
+## Milestone 02E movement and animation
+
+PlayerController derives downhill drive from supported polygon faces and bounds coasting drag on those inclines. Godot's floor classifier and snap continue to determine support. The shared player instantiates AnimatedSprite2D from Visual at runtime and keeps its collider scene hash. Visual observes physics steps, jump, rebound and reset signals. Charge and landing frames derive from gameplay progress. Launch and impact timers affect presentation. Walk advances in proportion to ground speed. The interpolated player transform carries the sprite and its invariant feet pivot.
+
+The editable indexed pixel clusters and pose keys live in tools/generate_david.py. The generator produces the PNG atlas and SpriteFrames resource together. The runner adds slope_test.gd and character_animation_test.gd. See [Character art guide](character-art-guide.md).
+
 ## Milestone 02D — current architecture
 
 The current playable root is TowerAscent, opened from boot. It composes one shared PlayerController scene and LabCamera/HUD with TowerRoute data and four FloorTheme Resources. All 60 pads, 8 return banks, base and side boundaries remain loaded; this small static prototype does not need streaming, autoload managers or scene-boundary teleports. Fixed world boundaries determine current floor on both ascent and descent. No checkpoint/Assisted/Classic campaign mode existed, so none was invented.
