@@ -70,7 +70,7 @@ foreach ($action in $bindings.Keys) {
     }
 }
 $scene = Get-Content -LiteralPath (Join-Path $projectRoot 'scenes/main/boot.tscn') -Raw -Encoding UTF8
-foreach ($label in @('CYBERPUNK: THE LAST ASCENT', 'Milestone 02D / Continuous Ascent', 'Four floors / 60 landings / one tower', 'Enter Physics Lab 2.0', 'Enter Power Chamber')) {
+foreach ($label in @('CYBERPUNK: THE LAST ASCENT', 'Arasaka Tower / Opening Ascent', 'Three sections / 36 landings / one tower', 'Enter Physics Lab 2.0', 'Enter Power Chamber')) {
     Assert-Source ($scene.Contains($label)) "Boot text missing: $label"
 }
 $ignore = Get-Content -LiteralPath (Join-Path $projectRoot '.gitignore') -Raw -Encoding UTF8

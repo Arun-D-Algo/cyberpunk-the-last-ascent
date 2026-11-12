@@ -23,3 +23,7 @@ Review imagery is actual Godot Compatibility output under docs/visual-review/mil
 The David Martinez fan-art prototype uses original palette-indexed pixel clusters and pose keys authored in tools/generate_david.py. It emits assets/player/david_martinez.png and resources/visuals/david_frames.tres. The former maintenance runner remains a historical source asset. Reference and frame details are in [Character art guide](character-art-guide.md).
 
 The active cinematic David sprite is authored in tools/generate_david_cinematic.py and emits assets/player/david_martinez_cinematic.png and resources/visuals/david_frames_cinematic.tres. The 02G atlas remains the review baseline.
+
+## Milestone 03A original environment assets
+
+tools/generate_opening_art.gd generates six PNGs in assets/environment/opening. These contain original casing details, corporate facade, intake housings, transformer radiators and city silhouettes. OpeningBackdrop composes original corporate lettering and an abstract three-branch insignia using existing project drawing and font tools. No external images were downloaded, traced or imported. The user authorized the written specification and existing assets as primary references. See the region document for reuse and review limitations.

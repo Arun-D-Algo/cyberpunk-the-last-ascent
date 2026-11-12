@@ -1,5 +1,9 @@
 # Roadmap
 
+## Current gate — Milestone 03A review
+
+The first three Arasaka opening sections are implemented and awaiting owner visual and gameplay approval. Review the exterior, entrance, environmental landings, 36-interaction route, transitions and fall penalties. The next step is incorporating that feedback. The Powerworks, Coolant Distribution, Freight Elevator Shaft, Security Transfer and Atrium Threshold remain deferred.
+
 ## Current art review — Cinematic David
 
 The upright crown, charge, takeoff, fall and landing poses are ready for owner review in the [cinematic comparison and playtest package](visual-review/cinematic/README.md).

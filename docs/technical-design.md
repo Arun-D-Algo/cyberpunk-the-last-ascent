@@ -1,5 +1,11 @@
 # Technical design
 
+## Milestone 03A composition
+
+OpeningAscent extends TowerAscent to reuse pause, reset and input handling, and overrides composition and altitude classification. OpeningRoute supplies the three-section destination data. OpeningMachine uses the same dimensions for native sprite crops and full rectangular collisions. OpeningBackdrop owns finite architectural layers, restrained city parallax, recessed attachments, corporate typography and existing IndustrialFixture animations.
+
+The menu routes Start Tower Ascent to opening_ascent.tscn. The original tower scene remains an independent regression fixture. opening_test.gd validates all final geometry through discovery, nearby-input probes, fall recovery and continuous replay. tools/capture_opening_review.gd captures the actual rendered scene and a separate full-height SubViewport.
+
 ## Cinematic jump and landing presentation
 
 PlayerVisual still selects charge keys from the controller's normalized charge and starts launch playback on jump_started. The existing landed signal and last_landing_velocity supply floor-normal impact speed. At 285 px/s or above, the four-key landing starts at the three-point impact. Softer contacts enter at the two upright recovery keys. Each key lasts 50 ms. Recovery can continue while the player is stationary and grounded after the controller's 60 ms landing state ends. Walk, slide, charge, airborne transitions and reset preempt it. Top rebounds retain airborne selection, and forced-slide entry retains its committed pose. No movement state, input lock or collider data is owned by the visual controller.

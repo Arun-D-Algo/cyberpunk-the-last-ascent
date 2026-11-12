@@ -1,5 +1,9 @@
 # Game design
 
+## Milestone 03A opening
+
+David now starts outside Arasaka Tower. The first production route joins Corporate Plaza and Service Entrance, Ventilation Galleries and Transformer Hall in one continuous ascent. Corporate and industrial infrastructure provide 36 intended destinations. Side shafts preserve recoverable setbacks into earlier sections. The owner approved the current character presentation and movement before this milestone. Route pacing and environmental art await review.
+
 ## Milestone 02E presentation and traversal
 
 David Martinez is the current playable character prototype. Idle, gait, charge compression, extension, airborne poses, landing, slide and impact expose cues from the shared controller. Charge poses track actual stored charge. Try the revised gravity ramps directly from Lab O–Q.

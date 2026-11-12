@@ -59,8 +59,8 @@ func _run() -> void:
 		await process_frame
 		var labels: Dictionary = {
 			"Content/Title": "CYBERPUNK: THE LAST ASCENT",
-			"Content/Subtitle": "Milestone 02D / Continuous Ascent",
-			"Content/Status": "Four floors / 60 landings / one tower",
+			"Content/Subtitle": "Arasaka Tower / Opening Ascent",
+			"Content/Status": "Three sections / 36 landings / one tower",
 		}
 		for path: String in labels:
 			var label: Label = boot.get_node_or_null(path) as Label

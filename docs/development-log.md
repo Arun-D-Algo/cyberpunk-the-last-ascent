@@ -1,5 +1,18 @@
 # Development log
 
+## 2026-11-12 - Milestone 03A Arasaka opening ascent
+
+Started from 8146509 with the approved Phase A region plan as the only untracked document. The user explicitly authorized the existing art, palette and written brief as the primary visual references. Built 10 corporate, 12 ventilation and 14 transformer destinations in a continuous 1,760-pixel ascent. Reused the shared player, camera, input/reset behavior, art helpers, lettering and ambient fixtures.
+
+Blockout tests exposed overhead interference from deep housings. Adjusted full casing depths and clearances, then lowered the first roof to introduce a short-charge jump. The final route exercises four deliberate rebounds. Real-controller discovery, adjacent charge-tick and launch-position probes, and a continuous replay validate all 36 landings. Tested three smaller drops and a 1,303.75-pixel summit fall, including rejoining the ascent after recovery.
+
+Authored six raster environment assets, a matching-collision machinery component, facade/ventilation/transformer layers, city parallax, wall attachments, corporate lettering and an original three-branch emblem. Native review exposed hidden braces and occluded branding. Corrected their draw order and placement, added localized magenta spill, and deepened transformer radiators. Repeating boundary textures reduced the rendered node count from 536 to 296, with 43 static bodies. The short 960×540 process-monitor sample was approximately 17.5 ms and does not certify 60 FPS across hardware.
+
+The main-menu entry and wording now describe the opening. Updated the corresponding smoke/static assertions to the new intended text. The full regression suite and the 555-check opening replay passed during validation, followed by a final suite run after menu assertions and source cleanup. Static checks passed 281. Detailed commands, measurements and limitations are in docs/validation/milestone-03a.md. Native/4× captures and a full-height overview are in docs/visual-review/milestone-03a.
+
+Player art, animation, physics, collider, camera source and project rendering settings match the approved baseline. Owner environmental-art and gameplay-layout approval remain pending. Future sections require that review.
+
+
 ## 2026-11-12 - Cinematic David sprite and jump animation
 
 Started on bfbe80b with a clean tree. Reviewed the 02G atlas, standing and head crops, takeoff and descent strips, plus the earlier full-body illustration. Redrew the upright dark-brown crown, compact face, planted charge, launch and landing. Removed the airborne jacket tails and kept the 40Ã—40 grid, (20, 38) pivot and nearest filtering. After the first Godot render, folded the deep-pose jacket hem to expose the knee, sharpened the crown, brightened the planted hand and lowered the fastest descent arms.

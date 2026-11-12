@@ -20,6 +20,6 @@ func enter_lab() -> void:
 
 
 func enter_ascent() -> void:
-	var error: Error = get_tree().change_scene_to_file("res://scenes/levels/tower_ascent.tscn")
+	var error: Error = get_tree().change_scene_to_file("res://scenes/levels/opening_ascent.tscn")
 	if error != OK:
 		push_error("Could not enter tower: " + error_string(error))

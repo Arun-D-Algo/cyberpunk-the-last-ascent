@@ -1,5 +1,15 @@
 # Cyberpunk: The Last Ascent
 
+## Milestone 03A — Arasaka opening ascent
+
+**Start Tower Ascent** now begins outside Arasaka Tower and climbs through Corporate Plaza and Service Entrance, Ventilation Galleries, and Transformer Hall. The continuous route has **36 destinations across 1,760 vertical pixels**, four deliberate rebound transfers, architectural casings, corporate signage and ambient machinery.
+
+- [Region design and implementation](docs/regions/01-arasaka-substructure.md)
+- [Actual game captures and playtest checklist](docs/visual-review/milestone-03a/README.md)
+- [Measured route and fall results](docs/validation/milestone-03a.md)
+
+Implementation is ready for owner visual and gameplay review. The original 60-landing prototype remains available as a regression scene.
+
 ## Cinematic David sprite
 
 David has a sharper crown, an input-driven crouch and a three-point pose for hard landings. In **Physics Lab 2.0 → A Jumps**, tap jump, hold to full charge, then try a full vertical jump and move as soon as you land. **Start Tower Ascent** shows the same sprite against the tower background.
@@ -33,9 +43,9 @@ The shared player now uses an original animated David Martinez prototype with ni
 
 A 2D precision-platforming prototype built with **Godot 4.7.2 and GDScript**, inspired by Cyberpunk: Edgerunners and Jump King. Hold to charge, choose a direction, release, and commit to the jump. Climb a continuous tower through deliberate positioning, controllable ice, ramps and wall ricochets.
 
-This is an unofficial, noncommercial fan project in active development. The current playable game has four connected prototype floors. The proposed eight-region narrative, cyberware and ending remain future design scope.
+This is an unofficial, noncommercial fan project in active development. The main game now has three connected opening sections. The earlier four-floor prototype remains a regression scene. The proposed eight-region narrative, cyberware and ending remain future design scope.
 
-## Current status
+## Historical prototype baseline
 
 Milestone 02D implements the continuous **four-floor tower ascent: 60 landings / 3008 vertical pixels**, shared controllable ice, smooth fractional/interpolated rendering and universal configurable wall/platform-side rebounds. Start Tower Ascent is the main game; Physics Lab 2.0 and the original Power Chamber remain accessible. Normal launch tuning/collider/art assets are preserved. **Physics manually approved by the project owner on 11 November 2026**, following the completed Milestone 02D playtest. Engine tests pass. Full-route pacing, final art, exports and longer performance testing remain separate acceptance work. See [measured validation and all launch recipes](docs/validation/milestone-02d.md) and the [manual checklist](docs/physics-spec.md#manual-acceptance-checklist-physics-approved-retain-for-regressions).
 
@@ -45,7 +55,8 @@ Milestone 02D implements the continuous **four-floor tower ascent: 60 landings /
 
 ## What is playable
 
-- **Tower Ascent:** 60 numbered landing destinations across four connected floors, spanning 3,008 vertical pixels.
+- **Opening Ascent:** 36 architectural destinations across three connected sections, spanning 1,760 vertical pixels.
+- **Historical Tower prototype:** 60 landing destinations retained as an independent regression scene.
 - **Committed charge jumps:** configurable charge/release trajectories, directional selection, no default air steering or double jump.
 - **Surface mechanics:** controllable moderate ice, configurable mild/extreme profiles, polygon slopes and gravity ramps.
 - **Universal side rebounds:** configurable wall/platform-side restitution, moving-side relative velocity and optional bounded diagonal redirection.

@@ -1,5 +1,11 @@
 # Level design
 
+## Milestone 03A opening route
+
+The main entry uses OpeningRoute and OpeningAscent for 10 corporate, 12 ventilation and 14 transformer destinations. Base-to-summit rise is 1,760 pixels. Widths range from 32–64 pixels, and full casing depth participates in the solver. Four return faces exercise deliberate rebounds. Recessed braces attach the foreground housings to the structure. Section boundaries at y−313 and y−881 classify the player without moving it.
+
+The [region document](regions/01-arasaka-substructure.md) records architecture and fall design. The [measurement report](validation/milestone-03a.md) records the final continuous replay and nearby-input probes. The older four-floor route below remains a regression prototype.
+
 ## Forced-slide obstacle placement
 
 Use committed slides as readable penalties below a missed landing. Give the player a visible recovery destination and enough headroom for the shared collider. A chute or inclined service panel provides a physical reason for the descent. Give its top face a consistent hazard treatment and distinguish normal inclined floors and ice visually.
