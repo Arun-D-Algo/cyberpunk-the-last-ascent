@@ -1,6 +1,10 @@
 # Roadmap
 
-## Current gate — Milestone 02F
+## Current art review — Cinematic David
+
+The upright crown, charge, takeoff, fall and landing poses are ready for owner review in the [cinematic comparison and playtest package](visual-review/cinematic/README.md).
+
+## Mechanics review — Milestone 02F
 
 Forced-slide lab routes and the revised David sprite are ready for owner playtesting. Review the connected slide, fall recovery, native-resolution anatomy and the planted full-charge crouch before placing a committed chute in a production route.
 

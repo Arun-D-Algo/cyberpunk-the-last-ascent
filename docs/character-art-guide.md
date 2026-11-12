@@ -1,5 +1,23 @@
 # David Martinez character art guide
 
+## Cinematic sprite and jump animation
+
+The 02G standing, takeoff and descent art are the comparison baseline. The original full-body illustration supplied in the prior session guided the compact dark-brown undercut, bright collar and broad jacket. The upright crown uses three stepped clusters. The face uses a continuous brow, recessed eye, one-pixel bridge and stepped jaw. The 40×40 cell, foot pivot at (20, 38), row 37 soles, nearest filtering and body proportions carry through to all 39 keys. The atlas is 240×520. Facing mirrors the same crown, with the forward spike authored in the facing direction.
+
+| Animation | Keys | Selection |
+| --- | ---: | --- |
+| Idle, walk | 4, 6 | 5 fps idle, walk scaled from 10 fps by tangent speed |
+| Charge | 4 | Planted preparation, early bend, deep bend and maximum compression at fractions 0, .25, .50 and .75. The final key holds through maximum charge. |
+| Launch | 3 | Push, extension and lift on release. At 60 Hz the keys last 1, 2 and 2 ticks. |
+| Rise, apex | 3, 1 | Tucked rise at 12 fps, apex from −40 px/s |
+| Early, normal, fast fall | 2, 3, 3 | 10, 12 and 14 fps, with thresholds of 75 and 315 px/s and 24 px/s hysteresis |
+| Landing | 4 | Hand plant, lift, standing compression and settle. 50 ms per key. Soft impacts enter on key 3. |
+| Slide, forced slide, wall impact | 2 each | Existing 7, 8 and 20 fps playback |
+
+The fall silhouette uses two sleeves and a fitted hem. The landing drops the lead shoulder over the planted hand and opens the opposite elbow for balance. The first render prompted a shorter folded hem on deep charge and landing so the knee reads below the jacket, a brighter planted hand and less upward movement in the fast-fall arms. At native scale, the brow and nose read mainly as a single shadow cluster. The [review package](visual-review/cinematic/README.md) includes 1× and 4× comparisons and Godot playback. Likeness and motion remain for owner review.
+
+Run Python 3 on tools/generate_david_cinematic.py to regenerate the active atlas and SpriteFrames together. The generator reuses the native-grid renderer and ground pose definitions. The 02G source and atlas remain available for comparison.
+
 ## Milestone 02G airborne refinement
 
 The 02G attachment is a full-body David illustration. I inspected the spiked dark-brown crown, exposed forehead, narrow jaw, asymmetrical jacket opening, blue collar and folds around the loose knees and cuffs. The 02F standing key from the committed atlas is the before comparison. Earlier user attachments and the publisher reference research below provide context. The 02G pixel clusters and motion keys are original artwork.

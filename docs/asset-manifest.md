@@ -21,3 +21,5 @@ Review imagery is actual Godot Compatibility output under docs/visual-review/mil
 ## Milestone 02E character prototype
 
 The David Martinez fan-art prototype uses original palette-indexed pixel clusters and pose keys authored in tools/generate_david.py. It emits assets/player/david_martinez.png and resources/visuals/david_frames.tres. The former maintenance runner remains a historical source asset. Reference and frame details are in [Character art guide](character-art-guide.md).
+
+The active cinematic David sprite is authored in tools/generate_david_cinematic.py and emits assets/player/david_martinez_cinematic.png and resources/visuals/david_frames_cinematic.tres. The 02G atlas remains the review baseline.

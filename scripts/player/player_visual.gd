@@ -1,8 +1,10 @@
 extends Node2D
 ## Presentation derives poses from gameplay signals and fixed-tick state.
 
-const FRAMES: SpriteFrames = preload("res://resources/visuals/david_frames_02g.tres")
-const LAUNCH_SECONDS := 3.0 / 30.0
+const FRAMES: SpriteFrames = preload("res://resources/visuals/david_frames_cinematic.tres")
+const LAUNCH_SECONDS := 0.08
+const LAND_KEY_SECONDS := 0.05
+const HARD_LANDING_SPEED := 285.0
 const IMPACT_SECONDS := 0.10
 const APEX_SPEED := 40.0
 const FALL_HYSTERESIS := 24.0
@@ -19,6 +21,8 @@ var _pose_time := 0.0
 var _launch_left := 0.0
 var _impact_left := 0.0
 var _impact_facing := 1
+var _landing_start := 0
+var _landing_active := false
 var _fall_phase := FallPhase.EARLY
 
 
@@ -31,6 +35,7 @@ func _ready() -> void:
 	add_child(sprite)
 	player.jump_started.connect(_on_launch)
 	player.rebounded.connect(_on_impact)
+	player.landed.connect(_on_land)
 	player.movement_reset.connect(_on_reset)
 	player.physics_stepped.connect(_on_step)
 	_on_reset()
@@ -47,7 +52,16 @@ func _on_impact(normal: Vector2, _impulse: Vector2, _kind: String) -> void:
 	_launch_left = 0.0
 
 
+func _on_land(_at: Vector2) -> void:
+	if player.state == PlayerController.State.LANDING:
+		var impact_speed := -player.last_landing_velocity.dot(player.surface_normal)
+		_landing_start = 0 if impact_speed >= HARD_LANDING_SPEED else 2
+		_landing_active = true
+		_pose_time = 0.0
+
+
 func _on_reset() -> void:
+	_landing_active = false
 	_fall_phase = FallPhase.EARLY
 	_launch_left = 0.0
 	_impact_left = 0.0
@@ -62,6 +76,8 @@ func _on_reset() -> void:
 func _on_step(delta: float) -> void:
 	_update_fall_phase()
 	var next := _select_pose()
+	if next != &"land":
+		_landing_active = false
 	if next != pose:
 		pose = next
 		_pose_time = 0.0
@@ -71,9 +87,10 @@ func _on_step(delta: float) -> void:
 	match pose:
 		&"charge":
 			frame = mini(int(player.charge_fraction() * count), count - 1)
+		&"launch":
+			frame = int(_pose_time >= 0.016) + int(_pose_time >= 0.049)
 		&"land":
-			var recovery := maxf(player.physics_config.landing_recovery_time, delta)
-			frame = clampi(int((1.0 - player.landing_remaining / recovery) * count), 0, count - 1)
+			frame = mini(_landing_start + int(_pose_time / LAND_KEY_SECONDS), count - 1)
 		_:
 			frame = frame % count if FRAMES.get_animation_loop(pose) else mini(frame, count - 1)
 	sprite.frame = frame
@@ -108,7 +125,8 @@ func _select_pose() -> StringName:
 		PlayerController.State.CHARGING:
 			return &"charge"
 		PlayerController.State.LANDING:
-			return &"land"
+			if _landing_active:
+				return &"land"
 		PlayerController.State.RISING, PlayerController.State.FALLING:
 			if _impact_left > 0.0:
 				return &"impact"
@@ -127,6 +145,10 @@ func _select_pose() -> StringName:
 	var going_downhill := player.active_surface.gravity_slide and player.surface_normal.x * speed > 0.0
 	if player.is_sliding() and (player.selected_direction * speed <= 0.0 or going_downhill):
 		return &"slide"
+	if _landing_active and absf(speed) <= 1.0:
+		var remaining_keys := FRAMES.get_frame_count(&"land") - _landing_start
+		if _pose_time < remaining_keys * LAND_KEY_SECONDS:
+			return &"land"
 	return &"walk" if absf(speed) > 1.0 else &"idle"
 
 

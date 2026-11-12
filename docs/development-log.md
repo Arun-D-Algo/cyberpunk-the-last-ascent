@@ -1,5 +1,13 @@
 # Development log
 
+## 2026-11-12 - Cinematic David sprite and jump animation
+
+Started on bfbe80b with a clean tree. Reviewed the 02G atlas, standing and head crops, takeoff and descent strips, plus the earlier full-body illustration. Redrew the upright dark-brown crown, compact face, planted charge, launch and landing. Removed the airborne jacket tails and kept the 40×40 grid, (20, 38) pivot and nearest filtering. After the first Godot render, folded the deep-pose jacket hem to expose the knee, sharpened the crown, brightened the planted hand and lowered the fastest descent arms.
+
+The existing visual controller now selects a hard or soft landing from floor-normal impact speed. The hard impact starts with a three-point pose and can finish recovering during idle. A charge or movement allowed by the player controller takes priority immediately. Charge compression is indexed by the existing charge fraction. Physics sources, collider, camera and scenes are identical to the starting revision.
+
+Godot 4.7.2 passed import, boot, smoke and chamber, Lab and Tower startup. Regression totals were 191 animation, 177 movement, 168 visual/input, 665 surface, 115 refinement, 55 slope and 393 tower checks, covering all 60 route landings. The 30, 60 and 120 FPS probes passed, including 53 forced-slide checks per cadence. Static validation passed 260 checks. The review package includes native and 4× comparisons and a real Lab A jump capture. Final art approval is pending.
+
 ## 2026-11-11 - Milestone 02G David anatomy and airborne animation
 
 Started on a21851c with the existing editor reorder in project.godot. Used the attached full-body David illustration for the compact face, swept crown, jacket opening and knee folds. Used the 02F atlas as the before image. Reused the ground poses and made the export function reusable. Regenerating 02F reproduced its PNG and SpriteFrames byte for byte.

@@ -1,8 +1,8 @@
 extends "res://tests/physics_test.gd"
 
-const FRAMES: SpriteFrames = preload("res://resources/visuals/david_frames_02g.tres")
+const FRAMES: SpriteFrames = preload("res://resources/visuals/david_frames_cinematic.tres")
 const EXPECTED := {"idle": 4, "walk": 6, "charge": 4, "launch": 3, "rise": 3, "apex": 1,
-	"fall_early": 2, "fall": 3, "fall_fast": 3, "land": 2, "slide": 2, "forced": 2, "impact": 2}
+	"fall_early": 2, "fall": 3, "fall_fast": 3, "land": 4, "slide": 2, "forced": 2, "impact": 2}
 
 func _run() -> void:
 	_check_frames()
@@ -79,6 +79,12 @@ func _check_playback() -> void:
 	await _tick(1, true, true)
 	check(sprite.animation == &"charge" and sprite.frame == 0 and not sprite.flip_h,
 		"Fresh charge starts at first pose and faces right")
+	for tick in 14:
+		await _tick(1, false, true)
+	check(sprite.animation == &"charge" and sprite.frame == 1, "Early compression follows charge progress")
+	for tick in 13:
+		await _tick(1, false, true)
+	check(sprite.animation == &"charge" and sprite.frame == 2, "Deep compression follows charge progress")
 	await _charge(0.8, 1)
 	check(sprite.animation == &"charge" and sprite.frame == 3, "Full charge holds the final pose")
 	await _tick(1, false, false, true)
@@ -130,6 +136,19 @@ func _check_descent() -> void:
 		if body.is_on_floor():
 			break
 	check(ordered == [&"fall_early", &"fall", &"fall_fast", &"land"], "Real long fall plays every phase in order")
+	check(sprite.frame == 0, "Hard landing starts at the three-point impact")
+	await _ticks(4)
+	check(sprite.animation == &"land" and sprite.frame == 1 and body.state == PlayerController.State.GROUNDED,
+		"Visual recovery continues after gameplay recovery")
+	await _tick(-1, true, true)
+	check(sprite.animation == &"charge" and sprite.flip_h, "New charge interrupts visual recovery")
+	await _tick(-1, false, false, true)
+	check(sprite.animation == &"launch" and body.velocity.y < 0.0, "Short left release launches immediately")
+	for tick in 70:
+		await _tick()
+		if body.state == PlayerController.State.LANDING:
+			break
+	check(sprite.animation == &"land" and sprite.frame == 2, "Soft landing starts in standing compression")
 
 	body.reset_movement(Vector2(0, -480))
 	await _tick()

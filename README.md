@@ -1,8 +1,15 @@
 # Cyberpunk: The Last Ascent
 
+## Cinematic David sprite
+
+David has a sharper crown, an input-driven crouch and a three-point pose for hard landings. In **Physics Lab 2.0 → A Jumps**, tap jump, hold to full charge, then try a full vertical jump and move as soon as you land. **Start Tower Ascent** shows the same sprite against the tower background.
+
+- [Before and after, engine captures and animated playback](docs/visual-review/cinematic/README.md)
+- [Character art and timing](docs/character-art-guide.md#cinematic-sprite-and-jump-animation)
+
 ## Milestone 02G
 
-David's current sprite has a compact face, angled jacket opening and baggier trousers. Launch and rise use new keys. The fall progresses from open arms near the apex to stronger jacket flare at higher downward speed. Try a charged jump in **Physics Lab 2.0 → A Jumps** and a long drop in **Start Tower Ascent**.
+The 02G sprite introduced a compact face, angled jacket opening and baggier trousers. Launch and rise gained new keys. The fall progresses from open arms near the apex to stronger jacket flare at higher downward speed. Try a charged jump in **Physics Lab 2.0 → A Jumps** and a long drop in **Start Tower Ascent**.
 
 - [Character art guide and fall thresholds](docs/character-art-guide.md#milestone-02g-airborne-refinement)
 - [Before and after, animation strips and engine captures](docs/visual-review/milestone-02g/README.md)

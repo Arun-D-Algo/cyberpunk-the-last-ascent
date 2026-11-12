@@ -1,5 +1,9 @@
 # Technical design
 
+## Cinematic jump and landing presentation
+
+PlayerVisual still selects charge keys from the controller's normalized charge and starts launch playback on jump_started. The existing landed signal and last_landing_velocity supply floor-normal impact speed. At 285 px/s or above, the four-key landing starts at the three-point impact. Softer contacts enter at the two upright recovery keys. Each key lasts 50 ms. Recovery can continue while the player is stationary and grounded after the controller's 60 ms landing state ends. Walk, slide, charge, airborne transitions and reset preempt it. Top rebounds retain airborne selection, and forced-slide entry retains its committed pose. No movement state, input lock or collider data is owned by the visual controller.
+
 ## Milestone 02G airborne visuals
 
 PlayerVisual reads PlayerController's existing state and vertical velocity on the fixed-tick signal. Launch and wall-impact timers take precedence during their visual windows. An apex key bridges rise to early fall. Two configurable downward velocity thresholds choose the normal and fast animations with a 24 px/s hysteresis band. The band continues updating during wall-impact playback and resets outside falling. Each selection changes the AnimatedSprite2D frame only.
