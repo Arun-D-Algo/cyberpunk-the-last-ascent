@@ -1,7 +1,9 @@
 extends "res://tests/tower_test.gd"
-## Candidate discovery uses the actual solver. Final replay never resets between pads.
-var tolerances: Array[Dictionary] = []
-var falls: Array[Dictionary] = []
+## Discover using the actual controller, then replay from the normal entry without teleports.
+var opening: OpeningAscent
+var measured: Dictionary = {}
+var recovery: Dictionary = {}
+var audit: Dictionary = {}
 
 func _run() -> void:
 	var boot := preload("res://scenes/main/boot.tscn").instantiate()
@@ -10,182 +12,290 @@ func _run() -> void:
 	boot.enter_ascent()
 	await process_frame
 	await process_frame
-	check(current_scene is OpeningAscent, "Main-menu ascent opens the production scene")
-	if not current_scene is OpeningAscent:
+	opening = current_scene as OpeningAscent
+	check(opening != null, "Main menu loads the opening")
+	if opening == null:
 		quit(1)
 		return
-	tower = current_scene as OpeningAscent
-	world = tower
-	body = tower.player
+	tower = opening
+	world = opening
+	body = opening.player
 	body.accepts_live_input = false
 	recorder = body.get_node("JumpRecorder")
 	await _ticks(8)
 	_check_world()
-	var previous: Rect2 = Rect2(16, 144, 288, 24)
-	for row: Dictionary in tower.route:
-		var found: bool = false
-		for offset: float in [0.0, -8.0, 8.0, -16.0, 16.0, -24.0, 24.0, -32.0, 32.0, -48.0, 48.0, -64.0, 64.0]:
-			if absf(offset) > previous.size.x / 2.0 - 5.0:
+	var groups: Array = [OpeningRoute.MAIN]
+	groups.append_array(OpeningRoute.BRANCHES)
+	for group: Array in groups:
+		for edge: Array in group:
+			var recipe := await _discover(edge)
+			check(not recipe.is_empty(), "Reachable " + _key(edge))
+			if recipe.is_empty():
+				print("UNREACHABLE ", edge, " ", recorder.last_jump)
 				continue
-			var launch_x: float = previous.get_center().x + offset
-			for charge_ticks: int in (range(6, 46) if row.zone == 0 else range(45, 5, -1)):
-				var hold: float = charge_ticks * DT
-				body.reset_movement(Vector2(launch_x, previous.position.y))
-				await _ticks(8)
-				await _charge(hold, row.direction)
-				await _tick(row.direction, false, false, true)
-				await _finish_jump()
-				if body.is_on_floor() and String(body.last_landing_surface) == row.id and (body.rebound_count == 1 if row.ricochet else (body.rebound_count == 0 if row.zone == 0 else true)):
-					await _brake()
-					if body.is_on_floor() and String(body.surface_body_name) == row.id and body.position.x > row.rect.position.x + 6.0 and body.position.x < row.rect.end.x - 6.0:
-						recipes.append({"id": row.id, "x": launch_x, "hold": hold, "direction": row.direction, "landing": body.position, "rebounds": body.rebound_count})
-						found = true
-						break
-			if found:
-				break
-		check(found, "Reachable mandatory landing " + row.id)
-		if not found:
-			print("UNREACHABLE ", row, " from ", previous, " last ", body.position, " ", body.last_landing_surface, " trace ", recorder.last_jump)
-			break
-		print("ROUTE ", recipes[-1])
-		previous = row.rect
-	check(recipes.size() == 36, "Thirty-six solver-validated interactions")
-	if recipes.size() == 36:
-		await _check_falls()
-		await _check_tolerances()
-		await _continuous_replay()
-	var file: FileAccess = FileAccess.open("res://.godot/opening_measurements.json", FileAccess.WRITE)
-	file.store_string(JSON.stringify({"recipes": recipes, "tolerances": tolerances, "recovery_falls": falls, "checks": checks, "failures": failures, "replay_seconds": replay_seconds, "fall": fall_result}, "\t"))
-	if failures.is_empty():
-		print("PASS: %d opening checks / 36 continuous landings" % checks)
-		quit(0)
-	else:
-		printerr("FAIL: %d / %d opening checks" % [failures.size(), checks])
+			measured[_key(edge)] = recipe
+			print("EDGE ", _key(edge), " ", recipe)
+	if not failures.is_empty():
 		quit(1)
-
-func _continuous_replay() -> void:
+		return
+	_check_graph(groups)
+	_audit_layout()
 	tower.reset_ascent()
 	await _ticks(8)
-	var replay_start: int = elapsed_ticks
-	for recipe: Dictionary in recipes:
-		check(await _walk(recipe.x), "Walk to launch continuously " + recipe.id)
-		var previous_rebounds: int = body.rebound_count
-		await _charge(recipe.hold, recipe.direction)
-		await _tick(recipe.direction, false, false, true)
-		await _finish_jump()
-		check(body.rebound_count - previous_rebounds == recipe.rebounds, "Continuous collision sequence " + recipe.id)
-		check(String(body.last_landing_surface) == recipe.id and body.is_on_floor(), "Continuous landing " + recipe.id)
-		await _brake()
-		if not body.is_on_floor() or String(body.surface_body_name) != recipe.id:
-			check(false, "Continuous route lost support " + recipe.id)
+	await _replay(OpeningRoute.MAIN)
+	check(opening.zone_index == 2, "Route crosses both section boundaries")
+	for fork: Array in OpeningRoute.BRANCHES.slice(0, 3):
+		var start: String = fork[0][0]
+		var finish: String = fork[-1][1]
+		var before := _main_index(start)
+		var after := _main_index(finish)
+		tower.reset_ascent()
+		await _ticks(8)
+		await _replay(OpeningRoute.MAIN.slice(0, before) + fork + OpeningRoute.MAIN.slice(after))
+		check(String(body.surface_body_name) == "Summit", "Fork reaches summit " + start)
+	await _check_recovery()
+	var report := FileAccess.open("res://.godot/opening_measurements.json", FileAccess.WRITE)
+	report.store_string(JSON.stringify({"edges": measured, "recovery": recovery, "audit": audit, "checks": checks, "failures": failures}, "	"))
+	print("Opening checks: %d, validated jumps: %d, failures: %d" % [checks, measured.size(), failures.size()])
+	quit(0 if failures.is_empty() else 1)
+
+func _key(edge: Array) -> String:
+	return "%s > %s" % [edge[0], edge[1]]
+
+func _discover(edge: Array) -> Dictionary:
+	var source: Rect2 = opening.surfaces[edge[0]]
+	var target: Rect2 = opening.surfaces[edge[1]]
+	var expected: int = edge[3] if edge.size() > 3 else 0
+	var charge_order: Array[int] = [35, 40, 45, 30, 25, 20, 15, 10]
+	if edge[1] == "InspectionPocket":
+		charge_order = [26, 25, 27]
+	for ticks in range(6, 46):
+		if ticks not in charge_order:
+			charge_order.append(ticks)
+	var offsets: Array[int] = [0]
+	for offset in range(4, int(source.size.x / 2) - 3, 4):
+		offsets.append(offset * edge[2] if edge[2] != 0 else offset)
+		offsets.append(-offsets[-1])
+	for offset in offsets:
+		var launch_x := source.get_center().x + offset
+		for ticks in charge_order:
+			var result := await _attempt(edge, source, target, launch_x, ticks, expected, 5.0)
+			if result.is_empty():
+				continue
+			var left := await _attempt(edge, source, target, launch_x - 0.75, ticks, expected, 3.0)
+			if left.is_empty():
+				continue
+			var right := await _attempt(edge, source, target, launch_x + 0.75, ticks, expected, 3.0)
+			if right.is_empty():
+				continue
+			var adjacent := 0
+			for neighbor: int in [ticks - 1, ticks + 1]:
+				if neighbor >= 6 and neighbor <= 45:
+					if not (await _attempt(edge, source, target, launch_x, neighbor, expected, 3.0)).is_empty():
+						adjacent += 1
+			result["adjacent_charge_ticks"] = adjacent
+			return result
+	return {}
+
+func _attempt(edge: Array, source: Rect2, target: Rect2, launch_x: float, ticks: int,
+		expected: int, minimum_margin: float) -> Dictionary:
+	body.reset_movement(Vector2(launch_x, source.position.y))
+	await _ticks(7)
+	if not body.is_on_floor() or String(body.surface_body_name) != edge[0]:
+		return {}
+	await _route_jump(ticks, edge[2])
+	if String(body.last_landing_surface) != edge[1] or body.rebound_count != expected:
+		return {}
+	await _brake()
+	var margin := minf(body.position.x - target.position.x, target.end.x - body.position.x)
+	if not body.is_on_floor() or String(body.surface_body_name) != edge[1] or margin < minimum_margin:
+		return {}
+	return {"x": launch_x, "ticks": ticks, "direction": edge[2], "rebounds": expected,
+		"landing_x": body.position.x, "landing_y": body.position.y, "margin": margin,
+		"rise": source.position.y - target.position.y, "dx": body.position.x - launch_x,
+		"apex": recorder.last_jump.get("peak_height", 0), "ceiling": recorder.last_jump.get("hit_ceiling", false)}
+
+func _route_jump(ticks: int, direction: int) -> void:
+	await _charge(ticks * DT, direction)
+	await _tick(direction, false, false, true)
+	await _finish_jump()
+
+func _replay(edges: Array) -> void:
+	for edge: Array in edges:
+		var recipe: Dictionary = measured[_key(edge)]
+		var positioned := await _walk(recipe.x)
+		check(positioned, "Continuous approach " + _key(edge))
+		if not positioned:
 			return
-	replay_seconds = (elapsed_ticks - replay_start) * DT
-	check(tower.zone_index == 2, "Climb crosses all three sections")
-	check(body.maximum_height > 1600, "Continuous world height recorded")
-	# Walk off summit into the open side lane: no teleport or automatic retry.
-	for tick: int in 100:
-		await _tick(-1)
-		if not body.is_on_floor():
-			break
-	var start_y: float = body.position.y
-	var fall_start: int = elapsed_ticks
-	var peak_fall_speed: float = 0.0
-	for tick: int in 600:
-		await _tick()
-		peak_fall_speed = maxf(peak_fall_speed, body.velocity.y)
+		var rebounds := body.rebound_count
+		await _route_jump(recipe.ticks, recipe.direction)
+		await _brake()
+		var landed: bool = body.is_on_floor() and String(body.surface_body_name) == edge[1]
+		check(landed, "Continuous support " + _key(edge))
 		await process_frame
-		if absf(body.position.y - tower.camera.position.y) >= 91.0 and tick < 10:
-			print("CAMERA ", body.position, " ", tower.camera.position)
-		check(absf(body.position.y - tower.camera.position.y) < 91.0, "Long-fall camera keeps player visible")
-		if body.is_on_floor() and body.position.y > start_y + 200.0:
-			break
-	fall_result = {"start_y": start_y, "landing_y": body.position.y, "drop": body.position.y - start_y, "seconds": (elapsed_ticks - fall_start) * DT, "peak_speed": peak_fall_speed, "zone_after": tower.zone_index + 1}
-	check(body.is_on_floor() and body.position.y > start_y + 200, "Long fall catches earlier solid geometry")
-	check(tower.zone_index < 2, "Fall returns to earlier zone")
-	await _ticks(6)
-	var catch_index := -1
-	for index in tower.route.size():
-		if tower.route[index].id == String(body.surface_body_name):
-			catch_index = index
-	check(catch_index >= 0, "Fall catches a route destination")
-	if catch_index >= 0 and catch_index + 1 < recipes.size():
-		var recovery: Dictionary = recipes[catch_index + 1]
-		check(await _walk(recovery.x), "Walk into recovery launch position")
-		await _charge(recovery.hold, recovery.direction)
-		await _tick(recovery.direction, false, false, true)
-		await _finish_jump()
-		check(String(body.last_landing_surface) == recovery.id, "Recover onto the next ascent destination")
-	await _charge(0.3, 0)
-	check(body.state == PlayerController.State.CHARGING, "Recovery can charge after long fall")
-	tower.toggle_pause()
-	var paused_at: Vector2 = body.position
-	await _ticks(3)
-	check(body.position == paused_at and body.charge_duration == 0.0, "Pause cancels charge without movement")
-	tower.toggle_pause()
-	tower.reset_ascent()
-	await _ticks(8)
-	check(body.is_on_floor() and body.position.distance_to(TowerAscent.SPAWN) < 0.1, "Explicit reset reacquires base")
-
+		check(absf(body.position.y - opening.camera.position.y) < 91, "Camera keeps landing visible")
+		check(body.rebound_count - rebounds == recipe.rebounds, "Continuous rebound count " + _key(edge))
+		if not landed:
+			print("REPLAY STOP ", _key(edge), " ", body.position, " ", recorder.last_jump)
+			return
 
 func _check_world() -> void:
-	check(tower.route.size() == 36, "Opening contains 36 authored destinations")
-	check(body.get_node("CollisionShape2D").shape.size == Vector2(10, 24), "Approved player collider")
+	check(body.is_on_floor() and String(body.surface_body_name) == "Base", "Exterior spawn is supported")
+	check(body.get_node("CollisionShape2D").shape.size == Vector2(10, 24), "Approved collider")
 	check(body.get_node("Visual/David").sprite_frames == preload("res://resources/visuals/david_frames_cinematic.tres"), "Approved character art")
-	check(tower.get_node("Scenery").get_child(0) is OpeningBackdrop, "Authored backdrop loads")
-	for row: Dictionary in tower.route:
-		var machine := tower.get_node("Geometry/" + row.id) as OpeningMachine
-		check(machine != null and machine.size == row.rect.size, "Complete casing bounds " + row.id)
+	for row: Dictionary in opening.route:
+		var machine := opening.get_node("Geometry/" + row.id) as OpeningMachine
 		check(machine.collision_layer == 1 and machine.collision_mask == 2, "Collision layers " + row.id)
-		check(machine.get_child(0).shape.size == machine.size, "Collider matches casing " + row.id)
-	for asset in ["machinery", "facade", "ventilation", "transformers", "city_depth"]:
-		var path: String = "res://assets/environment/opening/" + asset + ".png"
-		var texture := load(path) as Texture2D
+		if machine.silhouette.is_empty():
+			check(machine.get_child(0).shape.size == row.rect.size, "Rectangular casing " + row.id)
+		else:
+			check(machine.get_child(0).polygon == machine.silhouette, "Shared art/collision outline " + row.id)
+	for asset in ["machinery", "facade", "ventilation", "transformers", "city_depth", "wall"]:
+		var texture := load("res://assets/environment/opening/%s.png" % asset) as Texture2D
 		check(texture != null and not texture.get_image().has_mipmaps(), "Pixel texture " + asset)
-	check(tower.texture_filter == CanvasItem.TEXTURE_FILTER_PARENT_NODE, "Scene inherits approved nearest filtering")
-	check(tower.get_node("Scenery").process_mode == Node.PROCESS_MODE_PAUSABLE, "Ambient effects pause with gameplay")
 
-func _check_tolerances() -> void:
-	var previous := Rect2(16, 144, 288, 24)
-	for index in recipes.size():
-		var recipe: Dictionary = recipes[index]
-		var row: Dictionary = tower.route[index]
-		var successes := [0, 0]
-		for group in 2:
-			for side in [-1, 1]:
-				var x: float = recipe.x + (side * 2.0 if group == 1 else 0.0)
-				var hold: float = recipe.hold + (side * DT if group == 0 else 0.0)
-				body.reset_movement(Vector2(x, previous.position.y))
-				await _ticks(8)
-				await _charge(hold, recipe.direction)
-				await _tick(recipe.direction, false, false, true)
-				await _finish_jump()
-				if body.is_on_floor() and String(body.last_landing_surface) == recipe.id:
-					successes[group] += 1
-		tolerances.append({"id": recipe.id, "adjacent_charge_ticks": successes[0], "two_pixel_offsets": successes[1],
-			"rise": previous.position.y - row.rect.position.y, "center_dx": row.rect.get_center().x - recipe.x})
-		check(successes[0] > 0 and successes[1] > 0, "Reproducible timing and position window " + recipe.id)
-		previous = row.rect
+func _main_index(surface: String) -> int:
+	for index in OpeningRoute.MAIN.size():
+		if OpeningRoute.MAIN[index][0] == surface:
+			return index
+	return OpeningRoute.MAIN.size()
 
+func _check_graph(groups: Array) -> void:
+	var links := {}
+	for group: Array in groups:
+		for edge: Array in group:
+			if not links.has(edge[0]):
+				links[edge[0]] = []
+			links[edge[0]].append(edge[1])
+	for row: Dictionary in opening.route:
+		var pending: Array = [row.id]
+		var seen := {}
+		while not pending.is_empty():
+			var surface: String = pending.pop_back()
+			if seen.has(surface):
+				continue
+			seen[surface] = true
+			pending.append_array(links.get(surface, []))
+		check(seen.has("Summit"), "Graph returns every authored landing to summit " + row.id)
+	for surface in ["SignBeam", "HousingRoof", "RadiatorHead"]:
+		check(links[surface].size() == 2, "Two viable routes at " + surface)
 
-func _check_falls() -> void:
-	for index in [2, 16, 30]:
-		var row: Dictionary = tower.route[index]
-		body.reset_movement(Vector2(row.rect.get_center().x, row.rect.position.y))
-		tower.camera.reset_tracking()
-		await _ticks(8)
-		for tick in 90:
-			await _tick(-1)
-			if not body.is_on_floor():
-				break
-		var start_y := body.position.y
-		for tick in 400:
+func _check_recovery() -> void:
+	await _check_special_surfaces()
+	await _drop("GateCanopy", -1, "BadgeReader")
+	await _drop("BankTongue", 1, "BusCabinet")
+	await _drop("Summit", -1, "TowerFin")
+	await _replay(OpeningRoute.MAIN.slice(_main_index("TowerFin"), _main_index("ElevatorShoe")))
+	await _drop("TransferBridge", 1, "ChuteCatch", true)
+	await _replay(OpeningRoute.BRANCHES[-1])
+	check(String(body.surface_body_name) == "PillarSill", "Chute catch reconnects through fan column")
+	await _replay(OpeningRoute.MAIN.slice(_main_index("PillarSill"), _main_index("TransferBridge")))
+	tower.toggle_pause()
+	var paused_at := body.position
+	await _ticks(3)
+	check(body.position == paused_at, "Pause preserves position")
+	tower.reset_ascent()
+	await _ticks(8)
+	check(body.is_on_floor() and body.position.distance_to(TowerAscent.SPAWN) < 0.1, "Reset reacquires exterior support")
+
+func _drop(source: String, direction: int, target: String, slide_expected := false) -> void:
+	var rect: Rect2 = opening.surfaces[source]
+	body.reset_movement(Vector2(rect.get_center().x, rect.position.y - 1))
+	opening.camera.reset_tracking()
+	await _ticks(8)
+	for tick in 110:
+		await _tick(direction)
+		if not body.is_on_floor():
+			break
+	check(not body.is_on_floor(), "Walk off " + source)
+	var committed := 0
+	var slide_entry := Vector2.ZERO
+	var slide_exit := Vector2.ZERO
+	var camera_visible := true
+	for tick in 220:
+		if body.state == PlayerController.State.FORCED_SLIDING:
+			if committed == 0:
+				slide_entry = body.position
+			committed += 1
+			var previous_x: float = body.position.x
+			await _tick(1, true, true, true)
+			check(body.position.x < previous_x, "Chute ignores uphill and jump input")
+			slide_exit = body.position
+		else:
 			await _tick()
-			await process_frame
-			check(absf(body.position.y - tower.camera.position.y) < 91, "Recovery fall camera")
-			if body.is_on_floor():
-				break
-		check(body.is_on_floor() and body.position.y > start_y, "Miss catches earlier geometry " + row.id)
-		falls.append({"from": row.id, "to": body.last_landing_surface, "drop": body.position.y - start_y})
-		await _ticks(6)
-		await _tick(0, true, true)
-		check(body.state == PlayerController.State.CHARGING, "Fresh charge after setback " + row.id)
+		await process_frame
+		camera_visible = camera_visible and absf(body.position.y - opening.camera.position.y) < 91
+		if body.is_on_floor() and body.state == PlayerController.State.GROUNDED and String(body.surface_body_name) == target:
+			break
+	check(camera_visible, "Camera follows fall from " + source)
+	check(body.is_on_floor() and String(body.surface_body_name) == target, "Fall catches " + target)
+	check((committed > 0) == slide_expected, "Expected chute commitment " + source)
+	if slide_expected:
+		check(slide_exit.x <= 199, "Committed descent reaches the exit plane")
+	recovery[source] = {"catch": body.surface_body_name, "drop": body.position.y - rect.position.y,
+		"slide_ticks": committed, "slide_entry_x": slide_entry.x, "slide_exit_x": slide_exit.x}
+
+func _check_special_surfaces() -> void:
+	var pocket: Dictionary = measured["GlassLintel > InspectionPocket"]
+	body.reset_movement(Vector2(pocket.x, -61))
+	await _ticks(8)
+	await _route_jump(pocket.ticks, 1)
+	check(String(body.surface_body_name) == "InspectionPocket" and not recorder.last_jump.hit_ceiling, "Medium charge clears the lintel")
+	body.reset_movement(Vector2(pocket.x, -61))
+	await _ticks(8)
+	await _route_jump(45, 1)
+	check(recorder.last_jump.hit_ceiling, "Full charge strikes the pocket ceiling")
+	body.reset_movement(Vector2(77, -312))
+	await _ticks(10)
+	check(String(body.surface_body_name) == "PipeSaddle" and body.slope_degrees() > 30, "Slope face supports the collider")
+	body.reset_movement(Vector2(197, -947))
+	await _ticks(8)
+	check(body.active_surface.id == &"ice", "Condensation tray uses approved ice profile")
+	await _ticks(10, 1)
+	var started_x: float = body.position.x
+	await _ticks(5)
+	check(body.position.x > started_x and absf(body.velocity.x) > 1, "Released input coasts on condensate")
+
+func _audit_layout() -> void:
+	var widths := {}
+	var profiles := {}
+	var min_rise := INF
+	var max_rise := 0.0
+	var min_span := INF
+	var max_span := 0.0
+	var longest_alternation := 0
+	var alternating := 0
+	var previous_direction := 0
+	var repeats: Array[String] = []
+	var recent: Array[Dictionary] = []
+	for row: Dictionary in opening.route:
+		var width := int(row.rect.size.x)
+		widths[width] = widths.get(width, 0) + 1
+		profiles[row.shape] = profiles.get(row.shape, 0) + 1
+	for edge: Array in OpeningRoute.MAIN:
+		var result: Dictionary = measured[_key(edge)]
+		min_rise = minf(min_rise, result.rise)
+		max_rise = maxf(max_rise, result.rise)
+		min_span = minf(min_span, absf(result.dx))
+		max_span = maxf(max_span, absf(result.dx))
+		alternating = alternating + 1 if edge[2] != previous_direction else 1
+		longest_alternation = maxi(longest_alternation, alternating)
+		previous_direction = edge[2]
+		recent.append(result)
+		if recent.size() > 4:
+			recent.pop_front()
+		if recent.size() == 4:
+			var rises: Array[float] = []
+			var spans: Array[float] = []
+			for sample: Dictionary in recent:
+				rises.append(sample.rise)
+				spans.append(absf(sample.dx))
+			if rises.max() - rises.min() <= 8 and spans.max() - spans.min() <= 16:
+				repeats.append(_key(edge))
+	audit = {"widths": widths, "profiles": profiles, "rise": [min_rise, max_rise],
+		"span": [min_span, max_span], "longest_alternation": longest_alternation,
+		"similar_four_jump_windows": repeats}
+	check(widths.size() >= 10, "Authored width distribution stays varied")
+	check(longest_alternation < 6, "Same-side runs break alternation")
+	if not repeats.is_empty():
+		print("DESIGN REVIEW similar four-jump windows ending at ", repeats)

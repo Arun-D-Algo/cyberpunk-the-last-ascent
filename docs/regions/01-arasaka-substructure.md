@@ -1,5 +1,37 @@
 # Arasaka Substructure — opening ascent
 
+## 03B architectural route
+
+**Start Tower Ascent** loads the redesigned route. The main line has 36 jumps over 1,395 pixels of rise. Optional landings and the chute recovery bring the inventory to 40 named surfaces above the base. Heights are world coordinates. The service threshold is y−203 and the lift deck is y−660. The summit is y−1251.
+
+| Section | Main-line jumps | Options and recovery surfaces | Spatial problem |
+| --- | ---: | --- | --- |
+| Corporate Plaza and Service Entrance | 10 | Sign Cradle | Climb the security side, try the optional gate canopy bank, choose a route around the sign support, then cross an inspection pocket under a solid lintel |
+| Ventilation Galleries | 12 | Pressure Bypass, Chute Catch, Fan Column | Traverse a duct shoulder, bank around the fan column, then choose the longer valve route or two high-rise bypass jumps |
+| Transformer Hall | 14 | Direct summit transfer | Brake on condensate, bank off two separate piers, then choose the elevator header or the 60-pixel direct ascent |
+
+### Challenge library
+
+| Pattern | Live example | Failure and recovery |
+| --- | --- | --- |
+| Unequal surfaces and same-side ascent | Booth to badge reader to gate canopy | A missed transfer can return to the booth or plaza pavement |
+| Long lateral transfer | Canopy to sign beam, header to summit | Lower roofs catch failed transfers |
+| Fork | Sign cradle splits one wide transfer into two shorter jumps | Both lines rejoin at the loading gantry |
+| Overhang and precision pocket | Glass lintel to inspection cabinet | Medium charge clears the roof. Excess charge contacts the beam and can still land depending on approach |
+| Sloped housing | Pipe saddle and its 16×12 shoulder | Walk the shoulder to reposition. The flat roof supplies a repeatable launch |
+| Central pillar and wall pocket | Fan sill to fan return via the solid fan column | Misses can return to the intake sill and duct |
+| Fork with contrasting risk | Pressure bypass versus transfer bridge and valve cabinet | The bypass skips a jump but demands rises of 55 and 61 pixels |
+| Fall funnel and forced-slide penalty | Open right side of transfer bridge leads into the exhaust chute | The committed slide runs onto Chute Catch. Two jumps around the fan column rejoin Pillar Sill |
+| Slick surface | Condensation tray below the coil crown | Brake and settle before a fresh charge. A slip can send David back into lower machinery |
+| Narrow shaft and multi-step bank | Coil Crown → Bank Tongue → Return Tongue | Independent jumps use opposing piers. The left fall lane leads back to earlier transformer ledges |
+| Upper precision and shortcut | Header Pocket versus the direct 60-pixel summit jump | The header adds a landing and splits the rise. The direct route has less vertical headroom |
+| Major fall and recovery climb | Summit left edge to Tower Fin | Resume via Bus Cabinet, Copper Beam and Elevator Shoe |
+| Architectural landmark | Intake fan, transformer banks and elevator portal | Solid highlighted fins, brackets and casings carry the route. Darker architectural framing supplies visual context |
+
+The full [route and reachability report](../validation/milestone-03b.md) records charge, displacement, supported landing margins and tested fall paths. See the [visual review](../visual-review/milestone-03b/README.md) for section comparisons. Jump King's developer workshop guidance informed the emphasis on authored areas and recovery after falls. [Nexile Workshop Docs](https://teamnexile.github.io/jk-workshop-docs/level-making/tips/)
+
+The user screenshot mentioned in the brief was absent from the attachment directory. The audit uses the saved 03A in-engine layout. Sections below describe the historical 03A baseline.
+
 ## Delivered scope
 
 Milestone 03A implements one continuous opening through Corporate Plaza and Service Entrance, Ventilation Galleries, and Transformer Hall. Start Tower Ascent enters scenes/levels/opening_ascent.tscn. The original four-floor prototype remains available at scenes/levels/tower_ascent.tscn for regression testing.

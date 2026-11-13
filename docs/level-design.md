@@ -1,5 +1,11 @@
 # Level design
 
+## Milestone 03B architectural traversal
+
+Compose an entire spatial problem around a visible machine or opening before tuning a jump. Put reachable roof edges on the physical silhouettes, and use broad approaches to introduce mechanics before combining them. The new route begins with a right-side service climb, uses a fan column and an exhaust recovery loop in ventilation, then rises through opposing transformer piers. All three sections have optional paths or transfers.
+
+The [challenge library and section map](regions/01-arasaka-substructure.md) describe progression and recovery. The [route measurements](validation/milestone-03b.md) record the anti-monotony audit and controller results. The 03A staircase below is historical.
+
 ## Milestone 03A opening route
 
 The main entry uses OpeningRoute and OpeningAscent for 10 corporate, 12 ventilation and 14 transformer destinations. Base-to-summit rise is 1,760 pixels. Widths range from 32–64 pixels, and full casing depth participates in the solver. Four return faces exercise deliberate rebounds. Recessed braces attach the foreground housings to the structure. Section boundaries at y−313 and y−881 classify the player without moving it.

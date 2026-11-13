@@ -1,14 +1,12 @@
 # Cyberpunk: The Last Ascent
 
-## Milestone 03A — Arasaka opening ascent
+## Milestone 03B — Arasaka architectural ascent
 
-**Start Tower Ascent** now begins outside Arasaka Tower and climbs through Corporate Plaza and Service Entrance, Ventilation Galleries, and Transformer Hall. The continuous route has **36 destinations across 1,760 vertical pixels**, four deliberate rebound transfers, architectural casings, corporate signage and ambient machinery.
+**Start Tower Ascent** climbs from the exterior through Corporate Service, Ventilation Galleries and Transformer Hall. The 36-jump main route rises **1,395 pixels** and includes a sign-support fork, an intake rebound pocket, an exhaust chute recovery loop, a slick tray, and a two-pier transformer climb.
 
-- [Region design and implementation](docs/regions/01-arasaka-substructure.md)
-- [Actual game captures and playtest checklist](docs/visual-review/milestone-03a/README.md)
-- [Measured route and fall results](docs/validation/milestone-03a.md)
-
-Implementation is ready for owner visual and gameplay review. The original 60-landing prototype remains available as a regression scene.
+- [Section design and challenge library](docs/regions/01-arasaka-substructure.md)
+- [Rendered comparisons and playtest checklist](docs/visual-review/milestone-03b/README.md)
+- [Route graph and measured validation](docs/validation/milestone-03b.md)
 
 ## Cinematic David sprite
 
@@ -55,7 +53,7 @@ Milestone 02D implements the continuous **four-floor tower ascent: 60 landings /
 
 ## What is playable
 
-- **Opening Ascent:** 36 architectural destinations across three connected sections, spanning 1,760 vertical pixels.
+- **Opening Ascent:** 36 main-route jumps across three sections, spanning 1,395 vertical pixels.
 - **Historical Tower prototype:** 60 landing destinations retained as an independent regression scene.
 - **Committed charge jumps:** configurable charge/release trajectories, directional selection, no default air steering or double jump.
 - **Surface mechanics:** controllable moderate ice, configurable mild/extreme profiles, polygon slopes and gravity ramps.

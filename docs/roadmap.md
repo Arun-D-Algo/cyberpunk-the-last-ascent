@@ -1,8 +1,8 @@
 # Roadmap
 
-## Current gate — Milestone 03A review
+## Current gate — Milestone 03B review
 
-The first three Arasaka opening sections are implemented and awaiting owner visual and gameplay approval. Review the exterior, entrance, environmental landings, 36-interaction route, transitions and fall penalties. The next step is incorporating that feedback. The Powerworks, Coolant Distribution, Freight Elevator Shaft, Security Transfer and Atrium Threshold remain deferred.
+The first three Arasaka sections use the redesigned architecture and route graph. Review the sign fork, fan rebound, chute penalty, condensate tray, two-pier transformer climb, direct summit jump and recovery routes before further expansion. The Powerworks, Coolant Distribution, Freight Elevator Shaft, Security Transfer and Atrium Threshold remain deferred.
 
 ## Current art review — Cinematic David
 

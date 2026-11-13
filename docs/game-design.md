@@ -1,5 +1,9 @@
 # Game design
 
+## Milestone 03B opening progression
+
+Players read the architecture to decide where to launch and how much to charge. Corporate Service introduces same-side climbs, a sign-support fork and a low beam. Ventilation adds the central fan, an optional bypass and a chute setback with a climb back to the route. Transformer Hall adds braking on condensate and consecutive banks off opposing piers. Falls stay in the same world and preserve the player's opportunity to climb back.
+
 ## Milestone 03A opening
 
 David now starts outside Arasaka Tower. The first production route joins Corporate Plaza and Service Entrance, Ventilation Galleries and Transformer Hall in one continuous ascent. Corporate and industrial infrastructure provide 36 intended destinations. Side shafts preserve recoverable setbacks into earlier sections. The owner approved the current character presentation and movement before this milestone. Route pacing and environmental art await review.

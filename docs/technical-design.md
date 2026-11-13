@@ -1,5 +1,11 @@
 # Technical design
 
+## Milestone 03B route composition
+
+OpeningRoute lists explicit world positions and silhouettes, separate from the ordered jump graph. OpeningAscent instantiates those authored objects and uses fixed section heights. OpeningMachine shares each stepped, bracket or sloped outline between rendering and CollisionPolygon2D. The condensate tray selects the existing ice resource, and the two-face exhaust chute uses the existing ForcedSlide node.
+
+The opening test checks every graph jump with the normal controller. Continuous replays start through the menu, walk between launches and exercise the main route and each fork. Fall scenarios check the camera, catch surfaces and continuation. The audit records width distribution, contact types and repeated jump patterns. Rendered reviews use the same production scene.
+
 ## Milestone 03A composition
 
 OpeningAscent extends TowerAscent to reuse pause, reset and input handling, and overrides composition and altitude classification. OpeningRoute supplies the three-section destination data. OpeningMachine uses the same dimensions for native sprite crops and full rectangular collisions. OpeningBackdrop owns finite architectural layers, restrained city parallax, recessed attachments, corporate typography and existing IndustrialFixture animations.
