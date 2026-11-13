@@ -1,0 +1,33 @@
+[gd_resource type="SpriteFrames" load_steps=8 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/player/rebecca.png" id="atlas"]
+
+[sub_resource type="AtlasTexture" id="idle_0"]
+atlas = ExtResource("atlas")
+region = Rect2(0, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="idle_1"]
+atlas = ExtResource("atlas")
+region = Rect2(40, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="idle_2"]
+atlas = ExtResource("atlas")
+region = Rect2(80, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="left_0"]
+atlas = ExtResource("atlas")
+region = Rect2(0, 40, 40, 40)
+
+[sub_resource type="AtlasTexture" id="confident_0"]
+atlas = ExtResource("atlas")
+region = Rect2(40, 40, 40, 40)
+
+[sub_resource type="AtlasTexture" id="annoyed_0"]
+atlas = ExtResource("atlas")
+region = Rect2(80, 40, 40, 40)
+
+[resource]
+animations = [{"frames": [{"duration": 2.0, "texture": SubResource("idle_0")}, {"duration": 1.0, "texture": SubResource("idle_1")}, {"duration": 1.0, "texture": SubResource("idle_2")}], "loop": true, "name": &"idle", "speed": 5.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("left_0")}], "loop": false, "name": &"left", "speed": 5.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("confident_0")}], "loop": false, "name": &"confident", "speed": 5.0},
+{"frames": [{"duration": 1.0, "texture": SubResource("annoyed_0")}], "loop": false, "name": &"annoyed", "speed": 5.0}]
