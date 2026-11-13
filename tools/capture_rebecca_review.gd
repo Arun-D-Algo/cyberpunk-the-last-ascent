@@ -11,17 +11,27 @@ func _initialize() -> void:
 func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(OUT)
 	var idle: Array[Image] = []
-	for index in 3:
+	for index in REBECCA.get_frame_count(&"idle"):
 		idle.append(_key(REBECCA, &"idle", index))
-	assert(idle[0].get_data() != idle[1].get_data() and idle[1].get_data() != idle[2].get_data())
+	assert(idle.size() == 4 and REBECCA.get_animation_loop(&"idle"))
+	for index in idle.size():
+		var next := (index + 1) % idle.size()
+		assert(idle[index].get_data() != idle[next].get_data())
+		for y in range(31, SIZE.y):
+			for x in SIZE.x:
+				var pixel := idle[index].get_pixel(x, y)
+				var neutral := idle[0].get_pixel(x, y)
+				assert((pixel.a == 0 and neutral.a == 0) or pixel == neutral)
 	var sprite := AnimatedSprite2D.new()
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	sprite.sprite_frames = REBECCA
 	sprite.offset = Vector2(0, -18)
 	root.add_child(sprite)
 	sprite.play(&"idle")
-	await create_timer(0.5).timeout
+	await create_timer(0.55).timeout
 	assert(sprite.is_playing() and sprite.frame > 0)
+	await create_timer(0.4).timeout
+	assert(sprite.is_playing() and sprite.frame == 0)
 	var original := Image.load_from_file(OUT + "original_neutral.png")
 	assert(original.get_size() == SIZE)
 	_strip("before_after", [original, idle[0]])
@@ -32,9 +42,11 @@ func _run() -> void:
 	_strip("idle", idle)
 	_strip("confident", [_key(REBECCA, &"confident", 0)])
 	_strip("annoyed", [_key(REBECCA, &"annoyed", 0)])
-	_strip("scale", [_key(DAVID, &"idle", 0), idle[0]])
+	var david := _key(DAVID, &"idle", 0)
+	_strip("david_standing", [david])
+	_strip("scale", [david, idle[0]])
 	var atlas := (REBECCA.get_frame_texture(&"idle", 0) as AtlasTexture).atlas.get_image()
-	assert(atlas.get_size() == Vector2i(120, 80) and not atlas.has_mipmaps())
+	assert(atlas.get_size() == Vector2i(160, 80) and not atlas.has_mipmaps())
 	_save_pair("sheet", atlas)
 	print("Rebecca atlas, frame bounds, and idle playback verified")
 	quit()

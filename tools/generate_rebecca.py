@@ -70,9 +70,10 @@ def draw(cell, x, y, rows):
 def pose(name, frame):
     cell = bytearray(CELL * CELL * 4)
     lift = int(name == "idle" and frame in (1, 2))
+    arm_lift = int(name == "idle" and frame == 2)
     draw(cell, 14, 26, LEGS)
     draw(cell, 14, 18 - lift, COAT)
-    draw(cell, 10, 18 - lift, SLEEVE)
+    draw(cell, 10, 18 - arm_lift, SLEEVE)
     head = HEAD.copy()
     if name == "confident":
         head[8] = ".ohmoosppkpoo" + head[8][13:]
@@ -87,11 +88,14 @@ def pose(name, frame):
         fist(cell, 12, 24, warm=True)
         fist(cell, 23, 22)
     else:
-        draw(cell, 25, 18 - lift, mirrored(SLEEVE))
-        fist(cell, 9, 24 - lift)
-        fist(cell, 25, 24 - lift, warm=True)
-    if frame == 2 and name == "idle":
-        head[9] = head[9][:13] + ".ohho"
+        draw(cell, 25, 18 - arm_lift, mirrored(SLEEVE))
+        fist(cell, 9, 24 - arm_lift)
+        fist(cell, 25, 24 - arm_lift, warm=True)
+    if name == "idle" and frame in (2, 3):
+        # Only the lower far-tail clusters lag behind the torso.
+        head[8] = head[8][:13] + "." + head[8][13:]
+        head[9] = head[9][:13] + "." + head[9][13:]
+        head[10] = head[10][:13] + "." + head[10][13:]
     draw(cell, 11, 9 - lift, head)
     if name == "confident":
         fist(cell, 26, 14, warm=True)
@@ -103,27 +107,28 @@ def pose(name, frame):
     return cell
 
 def main():
-    keys = {"idle": (0, 3), "left": (3, 1), "confident": (4, 1), "annoyed": (5, 1)}
-    width = CELL * 3
+    keys = {"idle": (0, 4), "left": (4, 1), "confident": (5, 1), "annoyed": (6, 1)}
+    columns = 4
+    width = CELL * columns
     sheet = bytearray(width * CELL * 2 * 4)
-    resource = ['[gd_resource type="SpriteFrames" load_steps=8 format=3]',
+    resource = ['[gd_resource type="SpriteFrames" load_steps=9 format=3]',
                 '[ext_resource type="Texture2D" path="res://assets/player/rebecca.png" id="atlas"]']
     animations = []
     for name, (first, count) in keys.items():
         frames = []
         for frame in range(count):
             index = first + frame
-            x, y = index % 3 * CELL, index // 3 * CELL
+            x, y = index % columns * CELL, index // columns * CELL
             cell = pose(name, frame)
             for row in range(CELL):
                 start = ((y + row) * width + x) * 4
                 sheet[start:start+CELL*4] = cell[row*CELL*4:(row+1)*CELL*4]
             key = f"{name}_{frame}"
             resource.append(f'[sub_resource type="AtlasTexture" id="{key}"]\natlas = ExtResource("atlas")\nregion = Rect2({x}, {y}, 40, 40)')
-            duration = [2, 1, 1][frame] if name == "idle" else 1
+            duration = [3, 1, 2, 1][frame] if name == "idle" else 1
             frames.append(f'{{"duration": {duration}.0, "texture": SubResource("{key}")}}')
         animations.append('{"frames": [' + ", ".join(frames) +
-                          f'], "loop": {str(name == "idle").lower()}, "name": &"{name}", "speed": 5.0}}')
+                          f'], "loop": {str(name == "idle").lower()}, "name": &"{name}", "speed": 8.0}}')
     write_png(ROOT / "assets/player/rebecca.png", width, CELL * 2, sheet)
     resource.append("[resource]\nanimations = [" + ",\n".join(animations) + "]")
     (ROOT / "resources/visuals/rebecca_frames.tres").write_text("\n\n".join(resource) + "\n", encoding="utf-8")
