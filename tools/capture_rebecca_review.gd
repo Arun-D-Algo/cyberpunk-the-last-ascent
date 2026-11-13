@@ -22,6 +22,11 @@ func _run() -> void:
 	sprite.play(&"idle")
 	await create_timer(0.5).timeout
 	assert(sprite.is_playing() and sprite.frame > 0)
+	var original := Image.load_from_file(OUT + "original_neutral.png")
+	assert(original.get_size() == SIZE)
+	_strip("before_after", [original, idle[0]])
+	_save_pair("face_detail", idle[0].get_region(Rect2i(10, 8, 20, 13)))
+	_save_pair("hands_detail", idle[0].get_region(Rect2i(8, 21, 25, 11)))
 	_strip("standing", [idle[0]])
 	_strip("facing", [_key(REBECCA, &"left", 0), idle[0]])
 	_strip("idle", idle)

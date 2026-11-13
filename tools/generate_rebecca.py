@@ -10,27 +10,53 @@ PALETTE = {
     "j": "22263e", "J": "383e5b", "k": "4d566e", "g": "9aa361",
 }
 HEAD = [
-    "..ooo.oooooo...oo.", ".oMmoomMMMMMoooMmo", ".omooMMMMMMMMoommo",
-    ".omohMMMMMpphommo", ".omhMMMppppPphmmo.",
-    ".omhMMpopoepPommo.", ".omhMsppeppPPommo.",
-    ".omohspPpspPPommo.", ".ohmoopPpoppohmho.",
-    ".ohmooosppoo.omho.", "..oo...oRro..ooo..",
+    "..ooo.oooooo...oo.",
+    ".oMmoomMMMMMo.oMmo",
+    ".omooMMMMMMMMoommo",
+    ".omohMMMpppMhommho",
+    ".omhMMpsppPshommho",
+    ".omhMpojspojpommho",
+    ".omhMpsesppesommho",
+    ".omohsppppspoommho",
+    ".ohmoosppspooohmho",
+    ".ohmo.oospo...omho",
+    "..oo...oRro....ooo",
 ]
 COAT = [
-    "...ooJo....oJoo...", "..oJkooRRrooJJo..",
-    ".oJkJJoRRpoJJJJo.", "oJkJJJoPpoJJJJJJo",
-    "oJJJJJjoojJJJkJJo", "oJkJJjoJJjoJJkJJo",
-    "oJkJJjoJJJojJJJjo", "oJJJjoJJJJoJJJJjo",
-    "ojJJjoJJkJojJJjjo", ".oggooJkJJjoggoo.",
-    ".oBRbojjJJooRrro.", ".obBbooggggoRrro.",
-    "..ooo.ooooo.ooo..",
+    "..ooo....ooo..",
+    ".oJkoRrooJko.",
+    "oJkJospokJJJo",
+    "oJkJjojoJJJJo",
+    "ojJJJkoJkJJjo",
+    ".oJJJkoJJJjo.",
+    ".ojJJjoJJjo..",
+    "..oJJkoJJjo..",
+    "..ojJJojjjo..",
+    ".ogggjjjggo..",
+    "..oooooooo...",
+]
+SLEEVE = [
+    "..oo..", ".okJo.", "okJJJo", "oJJJjo", ".oJJjo",
+    ".ojjo.", "..ogo.", "..ojo.",
+]
+FIST = [
+    "..ooo..", ".okBkoo", "oBBkBbo", "oBbBbbo", "obobobo", ".obboo.", "..ooo..",
 ]
 LEGS = [
-    ".opppo..opspo.", ".oppPo..oppPo.", ".opRPo..oppPo.",
-    ".opspo..opsPo.", ".oppo....oppo.", ".oppo....oppo.",
-    ".opso....opso.", ".oggo....oggo.", ".oJjoo...oJjoo",
-    "oJJjko..oJJjko", "ogkkgo..ogkkgo", ".oooo....oooo.",
+    ".osppo.ospso.", ".ospPo.osppo.", ".osRPo.osppo.",
+    ".osppo.osppo.", "..ospo.ospso.", "..ospo.ospso.",
+    "..ospo.osppo.", "..oggo.oggo.", ".oJjko.oJjko.",
+    "oJJjko.oJJjko", "ogkkgo.ogkkgo", ".oooo...oooo.",
 ]
+
+def mirrored(rows):
+    width = max(map(len, rows))
+    return [row.ljust(width, ".")[::-1] for row in rows]
+
+def fist(cell, x, y, warm=False):
+    rows = [row.translate(str.maketrans("Bb", "Rr")) for row in FIST] if warm else FIST
+    draw(cell, x, y, rows)
+
 
 def draw(cell, x, y, rows):
     for dy, row in enumerate(rows):
@@ -44,26 +70,31 @@ def draw(cell, x, y, rows):
 def pose(name, frame):
     cell = bytearray(CELL * CELL * 4)
     lift = int(name == "idle" and frame in (1, 2))
-    draw(cell, 13, 26, LEGS)
-    coat = COAT.copy()
-    if name == "confident":
-        for row in range(6, len(coat)):
-            coat[row] = coat[row][:12]
-    if name == "annoyed":
-        coat[10:] = ["....ojjjJJoo.....", "....ooggggo......", ".....ooooo......."]
-    draw(cell, 11, 17 - lift, coat)
+    draw(cell, 14, 26, LEGS)
+    draw(cell, 14, 18 - lift, COAT)
+    draw(cell, 10, 18 - lift, SLEEVE)
     head = HEAD.copy()
     if name == "confident":
-        head[8] = ".ohmoopPpoPpohmho."
-        draw(cell, 22, 15, [".....oooo", "....oRRro", "...oRrRro", "...oRrroo", "...oorro.", "..oggoo..", ".oJJJo...", "oJkJJo...", "oJJjoo..."])
-    if name == "annoyed":
-        head[5] = ".omhMopopeoPPommo."
-        head[8] = ".ohmoopPooppohmho."
-        draw(cell, 12, 22, ["..ooooooo.....", ".oJkJJJJJoooo.", "oJJJJBBooRRro.", "ojJJJbboRRrroo", ".ooooooJjoooo.", "......oooo...."])
-        draw(cell, 16, 25, ["oBbo", "obBo", ".oo."])
+        head[8] = ".ohmoosppkpoo" + head[8][13:]
+        draw(cell, 25, 20, ["..ogo.", ".oJko.", ".oJJJo", "oJkJjo", "ojJJoo", ".ooo.."])
+        fist(cell, 9, 24)
+    elif name == "annoyed":
+        head[5] = ".omhMpsjopojp" + head[5][13:]
+        head[8] = ".ohmoospkppoo" + head[8][13:]
+        draw(cell, 24, 18, mirrored(SLEEVE[:6]))
+        draw(cell, 13, 23, ["ooooooo...", "ojJJJkJoo.", "oJJkkJJJJo", ".oooooooo."])
+        draw(cell, 19, 24, ["..oooooooo", ".oJJJkJJjo", "oJJJJJJJjo", ".oooooooo."])
+        fist(cell, 12, 24, warm=True)
+        fist(cell, 23, 22)
+    else:
+        draw(cell, 25, 18 - lift, mirrored(SLEEVE))
+        fist(cell, 9, 24 - lift)
+        fist(cell, 25, 24 - lift, warm=True)
     if frame == 2 and name == "idle":
-        head[9] = ".ohmooosppoo.ohho."
-    draw(cell, 11 + int(name == "confident"), 9 - lift, head)
+        head[9] = head[9][:13] + ".ohho"
+    draw(cell, 11, 9 - lift, head)
+    if name == "confident":
+        fist(cell, 26, 14, warm=True)
     if name == "left":
         for y in range(CELL):
             start = y * CELL * 4

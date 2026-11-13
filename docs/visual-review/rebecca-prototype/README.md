@@ -2,12 +2,15 @@
 
 Original indexed pixel clusters based on the three supplied images. The anime close-up shows the pale face, warm eyes and pink neck marking. The Kotobukiya illustration and character model sheet show the mint twin tails with dark ties, oversized navy jacket, blue and pink cyberhands, thigh stripe and olive-trimmed boots.
 
-Rebecca uses a 120×80 RGBA atlas with six 40×40 cells. Neutral stands 29 pixels tall beside David's 33-pixel neutral key. Both use one source pixel per logical pixel and feet on row 37, with an anchor at (20, 38). The left key mirrors the neutral right key, so the glove colors and thigh stripe swap on screen. Facial details are compressed to a few clusters at native scale.
+Rebecca uses a 120×80 RGBA atlas with six 40×40 cells. Neutral stands 29 pixels tall beside David's 33-pixel neutral key. Both use one source pixel per logical pixel and feet on row 37, with an anchor at (20, 38). The left key mirrors the neutral right key, so the glove colors and thigh stripe swap on screen. The corrected face uses shaded temples, a compact jaw, dark eyelids, recessed warm irises and a low-contrast mouth. At native scale those features read as a few clusters. The tapered jacket sits above a narrower stance. Both oversized cybernetic fists have plated knuckles, dark joint gaps and slim cuff connections.
 
 The top row is the right-facing idle. It holds the neutral key for 400 ms, then plays two one-pixel upper-body and hair shifts for 200 ms each. The soles stay planted. The bottom row is neutral left, confident with a raised hand, and annoyed with folded arms.
 
 | Preview | Native | 4× nearest |
 | --- | --- | --- |
+| Original left, corrected right | [1×](before_after_native.png) | [4×](before_after_4x.png) |
+| Face close-up | [1×](face_detail_native.png) | [4×](face_detail_4x.png) |
+| Fist close-up | [1×](hands_detail_native.png) | [4×](hands_detail_4x.png) |
 | Neutral | [1×](standing_native.png) | [4×](standing_4x.png) |
 | Left and right | [1×](facing_native.png) | [4×](facing_4x.png) |
 | Idle keys | [1×](idle_native.png) | [4×](idle_4x.png) |
